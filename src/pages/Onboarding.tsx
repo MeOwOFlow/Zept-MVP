@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../stores/userStore';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
+import { DatePicker } from '../components/DatePicker';
 import '../styles/onboarding.css';
+import '../styles/datepicker.css';
 
 const DISTRACTION_PRESETS = ['手机', '社交媒体', '游戏', '噪音', '疲劳', '焦虑'];
 
@@ -60,13 +62,10 @@ export default function Onboarding() {
       </Card>
 
       <Card>
-        <label className="zept-onboarding__label" htmlFor="zept-exam-date">你的考试日期是</label>
-        <input
-          id="zept-exam-date"
-          className="zept-onboarding__input"
-          type="date"
+        <DatePicker
+          label="你的考试日期是"
           value={examDate}
-          onChange={(e) => setExamDate(e.target.value)}
+          onChange={setExamDate}
         />
       </Card>
 

@@ -11,6 +11,21 @@ vi.mock('../../src/stores/userStore', () => ({
     selector({ setProfile: setProfileMock }),
 }));
 
+// mock DatePicker：内部行为由 DatePicker.test.tsx 覆盖，这里只测表单流程
+vi.mock('../../src/components/DatePicker', () => ({
+  DatePicker: ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
+    <div>
+      <label>{label}</label>
+      <input
+        type="date"
+        aria-label={label}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+  ),
+}));
+
 import Onboarding from '../../src/pages/Onboarding';
 
 beforeEach(() => {
@@ -36,7 +51,7 @@ describe('Onboarding', () => {
     render(<Onboarding />);
     await user.type(screen.getByPlaceholderText(/考研/), '考研');
     await user.type(screen.getByLabelText('你的考试日期是'), '2026-12-21');
-    await user.click(screen.getByText('开始专注'));
+    await user.click(screen.getByRole('button', { name: '开始专注' }));
     expect(setProfileMock).toHaveBeenCalledWith(
       expect.objectContaining({ goal: '考研', examDate: '2026-12-21', onboarded: true }),
     );
