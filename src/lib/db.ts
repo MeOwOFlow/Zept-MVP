@@ -1,0 +1,97 @@
+import Dexie, { type Table } from 'dexie';
+import type { SessionRecord, Insight, UserProfile } from '../types';
+
+const SINGLETON_KEY = 'local';
+
+class ZeptDB extends Dexie {
+  sessions!: Table<SessionRecord, string>;
+  insights!: Table<Insight, string>;
+  profiles!: Table<UserProfile & { id: string }, string>;
+
+  constructor() {
+    super('zept-db');
+    this.version(1).stores({
+      sessions: 'id, startedAt, status',
+      insights: 'id, sessionId, createdAt, feedback',
+      profiles: 'id',
+    });
+  }
+}
+
+export const db = new ZeptDB();
+
+// ---------- Sessions ----------
+
+export async function saveSession(session: SessionRecord): Promise<void> {
+  await db.sessions.put(session);
+}
+
+export async function getSession(id: string): Promise<SessionRecord | undefined> {
+  return db.sessions.get(id);
+}
+
+export async function getRecentSessions(n: number): Promise<SessionRecord[]> {
+  return db.sessions.orderBy('startedAt').reverse().limit(n).toArray();
+}
+
+export async function getAllSessions(): Promise<SessionRecord[]> {
+  return db.sessions.toArray();
+}
+
+// ---------- Insights ----------
+
+export async function saveInsight(insight: Insight): Promise<void> {
+  await db.insights.put(insight);
+}
+
+export async function getInsight(id: string): Promise<Insight | undefined> {
+  return db.insights.get(id);
+}
+
+export async function getAllInsights(): Promise<Insight[]> {
+  return db.insights.toArray();
+}
+
+export async function getUsefulInsights(n: number): Promise<Insight[]> {
+  const all = await db.insights.toArray();
+  return all
+    .filter((i) => i.feedback === 'useful')
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .slice(0, n);
+}
+
+export async function updateInsightFeedback(id: string, feedback: 'useful' | 'useless'): Promise<void> {
+  await db.insights.update(id, { feedback });
+}
+
+// ---------- User ----------
+
+export async function saveUser(user: UserProfile): Promise<void> {
+  await db.profiles.put({ ...user, id: SINGLETON_KEY });
+}
+
+export async function getUser(): Promise<UserProfile | undefined> {
+  const row = await db.profiles.get(SINGLETON_KEY);
+  if (!row) return undefined;
+  const { id: _id, ...rest } = row;
+  return rest;
+}
+
+// ---------- Maintenance ----------
+
+export async function clearAll(): Promise<void> {
+  await Promise.all([db.sessions.clear(), db.insights.clear(), db.profiles.clear()]);
+}
+
+export async function exportAll(): Promise<{
+  sessions: SessionRecord[];
+  insights: Insight[];
+  user?: UserProfile;
+}> {
+  const [sessions, insights, user] = await Promise.all([
+    db.sessions.toArray(),
+    db.insights.toArray(),
+    getUser(),
+  ]);
+  return { sessions, insights, user };
+}

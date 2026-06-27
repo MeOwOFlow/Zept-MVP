@@ -1,0 +1,82 @@
+:root {
+  /* ---------- Color ---------- */
+  --bg: #0e1014;
+  --surface: #1a1d23;
+  --surface-1: #1b1f28;
+  --surface-2: #232834;
+  --surface-3: #2c3240;
+  --surface-variant: #252a32;
+  --primary: #f0b862;
+  --on-primary: #1a1300;
+  --primary-container: #4a3818;
+  --on-primary-container: #fbe3b0;
+  --secondary: #9db6dd;
+  --on-secondary: #0e1b33;
+  --secondary-container: #293654;
+  --on-secondary-container: #d4e1fa;
+  --tertiary: #ea9e8e;
+  --on-tertiary: #3a1712;
+  --tertiary-container: #4d2620;
+  --on-tertiary-container: #fcd4c8;
+  --error: #f2b4ad;
+  --outline: #41474f;
+  --outline-variant: #2b3140;
+  --on-surface: #e3e2e6;
+  --on-surface-variant: #c4c6cf;
+  --on-surface-muted: #8b909a;
+
+  /* ---------- Typography ---------- */
+  --font-display: 'Google Sans Flex', 'Noto Sans SC', system-ui, sans-serif;
+  --font-body: 'Google Sans Flex', 'Noto Sans SC', system-ui, sans-serif;
+  --fs-display-lg: 57px;
+  --fs-display-md: 45px;
+  --fs-headline-lg: 32px;
+  --fs-headline-md: 28px;
+  --fs-title-lg: 22px;
+  --fs-title-md: 16px;
+  --fs-body-lg: 16px;
+  --fs-body-md: 14px;
+  --fs-label-lg: 14px;
+  --fs-label-md: 12px;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-bold: 700;
+
+  --lh-tight: 1.1;
+  --lh-normal: 1.4;
+
+  /* ---------- Spacing (4px base) ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+
+  /* ---------- Radius ---------- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* ---------- Easing ---------- */
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --easing-emphasized: cubic-bezier(0.3, 0, 0, 1);
+  --easing-decelerated: cubic-bezier(0, 0, 0, 1);
+  --duration-short: 150ms;
+  --duration-medium: 250ms;
+  --duration-long: 400ms;
+
+  /* ---------- Elevation ---------- */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+  --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 6px 2px rgba(0, 0, 0, 0.15);
+  --shadow-3: 0 4px 8px 3px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
+
+  /* ---------- State layer opacity ---------- */
+  --state-hover: 0.08;
+  --state-focus: 0.12;
+  --state-pressed: 0.12;
+}
