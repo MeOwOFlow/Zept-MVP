@@ -21,7 +21,6 @@ interface SessionStore {
 
 function statusForMode(mode: PomodoroState['mode']): SessionStatus {
   if (mode === 'work') return 'focusing';
-  if (mode === 'long_break') return 'long_break';
   return 'break';
 }
 

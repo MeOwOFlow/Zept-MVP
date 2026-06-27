@@ -4,7 +4,6 @@ export type SessionStatus =
   | 'focusing'
   | 'paused'
   | 'break'
-  | 'long_break'
   | 'completed'
   | 'abandoned';
 
@@ -61,10 +60,8 @@ export interface SessionRecord {
 
 // 番茄状态机
 export interface PomodoroState {
-  mode: 'work' | 'short_break' | 'long_break';
+  mode: 'work' | 'short_break';
   cyclesCompleted: number;
   workDurationMin: number;
   shortBreakMin: number;
-  longBreakMin: number;
-  longBreakEvery: number;
 }

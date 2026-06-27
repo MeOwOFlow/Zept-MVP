@@ -56,7 +56,7 @@ describe('App routing', () => {
   it('已 onboarded 时 / 重定向到 /session', async () => {
     profileMock.current = {
       goal: '考研', examDate: '2026-12-21', topDistractions: [], onboarded: true,
-      pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5, longBreakMin: 15, longBreakEvery: 4 },
+      pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5 },
       theme: 'auto',
     };
     renderAt('/');

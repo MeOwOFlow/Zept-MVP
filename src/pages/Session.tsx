@@ -19,19 +19,14 @@ const WORK_MIN = 1, WORK_MAX = 180;
 const BREAK_MIN = 1, BREAK_MAX = 60;
 
 const POMODORO_PRESETS: Array<{ id: string; label: string; sub: string; config: PomodoroConfig }> = [
-  { id: 'classic', label: '经典', sub: '25/5/15', config: { workDurationMin: 25, shortBreakMin: 5, longBreakMin: 15, longBreakEvery: 4 } },
-  { id: 'deep', label: '深度', sub: '50/10/20', config: { workDurationMin: 50, shortBreakMin: 10, longBreakMin: 20, longBreakEvery: 4 } },
-  { id: 'sprint', label: '冲刺', sub: '90/15/30', config: { workDurationMin: 90, shortBreakMin: 15, longBreakMin: 30, longBreakEvery: 3 } },
+  { id: 'classic', label: '经典', sub: '25/5', config: { workDurationMin: 25, shortBreakMin: 5 } },
+  { id: 'deep', label: '深度', sub: '50/10', config: { workDurationMin: 50, shortBreakMin: 10 } },
+  { id: 'sprint', label: '冲刺', sub: '90/15', config: { workDurationMin: 90, shortBreakMin: 15 } },
 ];
-
-const LONG_BREAK_CYCLES = [2, 3, 4, 5, 6];
 
 interface DraftConfig {
   workDurationMin?: number;
   shortBreakMin?: number;
-  longBreakMin?: number;
-  longBreakEvery?: number;
-  longBreakEnabled?: boolean;
 }
 
 // Stepper: [-] [N 分钟] [+]
@@ -115,17 +110,11 @@ export default function Session() {
       setDraft({
         workDurationMin: c.workDurationMin,
         shortBreakMin: c.shortBreakMin,
-        longBreakMin: c.longBreakMin,
-        longBreakEvery: c.longBreakEvery,
-        longBreakEnabled: c.longBreakEvery > 0,
       });
     } else {
       setDraft({
         workDurationMin: 25,
         shortBreakMin: 5,
-        longBreakMin: 15,
-        longBreakEvery: 4,
-        longBreakEnabled: true,
       });
     }
   }, [profile]);
@@ -140,11 +129,8 @@ export default function Session() {
   const isValid = (v: number | undefined, min: number, max: number): v is number =>
     v !== undefined && v >= min && v <= max && Number.isInteger(v);
 
-  const longBreakOn = draft.longBreakEnabled ?? false;
   const allSet = isValid(draft.workDurationMin, WORK_MIN, WORK_MAX)
-    && isValid(draft.shortBreakMin, BREAK_MIN, BREAK_MAX)
-    && (!longBreakOn || isValid(draft.longBreakMin, BREAK_MIN, BREAK_MAX))
-    && (!longBreakOn || draft.longBreakEvery !== undefined);
+    && isValid(draft.shortBreakMin, BREAK_MIN, BREAK_MAX);
 
   const updateDraft = (patch: Partial<DraftConfig>) => {
     setDraft((prev) => ({ ...prev, ...patch }));
@@ -154,18 +140,7 @@ export default function Session() {
     setDraft({
       workDurationMin: config.workDurationMin,
       shortBreakMin: config.shortBreakMin,
-      longBreakMin: config.longBreakMin,
-      longBreakEvery: config.longBreakEvery,
-      longBreakEnabled: config.longBreakEvery > 0,
     });
-  };
-
-  const toggleLongBreak = (on: boolean) => {
-    if (on) {
-      updateDraft({ longBreakEnabled: true, longBreakEvery: draft.longBreakEvery ?? 4, longBreakMin: draft.longBreakMin ?? 15 });
-    } else {
-      updateDraft({ longBreakEnabled: false });
-    }
   };
 
   const handleStart = async () => {
@@ -175,15 +150,11 @@ export default function Session() {
       const config: PomodoroConfig = {
         workDurationMin: draft.workDurationMin!,
         shortBreakMin: draft.shortBreakMin!,
-        longBreakMin: longBreakOn ? draft.longBreakMin! : 0,
-        longBreakEvery: longBreakOn ? draft.longBreakEvery! : 0,
       };
       const current = profile.pomodoroConfig;
       const sameConfig = current
         && current.workDurationMin === config.workDurationMin
-        && current.shortBreakMin === config.shortBreakMin
-        && current.longBreakMin === config.longBreakMin
-        && current.longBreakEvery === config.longBreakEvery;
+        && current.shortBreakMin === config.shortBreakMin;
       if (!sameConfig) {
         const updated = { ...profile, pomodoroConfig: config };
         await setProfile(updated);
@@ -234,14 +205,13 @@ export default function Session() {
   const countdown = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   const totalSec = pomodoroState
     ? pomodoroState.mode === 'work' ? pomodoroState.workDurationMin * 60
-      : pomodoroState.mode === 'short_break' ? pomodoroState.shortBreakMin * 60
-      : pomodoroState.longBreakMin * 60
+      : pomodoroState.shortBreakMin * 60
     : 0;
   const progress = totalSec > 0 ? 1 - remainingSec / totalSec : 0;
   const R = 120;
   const circumference = 2 * Math.PI * R;
   const dashOffset = circumference * (1 - progress);
-  const modeLabel = pomodoroState?.mode === 'work' ? '专注中' : pomodoroState?.mode === 'short_break' ? '短休息' : '长休息';
+  const modeLabel = pomodoroState?.mode === 'work' ? '专注中' : '休息中';
 
   return (
     <div className="zept-session">
@@ -275,8 +245,6 @@ export default function Session() {
                     className={`zept-preset-tile ${
                       draft.workDurationMin === p.config.workDurationMin
                       && draft.shortBreakMin === p.config.shortBreakMin
-                      && draft.longBreakMin === p.config.longBreakMin
-                      && draft.longBreakEvery === p.config.longBreakEvery
                         ? 'zept-preset-tile--active' : ''
                     }`}
                     onClick={() => applyPreset(p.config)}
@@ -307,49 +275,6 @@ export default function Session() {
                   ariaLabel="短休时长"
                 />
               </div>
-
-              <div className="zept-stepper-row">
-                <span className="zept-stepper-row__label">长休</span>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={longBreakOn}
-                  aria-label="长休"
-                  className={`zept-switch ${longBreakOn ? 'zept-switch--on' : ''}`}
-                  onClick={() => toggleLongBreak(!longBreakOn)}
-                >
-                  <span className="zept-switch__thumb" />
-                </button>
-              </div>
-
-              {longBreakOn && (
-                <>
-                  <div className="zept-stepper-row zept-stepper-row--indented">
-                    <span className="zept-stepper-row__label">时长</span>
-                    <Stepper
-                      value={draft.longBreakMin}
-                      onChange={(v) => updateDraft({ longBreakMin: v })}
-                      min={BREAK_MIN} max={BREAK_MAX}
-                      ariaLabel="长休时长"
-                    />
-                  </div>
-                  <div className="zept-stepper-row zept-stepper-row--indented">
-                    <span className="zept-stepper-row__label">间隔</span>
-                    <div className="zept-session__cycles">
-                      {LONG_BREAK_CYCLES.map((n) => (
-                        <button
-                          key={n}
-                          type="button"
-                          className={`zept-chip zept-chip--sm ${draft.longBreakEvery === n ? 'zept-chip--active' : ''}`}
-                          onClick={() => updateDraft({ longBreakEvery: n })}
-                        >
-                          每 {n} 轮
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
             </div>
           )}
 

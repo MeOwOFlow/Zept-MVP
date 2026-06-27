@@ -10,7 +10,7 @@ const setProfileMock = vi.hoisted(() => vi.fn(async () => undefined));
 
 const CONFIGURED_PROFILE: UserProfile = {
   goal: '考研', examDate: '2026-12-21', topDistractions: ['手机'], onboarded: true,
-  pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5, longBreakMin: 15, longBreakEvery: 4 },
+  pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5 },
   theme: 'auto',
 };
 
@@ -75,17 +75,11 @@ describe('Session - 已配置用户', () => {
     render(<Session />);
     expect(screen.getByText('番茄模式')).toBeInTheDocument();
     expect(screen.getByText('自由模式')).toBeInTheDocument();
-    // 三个预设 tile
-    expect(screen.getByRole('button', { name: '经典 25/5/15' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '深度 50/10/20' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '冲刺 90/15/30' })).toBeInTheDocument();
-    // stepper 输入框显示上次值
+    expect(screen.getByRole('button', { name: '经典 25/5' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '深度 50/10' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '冲刺 90/15' })).toBeInTheDocument();
     expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(25);
     expect(screen.getByRole('spinbutton', { name: '短休时长' })).toHaveValue(5);
-    expect(screen.getByRole('spinbutton', { name: '长休时长' })).toHaveValue(15);
-    // 长休开关打开
-    expect(screen.getByRole('switch', { name: '长休' })).toHaveAttribute('aria-checked', 'true');
-    // 按钮启用
     expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
   });
 
@@ -121,23 +115,20 @@ describe('Session - 未配置用户', () => {
     profileMock.current = UNCONFIGURED_PROFILE;
   });
 
-  it('stepper 显示默认值，长休默认开，按钮启用', () => {
+  it('stepper 显示默认值，按钮启用', () => {
     render(<Session />);
     expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(25);
     expect(screen.getByRole('spinbutton', { name: '短休时长' })).toHaveValue(5);
-    expect(screen.getByRole('spinbutton', { name: '长休时长' })).toHaveValue(15);
-    expect(screen.getByRole('switch', { name: '长休' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
   });
 
   it('点击预设 tile 切换配置', async () => {
     const user = userEvent.setup();
     render(<Session />);
-    await user.click(screen.getByRole('button', { name: '深度 50/10/20' }));
+    await user.click(screen.getByRole('button', { name: '深度 50/10' }));
     await waitFor(() => {
       expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(50);
       expect(screen.getByRole('spinbutton', { name: '短休时长' })).toHaveValue(10);
-      expect(screen.getByRole('spinbutton', { name: '长休时长' })).toHaveValue(20);
     });
     expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
   });
@@ -146,30 +137,8 @@ describe('Session - 未配置用户', () => {
     const user = userEvent.setup();
     render(<Session />);
     expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
-    // 直接点 + 按钮调整
     await user.click(screen.getByRole('button', { name: '专注时长 增加' }));
     expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(26);
     expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
-  });
-
-  it('关闭长休后 stepper 消失，按钮仍启用', async () => {
-    const user = userEvent.setup();
-    render(<Session />);
-    // 长休默认开
-    expect(screen.getByRole('spinbutton', { name: '长休时长' })).toBeInTheDocument();
-    await user.click(screen.getByRole('switch', { name: '长休' }));
-    expect(screen.getByRole('switch', { name: '长休' })).toHaveAttribute('aria-checked', 'false');
-    expect(screen.queryByRole('spinbutton', { name: '长休时长' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
-  });
-
-  it('重新打开长休后恢复默认值', async () => {
-    const user = userEvent.setup();
-    render(<Session />);
-    await user.click(screen.getByRole('switch', { name: '长休' }));
-    expect(screen.queryByRole('spinbutton', { name: '长休时长' })).not.toBeInTheDocument();
-    await user.click(screen.getByRole('switch', { name: '长休' }));
-    expect(screen.getByRole('spinbutton', { name: '长休时长' })).toHaveValue(15);
-    expect(screen.getByRole('button', { name: '每 4 轮' })).toHaveClass('zept-chip--active');
   });
 });

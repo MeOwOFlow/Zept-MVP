@@ -11,7 +11,7 @@ import type {
 } from '../../src/types/session';
 
 expectTypeOf<SessionStatus>().toEqualTypeOf<
-  'planned' | 'focusing' | 'paused' | 'break' | 'long_break' | 'completed' | 'abandoned'
+  'planned' | 'focusing' | 'paused' | 'break' | 'completed' | 'abandoned'
 >();
 
 expectTypeOf<SelfAssessment>().toMatchTypeOf<{ mood: 1 | 2 | 3 | 4 | 5; focus: 1 | 2 | 3 | 4 | 5 }>();
@@ -52,10 +52,8 @@ expectTypeOf<SessionRecord>().toMatchTypeOf<{
 }>();
 
 expectTypeOf<PomodoroState>().toMatchTypeOf<{
-  mode: 'work' | 'short_break' | 'long_break';
+  mode: 'work' | 'short_break';
   cyclesCompleted: number;
   workDurationMin: number;
   shortBreakMin: number;
-  longBreakMin: number;
-  longBreakEvery: number;
 }>();
