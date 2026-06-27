@@ -7,6 +7,7 @@ const clearAllMock = vi.hoisted(() => vi.fn(async () => undefined));
 const mockNavigate = vi.hoisted(() => vi.fn());
 const setProfileMock = vi.hoisted(() => vi.fn(async (_p: any) => undefined));
 const loadProfileMock = vi.hoisted(() => vi.fn(async () => undefined));
+const setThemeMock = vi.hoisted(() => vi.fn(async () => undefined));
 
 const DEFAULT_PROFILE = {
   goal: '考研',
@@ -14,6 +15,7 @@ const DEFAULT_PROFILE = {
   topDistractions: ['手机'],
   onboarded: true,
   pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5, longBreakMin: 15, longBreakEvery: 4 },
+  theme: 'auto' as const,
 };
 
 vi.mock('react-router-dom', () => ({ useNavigate: () => mockNavigate }));
@@ -26,11 +28,13 @@ vi.mock('../../src/stores/userStore', () => ({
     profile: typeof DEFAULT_PROFILE | null;
     setProfile: typeof setProfileMock;
     loadProfile: typeof loadProfileMock;
+    setTheme: typeof setThemeMock;
   }) => unknown) =>
     selector({
       profile: DEFAULT_PROFILE,
       setProfile: setProfileMock,
       loadProfile: loadProfileMock,
+      setTheme: setThemeMock,
     }),
 }));
 
@@ -42,11 +46,14 @@ beforeEach(() => {
   mockNavigate.mockClear();
   setProfileMock.mockClear();
   loadProfileMock.mockClear();
+  setThemeMock.mockClear();
 });
 
 describe('Settings - 渲染', () => {
   it('渲染番茄配置区与数据区', () => {
     render(<Settings />);
+    expect(screen.getByText('外观')).toBeInTheDocument();
+    expect(screen.getByText('主题')).toBeInTheDocument();
     expect(screen.getByText('番茄设置')).toBeInTheDocument();
     expect(screen.getByText('专注时长')).toBeInTheDocument();
     expect(screen.getByText('短休时长')).toBeInTheDocument();
@@ -65,6 +72,35 @@ describe('Settings - 渲染', () => {
     const longBreakField = screen.getByText('长休时长').closest('.zept-settings__field') as HTMLElement;
     expect(within(longBreakField).getByRole('button', { name: '15 分钟' })).toHaveClass('zept-chip--active');
     expect(screen.getByRole('button', { name: '每 4 轮' })).toHaveClass('zept-chip--active');
+  });
+
+  it('主题默认选中"跟随系统"', () => {
+    render(<Settings />);
+    expect(screen.getByRole('button', { name: '跟随系统' })).toHaveClass('zept-chip--active');
+  });
+});
+
+describe('Settings - 主题切换', () => {
+  it('点击"日间"调用 setTheme(light)', async () => {
+    const user = userEvent.setup();
+    render(<Settings />);
+    await user.click(screen.getByRole('button', { name: '日间' }));
+    expect(setThemeMock).toHaveBeenCalledTimes(1);
+    expect(setThemeMock).toHaveBeenCalledWith('light');
+  });
+
+  it('点击"夜间"调用 setTheme(dark)', async () => {
+    const user = userEvent.setup();
+    render(<Settings />);
+    await user.click(screen.getByRole('button', { name: '夜间' }));
+    expect(setThemeMock).toHaveBeenCalledWith('dark');
+  });
+
+  it('点击"跟随系统"调用 setTheme(auto)', async () => {
+    const user = userEvent.setup();
+    render(<Settings />);
+    await user.click(screen.getByRole('button', { name: '跟随系统' }));
+    expect(setThemeMock).toHaveBeenCalledWith('auto');
   });
 });
 

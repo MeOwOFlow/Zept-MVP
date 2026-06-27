@@ -12,10 +12,15 @@ export const DEFAULT_POMODORO_CONFIG: PomodoroConfig = {
   longBreakEvery: 4,
 };
 
+export type ThemeMode = 'auto' | 'light' | 'dark';
+
+export const DEFAULT_THEME: ThemeMode = 'auto';
+
 export interface UserProfile {
   goal: string;
   examDate: string;  // ISO YYYY-MM-DD
   topDistractions: string[];
   onboarded: boolean;
   pomodoroConfig: PomodoroConfig;
+  theme: ThemeMode;
 }

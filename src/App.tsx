@@ -44,6 +44,8 @@ export default function App() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    // 首屏先以 auto 应用主题，避免 profile 加载前出现深色 FOUC
+    document.documentElement.setAttribute('data-theme', 'auto');
     loadProfile().finally(() => setReady(true));
   }, [loadProfile]);
 

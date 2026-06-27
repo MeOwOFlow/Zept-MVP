@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { exportAll, clearAll } from '../lib/db';
 import { useUserStore } from '../stores/userStore';
-import { DEFAULT_POMODORO_CONFIG, type PomodoroConfig } from '../types/user';
+import { DEFAULT_POMODORO_CONFIG, type PomodoroConfig, type ThemeMode } from '../types/user';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import '../styles/settings.css';
@@ -10,6 +10,11 @@ import '../styles/settings.css';
 const WORK_OPTIONS = [15, 20, 25, 30, 45, 50, 60, 90];
 const SHORT_BREAK_OPTIONS = [3, 5, 10, 15];
 const LONG_BREAK_OPTIONS = [10, 15, 20, 30];
+const THEME_OPTIONS: Array<{ value: ThemeMode; label: string }> = [
+  { value: 'auto', label: '跟随系统' },
+  { value: 'light', label: '日间' },
+  { value: 'dark', label: '夜间' },
+];
 const LONG_BREAK_EVERY_OPTIONS = [
   { value: 0, label: '关闭长休' },
   { value: 2, label: '每 2 轮' },
@@ -24,6 +29,7 @@ export default function Settings() {
   const profile = useUserStore((s) => s.profile);
   const setProfile = useUserStore((s) => s.setProfile);
   const loadProfile = useUserStore((s) => s.loadProfile);
+  const setTheme = useUserStore((s) => s.setTheme);
   const [confirming, setConfirming] = useState(false);
   const [config, setConfig] = useState<PomodoroConfig>(DEFAULT_POMODORO_CONFIG);
 
@@ -65,6 +71,25 @@ export default function Settings() {
   return (
     <div className="zept-settings">
       <h1 className="zept-settings__title">设置</h1>
+
+      <Card>
+        <h2 className="zept-settings__section">外观</h2>
+        <div className="zept-settings__field">
+          <label className="zept-settings__field-label">主题</label>
+          <div className="zept-settings__chips">
+            {THEME_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                className={`zept-chip ${(profile?.theme ?? 'auto') === opt.value ? 'zept-chip--active' : ''}`}
+                onClick={() => setTheme(opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Card>
 
       <Card>
         <h2 className="zept-settings__section">番茄设置</h2>

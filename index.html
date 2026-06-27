@@ -7,6 +7,11 @@
     <title>凝时 Zept</title>
   </head>
   <body>
+    <script>
+      // 在 React 加载前应用主题，避免 FOUC
+      // 默认 auto，profile 加载后由 userStore 覆盖
+      document.documentElement.setAttribute('data-theme', 'auto');
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

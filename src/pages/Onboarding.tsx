@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../stores/userStore';
-import { DEFAULT_POMODORO_CONFIG } from '../types/user';
+import { DEFAULT_POMODORO_CONFIG, DEFAULT_THEME } from '../types/user';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { DatePicker } from '../components/DatePicker';
@@ -42,6 +42,7 @@ export default function Onboarding() {
       topDistractions: distractions,
       onboarded: true,
       pomodoroConfig: DEFAULT_POMODORO_CONFIG,
+      theme: DEFAULT_THEME,
     });
     navigate('/session');
   };

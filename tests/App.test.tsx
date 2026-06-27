@@ -57,6 +57,7 @@ describe('App routing', () => {
     profileMock.current = {
       goal: '考研', examDate: '2026-12-21', topDistractions: [], onboarded: true,
       pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5, longBreakMin: 15, longBreakEvery: 4 },
+      theme: 'auto',
     };
     renderAt('/');
     await waitFor(() => {

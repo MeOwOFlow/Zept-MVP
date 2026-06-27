@@ -51,6 +51,7 @@ const mockUser = (): UserProfile => ({
   topDistractions: ['手机', '微信'],
   onboarded: true,
   pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5, longBreakMin: 15, longBreakEvery: 4 },
+  theme: 'auto',
 });
 
 describe('db', () => {
