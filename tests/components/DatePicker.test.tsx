@@ -83,6 +83,48 @@ describe('DatePicker', () => {
     expect(screen.getByRole('button', { name: '下一月' })).toBeInTheDocument();
   });
 
+  it('点击标题进入年份选择，选中后进入月份选择', async () => {
+    const user = userEvent.setup();
+    render(
+      <DatePicker
+        label="考试日期"
+        value="2026-06-27"
+        onChange={() => {}}
+        minDate="2025-01-01"
+        maxDate="2028-12-31"
+      />,
+    );
+    await user.click(screen.getByText('2026年6月27日'));
+    await user.click(screen.getByRole('button', { name: '切换年份/月份选择' }));
+    // 年份列表出现
+    expect(screen.getByRole('option', { name: '2026年' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: '2028年' })).toBeInTheDocument();
+    // 选中年份后进入月份选择
+    await user.click(screen.getByRole('option', { name: '2028年' }));
+    expect(screen.getByRole('option', { name: '12月' })).toBeInTheDocument();
+  });
+
+  it('选择年份→月份→日期后确认', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <DatePicker
+        label="考试日期"
+        value=""
+        onChange={onChange}
+        minDate="2025-01-01"
+        maxDate="2028-12-31"
+      />,
+    );
+    await user.click(screen.getByText('请选择日期'));
+    await user.click(screen.getByRole('button', { name: '切换年份/月份选择' }));
+    await user.click(screen.getByRole('option', { name: '2028年' }));
+    await user.click(screen.getByRole('option', { name: '12月' }));
+    await user.click(screen.getByRole('button', { name: '25' }));
+    await user.click(screen.getByRole('button', { name: '确定' }));
+    expect(onChange).toHaveBeenCalledWith('2028-12-25');
+  });
+
   it('点击遮罩关闭面板且不触发 onChange', async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();

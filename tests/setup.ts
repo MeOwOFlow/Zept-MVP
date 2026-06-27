@@ -13,3 +13,7 @@ if (!Element.prototype.animate) {
     } as unknown as Animation;
   };
 }
+
+if (!Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = () => {};
+}
