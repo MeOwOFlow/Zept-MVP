@@ -15,5 +15,9 @@ export default defineConfig({
     setupFiles: ['./tests/setup.ts'],
     css: true,
     passWithNoTests: true,
+    include: [
+      '**/*.{test,spec}.?(c|m)[jt]s?(x)',
+      'tests/**/*.test-d.ts',
+    ],
   },
 });
