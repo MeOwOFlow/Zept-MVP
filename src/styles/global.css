@@ -97,3 +97,11 @@ img {
     scroll-behavior: auto !important;
   }
 }
+
+.zept-card {
+  background-color: var(--surface);
+  color: var(--on-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  transition: box-shadow var(--duration-short) var(--easing-standard);
+}
