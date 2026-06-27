@@ -121,71 +121,55 @@ describe('Session - 未配置用户', () => {
     profileMock.current = UNCONFIGURED_PROFILE;
   });
 
-  it('stepper 为空，长休默认关，按钮禁用', () => {
+  it('stepper 显示默认值，长休默认开，按钮启用', () => {
     render(<Session />);
-    expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(null);
-    expect(screen.getByRole('spinbutton', { name: '短休时长' })).toHaveValue(null);
-    expect(screen.queryByRole('spinbutton', { name: '长休时长' })).not.toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(25);
+    expect(screen.getByRole('spinbutton', { name: '短休时长' })).toHaveValue(5);
+    expect(screen.getByRole('spinbutton', { name: '长休时长' })).toHaveValue(15);
+    expect(screen.getByRole('switch', { name: '长休' })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
+  });
+
+  it('点击预设 tile 切换配置', async () => {
+    const user = userEvent.setup();
+    render(<Session />);
+    await user.click(screen.getByRole('button', { name: '深度 50/10/20' }));
+    await waitFor(() => {
+      expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(50);
+      expect(screen.getByRole('spinbutton', { name: '短休时长' })).toHaveValue(10);
+      expect(screen.getByRole('spinbutton', { name: '长休时长' })).toHaveValue(20);
+    });
+    expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
+  });
+
+  it('通过 stepper 调整值后按钮仍启用', async () => {
+    const user = userEvent.setup();
+    render(<Session />);
+    expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
+    // 直接点 + 按钮调整
+    await user.click(screen.getByRole('button', { name: '专注时长 增加' }));
+    expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(26);
+    expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
+  });
+
+  it('关闭长休后 stepper 消失，按钮仍启用', async () => {
+    const user = userEvent.setup();
+    render(<Session />);
+    // 长休默认开
+    expect(screen.getByRole('spinbutton', { name: '长休时长' })).toBeInTheDocument();
+    await user.click(screen.getByRole('switch', { name: '长休' }));
     expect(screen.getByRole('switch', { name: '长休' })).toHaveAttribute('aria-checked', 'false');
-    expect(screen.getByRole('button', { name: '开始专注' })).toBeDisabled();
-  });
-
-  it('点击预设 tile 填入全套配置，按钮启用', async () => {
-    const user = userEvent.setup();
-    render(<Session />);
-    await user.click(screen.getByRole('button', { name: '经典 25/5/15' }));
-    await waitFor(() => {
-      expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(25);
-      expect(screen.getByRole('spinbutton', { name: '短休时长' })).toHaveValue(5);
-      expect(screen.getByRole('spinbutton', { name: '长休时长' })).toHaveValue(15);
-    });
-    expect(screen.getByRole('switch', { name: '长休' })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.queryByRole('spinbutton', { name: '长休时长' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
   });
 
-  it('通过 stepper 输入值后按钮启用', async () => {
+  it('重新打开长休后恢复默认值', async () => {
     const user = userEvent.setup();
     render(<Session />);
-    expect(screen.getByRole('button', { name: '开始专注' })).toBeDisabled();
-    const workInput = screen.getByRole('spinbutton', { name: '专注时长' });
-    const shortInput = screen.getByRole('spinbutton', { name: '短休时长' });
-    await user.type(workInput, '35');
-    await user.type(shortInput, '7');
-    // 默认长休关，此时专注+短休填完就够
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
-    });
-  });
-
-  it('打开长休开关后显示长休 stepper，未填时长时按钮禁用', async () => {
-    const user = userEvent.setup();
-    render(<Session />);
-    // 先填专注和短休
-    await user.type(screen.getByRole('spinbutton', { name: '专注时长' }), '25');
-    await user.type(screen.getByRole('spinbutton', { name: '短休时长' }), '5');
-    // 此时长休关，按钮应可用
-    expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
-    // 打开长休开关
-    await user.click(screen.getByRole('switch', { name: '长休' }));
-    expect(screen.getByRole('switch', { name: '长休' })).toHaveAttribute('aria-checked', 'true');
-    // 长休时长和间隔出现，但未填值
-    expect(screen.getByRole('spinbutton', { name: '长休时长' })).toBeInTheDocument();
-    expect(screen.getByRole('spinbutton', { name: '长休时长' })).toHaveValue(15); // 默认 15
-    // 间隔默认 4
-    expect(screen.getByRole('button', { name: '每 4 轮' })).toHaveClass('zept-chip--active');
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
-    });
-  });
-
-  it('关闭长休时长休 stepper 消失', async () => {
-    const user = userEvent.setup();
-    render(<Session />);
-    await user.type(screen.getByRole('spinbutton', { name: '专注时长' }), '25');
-    await user.type(screen.getByRole('spinbutton', { name: '短休时长' }), '5');
-    await user.click(screen.getByRole('switch', { name: '长休' }));
-    expect(screen.getByRole('spinbutton', { name: '长休时长' })).toBeInTheDocument();
     await user.click(screen.getByRole('switch', { name: '长休' }));
     expect(screen.queryByRole('spinbutton', { name: '长休时长' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('switch', { name: '长休' }));
+    expect(screen.getByRole('spinbutton', { name: '长休时长' })).toHaveValue(15);
+    expect(screen.getByRole('button', { name: '每 4 轮' })).toHaveClass('zept-chip--active');
   });
 });

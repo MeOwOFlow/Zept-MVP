@@ -119,6 +119,14 @@ export default function Session() {
         longBreakEvery: c.longBreakEvery,
         longBreakEnabled: c.longBreakEvery > 0,
       });
+    } else {
+      setDraft({
+        workDurationMin: 25,
+        shortBreakMin: 5,
+        longBreakMin: 15,
+        longBreakEvery: 4,
+        longBreakEnabled: true,
+      });
     }
   }, [profile]);
 
