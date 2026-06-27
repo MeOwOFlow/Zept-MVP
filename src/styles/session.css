@@ -1,6 +1,5 @@
 .zept-session {
   padding: var(--space-6);
-  max-width: 480px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -239,4 +238,99 @@
   font-size: var(--fs-body-md);
   color: var(--on-surface-muted);
   margin-bottom: var(--space-3);
+}
+
+/* ---------- 大屏适配 (≥768px) ---------- */
+@media (min-width: 768px) {
+  .zept-session {
+    padding: var(--space-8);
+    gap: var(--space-6);
+  }
+
+  /* idle 状态：标题区 + 配置区 + 按钮 排布更舒展 */
+  .zept-session__title {
+    font-size: var(--fs-headline-md);
+    margin-bottom: var(--space-5);
+  }
+
+  /* 配置区改为两列网格：左列预设，右列 stepper */
+  .zept-session__config {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: var(--space-5);
+    margin-bottom: var(--space-5);
+  }
+
+  .zept-session__presets-row {
+    flex-direction: column;
+    margin-bottom: 0;
+    gap: var(--space-2);
+    grid-row: span 3;
+  }
+
+  .zept-preset-tile {
+    flex: none;
+    padding: var(--space-4) var(--space-3);
+    gap: 4px;
+  }
+
+  .zept-preset-tile__label {
+    font-size: var(--fs-title-lg);
+  }
+
+  .zept-preset-tile__sub {
+    font-size: var(--fs-label-lg);
+  }
+
+  .zept-stepper-row__label {
+    font-size: var(--fs-title-md);
+    min-width: 56px;
+  }
+
+  .zept-stepper__btn {
+    width: 44px;
+    height: 48px;
+    font-size: 24px;
+  }
+
+  .zept-stepper__input {
+    width: 64px;
+    height: 48px;
+    font-size: var(--fs-title-lg);
+  }
+
+  .zept-stepper__unit {
+    font-size: var(--fs-body-lg);
+    padding-right: var(--space-4);
+  }
+
+  /* 计时器放大 */
+  .zept-session__timer {
+    width: 320px;
+    height: 320px;
+  }
+
+  .zept-session__countdown {
+    font-size: 64px;
+  }
+
+  .zept-session__mode-label {
+    font-size: var(--fs-title-md);
+  }
+}
+
+@media (min-width: 1024px) {
+  .zept-session__config {
+    grid-template-columns: 240px 1fr;
+    gap: var(--space-6);
+  }
+
+  .zept-session__timer {
+    width: 360px;
+    height: 360px;
+  }
+
+  .zept-session__countdown {
+    font-size: 72px;
+  }
 }

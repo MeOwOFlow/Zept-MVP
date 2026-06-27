@@ -13,6 +13,20 @@
   padding-bottom: 96px;
 }
 
+@media (min-width: 768px) {
+  .zept-app__content {
+    max-width: 720px;
+    padding: var(--space-6);
+    padding-bottom: 104px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .zept-app__content {
+    max-width: 880px;
+  }
+}
+
 .zept-nav {
   position: fixed;
   bottom: 0;
@@ -26,6 +40,25 @@
   padding-bottom: env(safe-area-inset-bottom);
   border-top: 1px solid var(--outline-variant);
   z-index: 100;
+}
+
+@media (min-width: 768px) {
+  .zept-nav {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: 720px;
+    max-width: 100%;
+    border-left: 1px solid var(--outline-variant);
+    border-right: 1px solid var(--outline-variant);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .zept-nav {
+    width: 880px;
+  }
 }
 
 .zept-nav__item {
