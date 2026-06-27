@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   createPomodoroState,
   nextMode,
+  isLastWorkCycle,
   getDurationSec,
   tick,
   canSkip,
@@ -9,24 +10,39 @@ import {
 } from '../../src/lib/pomodoro';
 
 describe('createPomodoroState', () => {
-  it('默认 25/5，初始 work', () => {
+  it('默认 25/5/4轮，初始 work', () => {
     expect(createPomodoroState()).toEqual({
       mode: 'work',
       cyclesCompleted: 0,
       workDurationMin: 25,
       shortBreakMin: 5,
+      targetCycles: 4,
     });
   });
   it('支持覆盖配置', () => {
-    const s = createPomodoroState({ workDurationMin: 50, shortBreakMin: 10 });
+    const s = createPomodoroState({ workDurationMin: 50, shortBreakMin: 10, targetCycles: 6 });
     expect(s.workDurationMin).toBe(50);
     expect(s.shortBreakMin).toBe(10);
+    expect(s.targetCycles).toBe(6);
+  });
+});
+
+describe('isLastWorkCycle', () => {
+  it('cyclesCompleted+1 >= targetCycles 时为 true', () => {
+    const s = createPomodoroState({ targetCycles: 4 });
+    expect(isLastWorkCycle(s)).toBe(false);
+    expect(isLastWorkCycle({ ...s, cyclesCompleted: 3 })).toBe(true);
+    expect(isLastWorkCycle({ ...s, cyclesCompleted: 2 })).toBe(false);
   });
 });
 
 describe('nextMode', () => {
-  it('work → short_break', () => {
+  it('work → short_break（未到最后一轮）', () => {
     expect(nextMode(createPomodoroState())).toBe('short_break');
+  });
+  it('work → done（最后一轮完成）', () => {
+    const s = { ...createPomodoroState(), cyclesCompleted: 3 };
+    expect(nextMode(s)).toBe('done');
   });
   it('short_break → work', () => {
     const s = { ...createPomodoroState(), mode: 'short_break' as PomodoroMode };

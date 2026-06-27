@@ -56,4 +56,5 @@ expectTypeOf<PomodoroState>().toMatchTypeOf<{
   cyclesCompleted: number;
   workDurationMin: number;
   shortBreakMin: number;
+  targetCycles: number;
 }>();

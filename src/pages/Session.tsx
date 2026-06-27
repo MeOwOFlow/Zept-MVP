@@ -17,16 +17,18 @@ type Phase = 'idle' | 'preAssess' | 'running' | 'confirmEnd' | 'postAssess' | 'l
 
 const WORK_MIN = 1, WORK_MAX = 180;
 const BREAK_MIN = 1, BREAK_MAX = 60;
+const CYCLES_MIN = 1, CYCLES_MAX = 12;
 
 const POMODORO_PRESETS: Array<{ id: string; label: string; sub: string; config: PomodoroConfig }> = [
-  { id: 'classic', label: '经典', sub: '25/5', config: { workDurationMin: 25, shortBreakMin: 5 } },
-  { id: 'deep', label: '深度', sub: '50/10', config: { workDurationMin: 50, shortBreakMin: 10 } },
-  { id: 'sprint', label: '冲刺', sub: '90/15', config: { workDurationMin: 90, shortBreakMin: 15 } },
+  { id: 'classic', label: '经典', sub: '25/5 ×4', config: { workDurationMin: 25, shortBreakMin: 5, targetCycles: 4 } },
+  { id: 'deep', label: '深度', sub: '50/10 ×3', config: { workDurationMin: 50, shortBreakMin: 10, targetCycles: 3 } },
+  { id: 'sprint', label: '冲刺', sub: '90/15 ×2', config: { workDurationMin: 90, shortBreakMin: 15, targetCycles: 2 } },
 ];
 
 interface DraftConfig {
   workDurationMin?: number;
   shortBreakMin?: number;
+  targetCycles?: number;
 }
 
 // Stepper: [-] [N 分钟] [+]
@@ -110,11 +112,13 @@ export default function Session() {
       setDraft({
         workDurationMin: c.workDurationMin,
         shortBreakMin: c.shortBreakMin,
+        targetCycles: c.targetCycles,
       });
     } else {
       setDraft({
         workDurationMin: 25,
         shortBreakMin: 5,
+        targetCycles: 4,
       });
     }
   }, [profile]);
@@ -126,11 +130,19 @@ export default function Session() {
     }
   }, [phase, isRunning, tick]);
 
+  useEffect(() => {
+    if (phase === 'running' && currentSession?.status === 'completed') {
+      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+      setPhase('postAssess');
+    }
+  }, [phase, currentSession?.status]);
+
   const isValid = (v: number | undefined, min: number, max: number): v is number =>
     v !== undefined && v >= min && v <= max && Number.isInteger(v);
 
   const allSet = isValid(draft.workDurationMin, WORK_MIN, WORK_MAX)
-    && isValid(draft.shortBreakMin, BREAK_MIN, BREAK_MAX);
+    && isValid(draft.shortBreakMin, BREAK_MIN, BREAK_MAX)
+    && isValid(draft.targetCycles, CYCLES_MIN, CYCLES_MAX);
 
   const updateDraft = (patch: Partial<DraftConfig>) => {
     setDraft((prev) => ({ ...prev, ...patch }));
@@ -140,6 +152,7 @@ export default function Session() {
     setDraft({
       workDurationMin: config.workDurationMin,
       shortBreakMin: config.shortBreakMin,
+      targetCycles: config.targetCycles,
     });
   };
 
@@ -150,11 +163,13 @@ export default function Session() {
       const config: PomodoroConfig = {
         workDurationMin: draft.workDurationMin!,
         shortBreakMin: draft.shortBreakMin!,
+        targetCycles: draft.targetCycles!,
       };
       const current = profile.pomodoroConfig;
       const sameConfig = current
         && current.workDurationMin === config.workDurationMin
-        && current.shortBreakMin === config.shortBreakMin;
+        && current.shortBreakMin === config.shortBreakMin
+        && current.targetCycles === config.targetCycles;
       if (!sameConfig) {
         const updated = { ...profile, pomodoroConfig: config };
         await setProfile(updated);
@@ -211,7 +226,11 @@ export default function Session() {
   const R = 120;
   const circumference = 2 * Math.PI * R;
   const dashOffset = circumference * (1 - progress);
-  const modeLabel = pomodoroState?.mode === 'work' ? '专注中' : '休息中';
+  const modeLabel = pomodoroState
+    ? pomodoroState.mode === 'work'
+      ? `专注中 ${pomodoroState.cyclesCompleted + 1}/${pomodoroState.targetCycles}`
+      : '休息中'
+    : '';
 
   return (
     <div className="zept-session">
@@ -245,6 +264,7 @@ export default function Session() {
                     className={`zept-preset-tile ${
                       draft.workDurationMin === p.config.workDurationMin
                       && draft.shortBreakMin === p.config.shortBreakMin
+                      && draft.targetCycles === p.config.targetCycles
                         ? 'zept-preset-tile--active' : ''
                     }`}
                     onClick={() => applyPreset(p.config)}
@@ -273,6 +293,17 @@ export default function Session() {
                   onChange={(v) => updateDraft({ shortBreakMin: v })}
                   min={BREAK_MIN} max={BREAK_MAX}
                   ariaLabel="短休时长"
+                />
+              </div>
+
+              <div className="zept-stepper-row">
+                <span className="zept-stepper-row__label">轮次</span>
+                <Stepper
+                  value={draft.targetCycles}
+                  onChange={(v) => updateDraft({ targetCycles: v })}
+                  min={CYCLES_MIN} max={CYCLES_MAX}
+                  unit="轮"
+                  ariaLabel="轮次"
                 />
               </div>
             </div>

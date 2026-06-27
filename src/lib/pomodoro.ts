@@ -5,6 +5,7 @@ export type PomodoroMode = PomodoroState['mode'];
 export interface PomodoroConfig {
   workDurationMin?: number;
   shortBreakMin?: number;
+  targetCycles?: number;
 }
 
 export function createPomodoroState(config: PomodoroConfig = {}): PomodoroState {
@@ -13,11 +14,20 @@ export function createPomodoroState(config: PomodoroConfig = {}): PomodoroState 
     cyclesCompleted: 0,
     workDurationMin: config.workDurationMin ?? 25,
     shortBreakMin: config.shortBreakMin ?? 5,
+    targetCycles: config.targetCycles ?? 4,
   };
 }
 
-export function nextMode(state: PomodoroState): PomodoroMode {
-  return state.mode === 'work' ? 'short_break' : 'work';
+export function isLastWorkCycle(state: PomodoroState): boolean {
+  return state.cyclesCompleted + 1 >= state.targetCycles;
+}
+
+export function nextMode(state: PomodoroState): PomodoroMode | 'done' {
+  if (state.mode === 'work') {
+    if (isLastWorkCycle(state)) return 'done';
+    return 'short_break';
+  }
+  return 'work';
 }
 
 export function getDurationSec(state: PomodoroState): number {

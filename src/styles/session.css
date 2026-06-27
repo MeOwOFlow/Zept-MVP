@@ -40,20 +40,24 @@
   display: flex;
   gap: var(--space-2);
   margin-bottom: var(--space-2);
+  width: 100%;
+  min-width: 0;
 }
 .zept-preset-tile {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: var(--space-3) var(--space-2);
+  padding: var(--space-3) var(--space-1);
   background: var(--surface-variant);
   border: 2px solid transparent;
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: background var(--ease), border-color var(--ease);
   font-family: inherit;
+  overflow: hidden;
 }
 .zept-preset-tile:active {
   background: var(--surface-2);
@@ -66,6 +70,7 @@
   font-size: var(--fs-label-lg);
   font-weight: var(--fw-medium);
   color: var(--on-surface);
+  white-space: nowrap;
 }
 .zept-preset-tile--active .zept-preset-tile__label {
   color: var(--on-primary-container);
@@ -74,6 +79,7 @@
   font-size: var(--fs-label-sm);
   color: var(--on-surface-muted);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .zept-preset-tile--active .zept-preset-tile__sub {
   color: var(--on-primary-container);
@@ -86,12 +92,15 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+  width: 100%;
+  min-width: 0;
 }
 .zept-stepper-row__label {
   font-size: var(--fs-body-lg);
   color: var(--on-surface);
   font-weight: var(--fw-regular);
   min-width: 48px;
+  flex-shrink: 0;
 }
 
 /* Stepper 控件 [-] [N 分钟] [+] */

@@ -64,4 +64,5 @@ export interface PomodoroState {
   cyclesCompleted: number;
   workDurationMin: number;
   shortBreakMin: number;
+  targetCycles: number;
 }

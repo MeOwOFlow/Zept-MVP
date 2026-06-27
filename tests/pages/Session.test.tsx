@@ -10,7 +10,7 @@ const setProfileMock = vi.hoisted(() => vi.fn(async () => undefined));
 
 const CONFIGURED_PROFILE: UserProfile = {
   goal: '考研', examDate: '2026-12-21', topDistractions: ['手机'], onboarded: true,
-  pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5 },
+  pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5, targetCycles: 4 },
   theme: 'auto',
 };
 
@@ -75,11 +75,12 @@ describe('Session - 已配置用户', () => {
     render(<Session />);
     expect(screen.getByText('番茄模式')).toBeInTheDocument();
     expect(screen.getByText('自由模式')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '经典 25/5' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '深度 50/10' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '冲刺 90/15' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '经典 25/5 ×4' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '深度 50/10 ×3' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '冲刺 90/15 ×2' })).toBeInTheDocument();
     expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(25);
     expect(screen.getByRole('spinbutton', { name: '短休时长' })).toHaveValue(5);
+    expect(screen.getByRole('spinbutton', { name: '轮次' })).toHaveValue(4);
     expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
   });
 
@@ -115,30 +116,31 @@ describe('Session - 未配置用户', () => {
     profileMock.current = UNCONFIGURED_PROFILE;
   });
 
-  it('stepper 显示默认值，按钮启用', () => {
+  it('stepper 显示默认值(25/5/4轮)，按钮启用', () => {
     render(<Session />);
     expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(25);
     expect(screen.getByRole('spinbutton', { name: '短休时长' })).toHaveValue(5);
+    expect(screen.getByRole('spinbutton', { name: '轮次' })).toHaveValue(4);
     expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
   });
 
   it('点击预设 tile 切换配置', async () => {
     const user = userEvent.setup();
     render(<Session />);
-    await user.click(screen.getByRole('button', { name: '深度 50/10' }));
+    await user.click(screen.getByRole('button', { name: '深度 50/10 ×3' }));
     await waitFor(() => {
       expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(50);
       expect(screen.getByRole('spinbutton', { name: '短休时长' })).toHaveValue(10);
+      expect(screen.getByRole('spinbutton', { name: '轮次' })).toHaveValue(3);
     });
     expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
   });
 
-  it('通过 stepper 调整值后按钮仍启用', async () => {
+  it('通过 stepper 调整轮次', async () => {
     const user = userEvent.setup();
     render(<Session />);
-    expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
-    await user.click(screen.getByRole('button', { name: '专注时长 增加' }));
-    expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(26);
+    await user.click(screen.getByRole('button', { name: '轮次 增加' }));
+    expect(screen.getByRole('spinbutton', { name: '轮次' })).toHaveValue(5);
     expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
   });
 });

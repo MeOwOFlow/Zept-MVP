@@ -77,6 +77,15 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       return;
     }
     const newMode = nextMode(pomodoroState);
+    if (newMode === 'done') {
+      const newCycles = pomodoroState.cyclesCompleted + 1;
+      set({
+        isRunning: false,
+        pomodoroState: { ...pomodoroState, cyclesCompleted: newCycles },
+        currentSession: { ...currentSession, status: 'completed', pomodoroCyclesCompleted: newCycles },
+      });
+      return;
+    }
     const newCycles = pomodoroState.mode === 'work'
       ? pomodoroState.cyclesCompleted + 1
       : pomodoroState.cyclesCompleted;
@@ -84,7 +93,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     set({
       pomodoroState: newState,
       remainingSec: getDurationSec(newState),
-      currentSession: { ...currentSession, status: statusForMode(newMode) },
+      currentSession: { ...currentSession, status: statusForMode(newMode), pomodoroCyclesCompleted: newCycles },
     });
   },
 

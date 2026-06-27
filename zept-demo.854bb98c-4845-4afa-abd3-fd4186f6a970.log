@@ -1,0 +1,68 @@
+2026-06-27T19:04:03.871247Z	Cloning repository...
+2026-06-27T19:04:04.584958Z	From https://github.com/MeOwOFlow/Zept-MVP
+2026-06-27T19:04:04.585456Z	 * branch            6784abe63da006da990a824ddf982287a848aff4 -> FETCH_HEAD
+2026-06-27T19:04:04.585633Z	
+2026-06-27T19:04:04.611573Z	HEAD is now at 6784abe fix(deploy): exclude /api/* from SPA rewrite + use China-accessible font CDN
+2026-06-27T19:04:04.611931Z	
+2026-06-27T19:04:04.6702Z	
+2026-06-27T19:04:04.670568Z	Using v2 root directory strategy
+2026-06-27T19:04:04.686899Z	Success: Finished cloning repository files
+2026-06-27T19:04:06.518673Z	Checking for configuration in a Wrangler configuration file (BETA)
+2026-06-27T19:04:06.519449Z	
+2026-06-27T19:04:06.75124Z	No Wrangler configuration file found. Continuing.
+2026-06-27T19:04:07.264209Z	Detected the following tools from environment: npm@10.9.2, nodejs@22.16.0
+2026-06-27T19:04:07.265027Z	Installing project dependencies: npm clean-install --progress=false
+2026-06-27T19:04:11.560335Z	npm warn deprecated source-map@0.8.0-beta.0: The work that was done in this beta branch won't be included in future versions
+2026-06-27T19:04:18.342193Z	
+2026-06-27T19:04:18.343178Z	added 460 packages, and audited 461 packages in 10s
+2026-06-27T19:04:18.34341Z	
+2026-06-27T19:04:18.343503Z	124 packages are looking for funding
+2026-06-27T19:04:18.343557Z	  run `npm fund` for details
+2026-06-27T19:04:18.346247Z	
+2026-06-27T19:04:18.346452Z	found 0 vulnerabilities
+2026-06-27T19:04:18.444141Z	Executing user command: npm run build
+2026-06-27T19:04:18.89526Z	
+2026-06-27T19:04:18.896279Z	> zept@0.0.0 build
+2026-06-27T19:04:18.897068Z	> tsc -b && vite build
+2026-06-27T19:04:18.897449Z	
+2026-06-27T19:04:24.323233Z	[36mvite v8.1.0 [32mbuilding client environment for production...[36m[39m
+2026-06-27T19:04:24.49584Z	[2Ktransforming...✓ 49 modules transformed.
+2026-06-27T19:04:24.568817Z	rendering chunks...
+2026-06-27T19:04:24.741438Z	computing gzip size...
+2026-06-27T19:04:24.747251Z	dist/registerSW.js                0.13 kB
+2026-06-27T19:04:24.747662Z	dist/manifest.webmanifest         0.32 kB
+2026-06-27T19:04:24.74783Z	dist/index.html                   0.62 kB │ gzip:   0.38 kB
+2026-06-27T19:04:24.747929Z	dist/assets/index-BwRm7j0u.css   19.15 kB │ gzip:   3.90 kB
+2026-06-27T19:04:24.748002Z	dist/assets/index-CT-CPcZy.js   308.61 kB │ gzip: 100.91 kB
+2026-06-27T19:04:24.748079Z	
+2026-06-27T19:04:24.748795Z	[32m✓ built in 423ms[39m
+2026-06-27T19:04:27.289693Z	
+2026-06-27T19:04:27.290233Z	PWA v1.3.0
+2026-06-27T19:04:27.290501Z	mode      generateSW
+2026-06-27T19:04:27.290628Z	precache  8 entries (323.86 KiB)
+2026-06-27T19:04:27.29073Z	files generated
+2026-06-27T19:04:27.290781Z	  dist/sw.js
+2026-06-27T19:04:27.290824Z	  dist/workbox-9c191d2f.js
+2026-06-27T19:04:27.435482Z	Finished
+2026-06-27T19:04:28.164032Z	Checking for configuration in a Wrangler configuration file (BETA)
+2026-06-27T19:04:28.164526Z	
+2026-06-27T19:04:28.361001Z	No Wrangler configuration file found. Continuing.
+2026-06-27T19:04:28.362148Z	Found Functions directory at /functions. Uploading.
+2026-06-27T19:04:28.37106Z	 ⛅️ wrangler 3.114.17
+2026-06-27T19:04:28.371458Z	-------------------
+2026-06-27T19:04:29.369806Z	✨ Compiled Worker successfully
+2026-06-27T19:04:29.547825Z	Validating asset output directory
+2026-06-27T19:04:31.031772Z	Deploying your site to Cloudflare's global network...
+2026-06-27T19:04:34.421625Z	Parsed 1 valid redirect rule.
+2026-06-27T19:04:34.422023Z	Found invalid redirect lines:
+2026-06-27T19:04:34.422116Z	  - #2: /*      /index.html   200
+2026-06-27T19:04:34.422165Z	    Infinite loop detected in this rule and has been ignored. This will cause a redirect to strip `.html` or `/index` and end up triggering this rule again. Please fix or remove this rule to silence this warning.
+2026-06-27T19:04:36.076994Z	Uploading... (0/9)
+2026-06-27T19:04:36.651151Z	Uploading... (3/9)
+2026-06-27T19:04:36.809547Z	Uploading... (6/9)
+2026-06-27T19:04:37.241507Z	Uploading... (9/9)
+2026-06-27T19:04:37.24195Z	✨ Success! Uploaded 9 files (2.04 sec)
+2026-06-27T19:04:37.242245Z	
+2026-06-27T19:04:37.720587Z	✨ Upload complete!
+2026-06-27T19:04:39.371948Z	Success: Assets published!
+2026-06-27T19:04:40.336208Z	Success: Your site was deployed!

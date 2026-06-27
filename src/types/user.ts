@@ -1,11 +1,13 @@
 export interface PomodoroConfig {
   workDurationMin: number;
   shortBreakMin: number;
+  targetCycles: number;  // 计划完成轮次，1-12
 }
 
 export const DEFAULT_POMODORO_CONFIG: PomodoroConfig = {
   workDurationMin: 25,
   shortBreakMin: 5,
+  targetCycles: 4,
 };
 
 export type ThemeMode = 'auto' | 'light' | 'dark';
