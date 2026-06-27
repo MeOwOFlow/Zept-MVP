@@ -1,0 +1,63 @@
+.zept-onboarding {
+  padding: var(--space-6);
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.zept-onboarding__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-headline-lg);
+  font-weight: var(--fw-bold);
+  color: var(--primary);
+}
+.zept-onboarding__subtitle {
+  color: var(--on-surface-variant);
+  margin-top: calc(-1 * var(--space-2));
+}
+.zept-onboarding__label {
+  display: block;
+  font-size: var(--fs-label-lg);
+  color: var(--on-surface-variant);
+  margin-bottom: var(--space-2);
+}
+.zept-onboarding__input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-variant);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-sm);
+  color: var(--on-surface);
+  font-size: var(--fs-body-lg);
+}
+.zept-onboarding__input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+.zept-onboarding__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+.zept-chip {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--outline);
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-size: var(--fs-label-lg);
+  cursor: pointer;
+  transition: all var(--duration-short) var(--easing-standard);
+}
+.zept-chip--active {
+  background: var(--secondary-container);
+  border-color: var(--secondary);
+  color: var(--on-secondary-container);
+}
+.zept-onboarding__selected {
+  font-size: var(--fs-body-md);
+  color: var(--on-surface-muted);
+  margin-top: var(--space-2);
+}
