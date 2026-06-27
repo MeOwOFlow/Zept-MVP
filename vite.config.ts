@@ -28,6 +28,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        // 不让 SW 拦截 /api/* 导航请求，避免浏览器地址栏访问 API 时
+        // 被 navigateFallback 返回 index.html（应让请求走到 Pages Function）
+        navigateFallbackDenylist: [/^\/api\//],
       },
     }),
   ],
