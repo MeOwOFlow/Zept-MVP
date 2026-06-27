@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { SessionRecord, SessionStatus, SelfAssessment, PomodoroState } from '../types/session';
+import type { SessionRecord, SessionStatus, SelfAssessment, PomodoroState, Rating } from '../types/session';
 import type { UserProfile } from '../types/user';
 import { saveSession } from '../lib/db';
 import { createPomodoroState, nextMode, getDurationSec, tick as pomodoroTick, canSkip } from '../lib/pomodoro';
@@ -12,6 +12,7 @@ interface SessionStore {
   isRunning: boolean;
   interruptions: number;
   startSession: (user: UserProfile, isPomodoro: boolean) => void;
+  setPreMood: (mood: Rating) => void;
   pauseSession: () => void;
   resumeSession: () => void;
   tick: () => void;
@@ -52,6 +53,12 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
         },
       });
     });
+  },
+
+  setPreMood: (mood) => {
+    const cs = get().currentSession;
+    if (!cs) return;
+    set({ currentSession: { ...cs, preAssessment: { mood } } });
   },
 
   pauseSession: () => {

@@ -8,9 +8,17 @@ export type SessionStatus =
   | 'abandoned';
 
 // 自评数据
+export type Rating = 1 | 2 | 3 | 4 | 5;
+
+// 开场前评：只问情绪（专注度尚未发生，无法预判）
+export interface PreAssessment {
+  mood: Rating;
+}
+
+// 结束后评：情绪 + 实际感受到的专注度
 export interface SelfAssessment {
-  mood: 1 | 2 | 3 | 4 | 5;
-  focus: 1 | 2 | 3 | 4 | 5;
+  mood: Rating;
+  focus: Rating;
 }
 
 // 洞察来源与置信度
@@ -53,7 +61,7 @@ export interface SessionRecord {
   interruptionEvents: InterruptionEvent[];
   startHour: number;
   endHour: number;
-  preAssessment: SelfAssessment | null;
+  preAssessment: PreAssessment | null;
   postAssessment: SelfAssessment | null;
   insightId?: string;
 }

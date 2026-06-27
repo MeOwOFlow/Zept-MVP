@@ -94,13 +94,13 @@ export default function Session() {
   const pauseSession = useSessionStore((s) => s.pauseSession);
   const resumeSession = useSessionStore((s) => s.resumeSession);
   const tick = useSessionStore((s) => s.tick);
+  const setPreMoodInStore = useSessionStore((s) => s.setPreMood);
   const endSession = useSessionStore((s) => s.endSession);
 
   const [phase, setPhase] = useState<Phase>('idle');
   const [isPomodoro, setIsPomodoro] = useState(true);
   const [draft, setDraft] = useState<DraftConfig>({});
   const [preMood, setPreMood] = useState<Rating>(3);
-  const [preFocus, setPreFocus] = useState<Rating>(3);
   const [postMood, setPostMood] = useState<Rating>(3);
   const [postFocus, setPostFocus] = useState<Rating>(3);
   const [insight, setInsight] = useState<Insight | null>(null);
@@ -183,7 +183,10 @@ export default function Session() {
     setPhase('preAssess');
   };
 
-  const handlePreDone = () => setPhase('running');
+  const handlePreDone = () => {
+    setPreMoodInStore(preMood);
+    setPhase('running');
+  };
   const handleEndClick = () => setPhase('confirmEnd');
   const handleConfirmEnd = () => setPhase('postAssess');
 
@@ -212,7 +215,7 @@ export default function Session() {
   const handleReset = () => {
     setPhase('idle');
     setInsight(null);
-    setPreMood(3); setPreFocus(3); setPostMood(3); setPostFocus(3);
+    setPreMood(3); setPostMood(3); setPostFocus(3);
   };
 
   const mins = Math.floor(remainingSec / 60);
@@ -317,8 +320,8 @@ export default function Session() {
 
       {phase === 'preAssess' && (
         <Card>
-          <h2 className="zept-session__title">开始前，先感受一下自己</h2>
-          <Slider.Dual mood={preMood} focus={preFocus} onMoodChange={setPreMood} onFocusChange={setPreFocus} />
+          <h2 className="zept-session__title">开始前，现在感觉怎么样？</h2>
+          <Slider label="情绪" value={preMood} onChange={setPreMood} />
           <Button variant="filled" onClick={handlePreDone}>开始</Button>
         </Card>
       )}

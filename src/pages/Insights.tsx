@@ -82,7 +82,7 @@ export default function Insights() {
                     <div className="zept-insights__row">情绪：{insight.mood}/5</div>
                     {session.preAssessment && (
                       <div className="zept-insights__row">
-                        前评：情绪{session.preAssessment.mood} 专注{session.preAssessment.focus}
+                        前评：情绪{session.preAssessment.mood}
                       </div>
                     )}
                     {session.postAssessment && (
