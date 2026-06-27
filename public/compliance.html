@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>合规声明 · 凝时 Zept</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0E1014; color: #e3e2e6; font-family: 'Noto Sans SC', system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; line-height: 1.6; min-height: 100vh; }
+    h1 { color: #F0B862; font-size: 24px; margin-bottom: 16px; }
+    h2 { color: #9DB6DD; font-size: 18px; margin-top: 24px; margin-bottom: 8px; }
+    p { font-size: 14px; color: #c4c6cf; margin-bottom: 8px; }
+    a { color: #9DB6DD; }
+    .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #2b3140; font-size: 12px; color: #8b909a; }
+  </style>
+</head>
+<body>
+  <h1>凝时 Zept 合规声明</h1>
+  <p>本应用遵循以下法规与边界，旨在为用户提供安全、负责任的专注陪伴服务。</p>
+
+  <h2>一、适用法规</h2>
+  <p>1. 《生成式人工智能服务管理暂行办法》（2023年8月15日施行）</p>
+  <p>2. 《人工智能拟人化互动服务管理暂行办法》（2026年7月15日施行）</p>
+
+  <h2>二、数据隐私（B 类边界）</h2>
+  <p>所有用户数据（目标、自评、会话记录、洞察）均存储于本地浏览器 IndexedDB，不上传服务器，不进行云端同步。数据导出与清空完全由用户控制。</p>
+
+  <h2>三、内容安全（C 类边界）</h2>
+  <p>LLM 生成的洞察文本经前后端双重黑名单过滤，屏蔽涉及诊断、治疗、药物等医疗类词汇，以及指令性表述（"你应该"等）。</p>
+
+  <h2>四、情绪出口（A 类边界）</h2>
+  <p>当用户自评情绪 ≤ 2 时，应用触发关怀门，展示校心理咨询中心与 12320 心理援助热线等资源出口，而非试图替代专业帮助。</p>
+
+  <h2>五、诊疗边界（D 类边界）</h2>
+  <p>本应用不提供医疗诊断、心理诊断或治疗建议。所有洞察文本仅为学习陪伴性质，不构成专业意见。如需专业帮助，请咨询持牌心理咨询师或医疗机构。</p>
+
+  <h2>六、LLM 服务说明</h2>
+  <p>洞察文本由 DeepSeek API 经 Cloudflare Pages Functions 代理生成，API 密钥不前端暴露。LLM 调用失败时自动降级为规则模板。</p>
+
+  <div class="footer">
+    <p>版本 0.1.0 · MVP · 最后更新：2026-06-27</p>
+  </div>
+</body>
+</html>
