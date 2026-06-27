@@ -46,6 +46,14 @@ interface DeepSeekResponse {
   error?: { message: string };
 }
 
+// GET 直接访问 API（如浏览器地址栏）返回 405，避免 Cloudflare fallback 到前端页面
+export async function onRequestGet(): Promise<Response> {
+  return new Response(JSON.stringify({ error: 'method not allowed, use POST' }), {
+    status: 405,
+    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS, Allow: 'POST, OPTIONS' },
+  });
+}
+
 export async function onRequestPost(ctx: {
   request: Request;
   env: { DEEPSEEK_API_KEY: string };
