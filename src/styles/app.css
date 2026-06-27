@@ -1,0 +1,61 @@
+.zept-app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.zept-app__content {
+  flex: 1;
+  padding: var(--space-4);
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+  padding-bottom: 96px;
+}
+
+.zept-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background-color: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding-bottom: env(safe-area-inset-bottom);
+  border-top: 1px solid var(--outline-variant);
+  z-index: 100;
+}
+
+.zept-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--on-surface-muted);
+  text-decoration: none;
+  flex: 1;
+  max-width: 120px;
+  transition: color var(--duration-short) var(--easing-standard);
+}
+
+.zept-nav__item--active {
+  color: var(--primary);
+}
+
+.zept-nav__icon {
+  font-size: 24px;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.zept-nav__item--active .zept-nav__icon {
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+.zept-nav__label {
+  font-size: var(--fs-label-md);
+  font-weight: var(--fw-medium);
+}
