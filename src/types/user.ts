@@ -21,6 +21,6 @@ export interface UserProfile {
   examDate: string;  // ISO YYYY-MM-DD
   topDistractions: string[];
   onboarded: boolean;
-  pomodoroConfig: PomodoroConfig;
+  pomodoroConfig: PomodoroConfig | null;  // null = 未配置，由用户在 Session 首次选择
   theme: ThemeMode;
 }

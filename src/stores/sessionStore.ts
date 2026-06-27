@@ -34,7 +34,9 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
 
   startSession: (user, isPomodoro) => {
     const session = createSession(user, isPomodoro);
-    const pomodoroState = isPomodoro ? createPomodoroState(user.pomodoroConfig) : null;
+    const pomodoroState = isPomodoro && user.pomodoroConfig
+      ? createPomodoroState(user.pomodoroConfig)
+      : null;
     const remainingSec = pomodoroState ? getDurationSec(pomodoroState) : 0;
     set({
       currentSession: { ...session, status: 'focusing' },

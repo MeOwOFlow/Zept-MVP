@@ -14,6 +14,9 @@ let activeListeners: InterruptionListener[] | null = null;
 
 export function createSession(user: UserProfile, isPomodoro: boolean): SessionRecord {
   const now = Date.now();
+  const plannedDurationSec = isPomodoro && user.pomodoroConfig
+    ? user.pomodoroConfig.workDurationMin * 60
+    : 0;
   return {
     id: `s_${now}_${Math.random().toString(36).slice(2, 8)}`,
     userId: 'local',
@@ -22,7 +25,7 @@ export function createSession(user: UserProfile, isPomodoro: boolean): SessionRe
     startedAt: now,
     endedAt: null,
     status: 'planned',
-    plannedDurationSec: isPomodoro ? 25 * 60 : 0,
+    plannedDurationSec,
     actualDurationSec: 0,
     isPomodoro,
     pomodoroCyclesCompleted: 0,

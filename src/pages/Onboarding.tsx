@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../stores/userStore';
-import { DEFAULT_POMODORO_CONFIG, DEFAULT_THEME } from '../types/user';
+import { DEFAULT_THEME } from '../types/user';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { DatePicker } from '../components/DatePicker';
@@ -41,7 +41,7 @@ export default function Onboarding() {
       examDate,
       topDistractions: distractions,
       onboarded: true,
-      pomodoroConfig: DEFAULT_POMODORO_CONFIG,
+      pomodoroConfig: null,  // 番茄时长由用户在 Session 首次选择
       theme: DEFAULT_THEME,
     });
     navigate('/session');

@@ -9,13 +9,42 @@ import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Slider } from '../components/Slider';
 import type { SelfAssessment, Insight, SessionRecord, PomodoroState } from '../types/session';
+import type { PomodoroConfig } from '../types/user';
 import '../styles/session.css';
 
 type Rating = 1 | 2 | 3 | 4 | 5;
 type Phase = 'idle' | 'preAssess' | 'running' | 'confirmEnd' | 'postAssess' | 'loading' | 'insight';
 
+// 时长选项（与原 Settings 一致）
+const WORK_OPTIONS = [15, 20, 25, 30, 45, 50, 60, 90];
+const SHORT_BREAK_OPTIONS = [3, 5, 10, 15];
+const LONG_BREAK_OPTIONS = [10, 15, 20, 30];
+const LONG_BREAK_EVERY_OPTIONS = [
+  { value: 0, label: '关闭长休' },
+  { value: 2, label: '每 2 轮' },
+  { value: 3, label: '每 3 轮' },
+  { value: 4, label: '每 4 轮' },
+  { value: 5, label: '每 5 轮' },
+  { value: 6, label: '每 6 轮' },
+];
+
+// 常用推荐组合（仅首次未配置时显示，配置过后不再出现）
+const POMODORO_PRESETS: Array<{ id: string; label: string; config: PomodoroConfig }> = [
+  { id: 'classic', label: '经典番茄', config: { workDurationMin: 25, shortBreakMin: 5, longBreakMin: 15, longBreakEvery: 4 } },
+  { id: 'deep', label: '深度专注', config: { workDurationMin: 50, shortBreakMin: 10, longBreakMin: 20, longBreakEvery: 4 } },
+  { id: 'sprint', label: '冲刺模式', config: { workDurationMin: 90, shortBreakMin: 15, longBreakMin: 30, longBreakEvery: 3 } },
+];
+
+interface DraftConfig {
+  workDurationMin?: number;
+  shortBreakMin?: number;
+  longBreakMin?: number;
+  longBreakEvery?: number;
+}
+
 export default function Session() {
   const profile = useUserStore((s) => s.profile);
+  const setProfile = useUserStore((s) => s.setProfile);
   const currentSession = useSessionStore((s) => s.currentSession);
   const pomodoroState = useSessionStore((s) => s.pomodoroState);
   const remainingSec = useSessionStore((s) => s.remainingSec);
@@ -29,12 +58,20 @@ export default function Session() {
 
   const [phase, setPhase] = useState<Phase>('idle');
   const [isPomodoro, setIsPomodoro] = useState(true);
+  const [draft, setDraft] = useState<DraftConfig>({});
   const [preMood, setPreMood] = useState<Rating>(3);
   const [preFocus, setPreFocus] = useState<Rating>(3);
   const [postMood, setPostMood] = useState<Rating>(3);
   const [postFocus, setPostFocus] = useState<Rating>(3);
   const [insight, setInsight] = useState<Insight | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // profile 加载后，若已配置过番茄则同步到 draft（默认选中上次的值）
+  useEffect(() => {
+    if (profile?.pomodoroConfig) {
+      setDraft(profile.pomodoroConfig);
+    }
+  }, [profile]);
 
   useEffect(() => {
     if (phase === 'running' && isRunning) {
@@ -43,9 +80,40 @@ export default function Session() {
     }
   }, [phase, isRunning, tick]);
 
-  const handleStart = () => {
+  const allSet = draft.workDurationMin !== undefined
+    && draft.shortBreakMin !== undefined
+    && draft.longBreakMin !== undefined
+    && draft.longBreakEvery !== undefined;
+
+  const updateDraft = (patch: Partial<DraftConfig>) => {
+    setDraft((prev) => ({ ...prev, ...patch }));
+  };
+
+  const applyPreset = (config: PomodoroConfig) => {
+    setDraft(config);
+  };
+
+  const handleStart = async () => {
     if (!profile) return;
-    startSession(profile, isPomodoro);
+    if (isPomodoro) {
+      if (!allSet) return;
+      const config: PomodoroConfig = draft as PomodoroConfig;
+      const current = profile.pomodoroConfig;
+      const sameConfig = current
+        && current.workDurationMin === config.workDurationMin
+        && current.shortBreakMin === config.shortBreakMin
+        && current.longBreakMin === config.longBreakMin
+        && current.longBreakEvery === config.longBreakEvery;
+      if (!sameConfig) {
+        const updated = { ...profile, pomodoroConfig: config };
+        await setProfile(updated);
+        startSession(updated, true);
+      } else {
+        startSession(profile, true);
+      }
+    } else {
+      startSession(profile, false);
+    }
     setPhase('preAssess');
   };
 
@@ -99,6 +167,9 @@ export default function Session() {
 
   const modeLabel = pomodoroState?.mode === 'work' ? '专注中' : pomodoroState?.mode === 'short_break' ? '短休息' : '长休息';
 
+  // 推荐区仅在用户从未配置过番茄时显示（配置过后不再出现）
+  const showPresets = !profile?.pomodoroConfig;
+
   return (
     <div className="zept-session">
       {profile && (
@@ -120,15 +191,103 @@ export default function Session() {
               onClick={() => setIsPomodoro(false)}
             >自由模式</button>
           </div>
-          {isPomodoro && profile?.pomodoroConfig && (
-            <p className="zept-session__config-hint">
-              {profile.pomodoroConfig.workDurationMin} 分钟专注 / {profile.pomodoroConfig.shortBreakMin} 分钟短休
-              {profile.pomodoroConfig.longBreakEvery > 0
-                ? ` / 每 ${profile.pomodoroConfig.longBreakEvery} 轮长休 ${profile.pomodoroConfig.longBreakMin} 分钟`
-                : ' / 已关闭长休'}
-            </p>
+
+          {isPomodoro && (
+            <>
+              {showPresets && (
+                <div className="zept-session__presets">
+                  <p className="zept-session__presets-label">常用推荐 · 点击即用</p>
+                  <div className="zept-session__presets-chips">
+                    {POMODORO_PRESETS.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        className="zept-chip zept-chip--preset"
+                        onClick={() => applyPreset(p.config)}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="zept-session__config">
+                <div className="zept-session__field">
+                  <label className="zept-session__field-label">专注时长</label>
+                  <div className="zept-session__chips">
+                    {WORK_OPTIONS.map((min) => (
+                      <button
+                        key={min}
+                        type="button"
+                        className={`zept-chip ${draft.workDurationMin === min ? 'zept-chip--active' : ''}`}
+                        onClick={() => updateDraft({ workDurationMin: min })}
+                      >
+                        {min} 分钟
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="zept-session__field">
+                  <label className="zept-session__field-label">短休时长</label>
+                  <div className="zept-session__chips">
+                    {SHORT_BREAK_OPTIONS.map((min) => (
+                      <button
+                        key={min}
+                        type="button"
+                        className={`zept-chip ${draft.shortBreakMin === min ? 'zept-chip--active' : ''}`}
+                        onClick={() => updateDraft({ shortBreakMin: min })}
+                      >
+                        {min} 分钟
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="zept-session__field">
+                  <label className="zept-session__field-label">长休时长</label>
+                  <div className="zept-session__chips">
+                    {LONG_BREAK_OPTIONS.map((min) => (
+                      <button
+                        key={min}
+                        type="button"
+                        className={`zept-chip ${draft.longBreakMin === min ? 'zept-chip--active' : ''}`}
+                        onClick={() => updateDraft({ longBreakMin: min })}
+                        disabled={draft.longBreakEvery === 0}
+                      >
+                        {min} 分钟
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="zept-session__field">
+                  <label className="zept-session__field-label">长休触发</label>
+                  <div className="zept-session__chips">
+                    {LONG_BREAK_EVERY_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        className={`zept-chip ${draft.longBreakEvery === opt.value ? 'zept-chip--active' : ''}`}
+                        onClick={() => updateDraft({ longBreakEvery: opt.value })}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
           )}
-          <Button variant="filled" onClick={handleStart}>开始专注</Button>
+
+          <Button
+            variant="filled"
+            onClick={handleStart}
+            disabled={isPomodoro && !allSet}
+          >
+            开始专注
+          </Button>
         </Card>
       )}
 
