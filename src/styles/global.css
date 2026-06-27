@@ -167,3 +167,71 @@ img {
   pointer-events: none;
   transform: scale(0);
 }
+
+.zept-slider {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.zept-slider__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--fs-label-lg);
+  color: var(--on-surface-variant);
+}
+
+.zept-slider__value {
+  font-size: var(--fs-title-lg);
+  font-weight: var(--fw-bold);
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.zept-slider__track {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1) 0;
+  outline: none;
+}
+
+.zept-slider__track:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.zept-slider__tick {
+  flex: 1;
+  min-height: 40px;
+  border-radius: var(--radius-full);
+  background-color: var(--surface-variant);
+  color: var(--on-surface-muted);
+  font-size: var(--fs-label-md);
+  font-weight: var(--fw-medium);
+  transition: background-color var(--duration-short) var(--easing-standard),
+    color var(--duration-short) var(--easing-standard),
+    transform var(--duration-short) var(--easing-emphasized);
+}
+
+.zept-slider__tick--filled {
+  background-color: var(--secondary);
+  color: var(--bg);
+}
+
+.zept-slider__tick--active {
+  background-color: var(--primary);
+  color: var(--on-primary);
+  transform: scale(1.08);
+}
+
+.zept-slider__tick-label {
+  font-variant-numeric: tabular-nums;
+}
+
+.zept-slider-dual {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
