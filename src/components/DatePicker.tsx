@@ -54,7 +54,7 @@ export function DatePicker({ label, value, onChange, minDate, maxDate }: DatePic
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const min = minDate ? parseISO(minDate) : today;
-  const max = maxDate ? parseISO(maxDate) : new Date(today.getFullYear() + 3, 11, 31);
+  const max = maxDate ? parseISO(maxDate) : new Date(today.getFullYear() + 5, 11, 31);
 
   const [draft, setDraft] = useState<string>(value);
   const [viewYear, setViewYear] = useState<number>(value ? parseISO(value).getFullYear() : today.getFullYear());

@@ -1,3 +1,9 @@
+/* ---------- State layer helpers ---------- */
+:root {
+  --dp-hover: rgba(255, 255, 255, 0.08);
+  --dp-pressed: rgba(255, 255, 255, 0.12);
+}
+
 /* ---------- Trigger（展示态） ---------- */
 .zept-dp {
   width: 100%;
@@ -114,11 +120,11 @@
 }
 
 .zept-dp__title--clickable:hover {
-  background: var(--state-hover);
+  background: var(--dp-hover);
 }
 
 .zept-dp__title--clickable:active {
-  background: var(--state-pressed);
+  background: var(--dp-pressed);
 }
 
 .zept-dp__nav-btn:disabled {
@@ -144,12 +150,12 @@
 }
 
 .zept-dp__nav-btn:hover {
-  background: var(--state-hover);
+  background: var(--dp-hover);
   color: var(--on-surface);
 }
 
 .zept-dp__nav-btn:active {
-  background: var(--state-pressed);
+  background: var(--dp-pressed);
 }
 
 /* ---------- Weekday Header ---------- */
@@ -192,11 +198,11 @@
 }
 
 .zept-dp__day:hover:not(.zept-dp__day--selected):not(:disabled) {
-  background: var(--state-hover);
+  background: var(--dp-hover);
 }
 
 .zept-dp__day:active:not(:disabled) {
-  background: var(--state-pressed);
+  background: var(--dp-pressed);
 }
 
 .zept-dp__day--out {
@@ -265,7 +271,7 @@
 }
 
 .zept-dp__action--cancel:hover {
-  background: var(--state-hover);
+  background: var(--dp-hover);
 }
 
 /* ---------- 减弱动效偏好 ---------- */
@@ -314,17 +320,27 @@
 }
 
 .zept-dp__year:hover {
-  background: var(--state-hover);
+  background: var(--dp-hover);
 }
 
 .zept-dp__year:active {
-  background: var(--state-pressed);
+  background: var(--dp-pressed);
 }
 
 .zept-dp__year--selected {
   background: var(--primary);
   color: var(--on-primary);
   font-weight: var(--fw-medium);
+}
+
+.zept-dp__year--disabled {
+  color: var(--on-surface-muted);
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.zept-dp__year--disabled:hover {
+  background: transparent;
 }
 
 /* ---------- Month Grid ---------- */
@@ -352,11 +368,11 @@
 }
 
 .zept-dp__month:hover:not(:disabled) {
-  background: var(--state-hover);
+  background: var(--dp-hover);
 }
 
 .zept-dp__month:active:not(:disabled) {
-  background: var(--state-pressed);
+  background: var(--dp-pressed);
 }
 
 .zept-dp__month--selected {
