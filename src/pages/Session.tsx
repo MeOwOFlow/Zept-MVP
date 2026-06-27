@@ -120,6 +120,14 @@ export default function Session() {
               onClick={() => setIsPomodoro(false)}
             >自由模式</button>
           </div>
+          {isPomodoro && profile?.pomodoroConfig && (
+            <p className="zept-session__config-hint">
+              {profile.pomodoroConfig.workDurationMin} 分钟专注 / {profile.pomodoroConfig.shortBreakMin} 分钟短休
+              {profile.pomodoroConfig.longBreakEvery > 0
+                ? ` / 每 ${profile.pomodoroConfig.longBreakEvery} 轮长休 ${profile.pomodoroConfig.longBreakMin} 分钟`
+                : ' / 已关闭长休'}
+            </p>
+          )}
           <Button variant="filled" onClick={handleStart}>开始专注</Button>
         </Card>
       )}

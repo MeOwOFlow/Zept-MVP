@@ -35,4 +35,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    host: true,           // 监听 0.0.0.0，允许局域网设备访问
+    port: 5173,
+    strictPort: false,    // 端口被占时自动找下一个（5174/5175...）
+  },
 });

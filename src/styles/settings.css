@@ -47,3 +47,27 @@
   font-size: var(--fs-body-md);
   margin-top: var(--space-1);
 }
+
+/* ---------- 番茄配置 ---------- */
+.zept-settings__field {
+  margin-bottom: var(--space-4);
+}
+.zept-settings__field:last-child {
+  margin-bottom: 0;
+}
+.zept-settings__field-label {
+  display: block;
+  font-size: var(--fs-label-lg);
+  color: var(--on-surface-variant);
+  margin-bottom: var(--space-2);
+  font-weight: var(--fw-medium);
+}
+.zept-settings__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.zept-settings__chips .zept-chip:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

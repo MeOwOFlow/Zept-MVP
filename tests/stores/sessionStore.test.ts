@@ -15,10 +15,11 @@ vi.mock('../../src/lib/session', async () => {
 });
 
 import { useSessionStore } from '../../src/stores/sessionStore';
-import type { UserProfile } from '../../src/types/user';
+import { DEFAULT_POMODORO_CONFIG, type UserProfile } from '../../src/types/user';
 
 const user: UserProfile = {
   goal: '考研', examDate: '2026-12-21', topDistractions: ['手机'], onboarded: true,
+  pomodoroConfig: DEFAULT_POMODORO_CONFIG,
 };
 
 beforeEach(() => {

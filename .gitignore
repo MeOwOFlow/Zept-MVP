@@ -6,7 +6,10 @@ coverage
 .DS_Store
 .env
 .env.local
-.vscode/*
-!.vscode/extensions.json
+.dev.vars
+.dev.vars.*
 .wrangler
 *.tsbuildinfo
+screenshots/
+.vscode/*
+!.vscode/extensions.json

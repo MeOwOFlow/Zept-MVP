@@ -47,6 +47,14 @@ describe('nextMode', () => {
     const s = { ...createPomodoroState(), mode: 'long_break' as PomodoroMode };
     expect(nextMode(s)).toBe('work');
   });
+  it('longBreakEvery=0 关闭长休，work 永远 → short_break', () => {
+    const s = { ...createPomodoroState({ longBreakEvery: 0 }), cyclesCompleted: 3 };
+    expect(nextMode(s)).toBe('short_break');
+  });
+  it('自定义配置 work → long_break（每 3 轮）', () => {
+    const s = { ...createPomodoroState({ longBreakEvery: 3 }), cyclesCompleted: 2 };
+    expect(nextMode(s)).toBe('long_break');
+  });
 });
 
 describe('getDurationSec', () => {

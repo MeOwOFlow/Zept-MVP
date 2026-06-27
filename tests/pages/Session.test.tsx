@@ -20,8 +20,13 @@ const mockState = vi.hoisted(() => ({
 }));
 
 vi.mock('../../src/stores/userStore', () => ({
-  useUserStore: (selector: (s: { profile: { goal: string; examDate: string; topDistractions: string[]; onboarded: boolean } }) => unknown) =>
-    selector({ profile: { goal: '考研', examDate: '2026-12-21', topDistractions: ['手机'], onboarded: true } }),
+  useUserStore: (selector: (s: { profile: { goal: string; examDate: string; topDistractions: string[]; onboarded: boolean; pomodoroConfig: { workDurationMin: number; shortBreakMin: number; longBreakMin: number; longBreakEvery: number } } }) => unknown) =>
+    selector({
+      profile: {
+        goal: '考研', examDate: '2026-12-21', topDistractions: ['手机'], onboarded: true,
+        pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5, longBreakMin: 15, longBreakEvery: 4 },
+      },
+    }),
 }));
 vi.mock('../../src/stores/sessionStore', () => ({
   useSessionStore: (selector: (s: typeof mockState) => unknown) => selector(mockState),

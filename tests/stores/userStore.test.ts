@@ -11,10 +11,11 @@ vi.mock('../../src/lib/db', () => ({
 }));
 
 import { useUserStore } from '../../src/stores/userStore';
-import type { UserProfile } from '../../src/types/user';
+import { DEFAULT_POMODORO_CONFIG, type UserProfile } from '../../src/types/user';
 
 const profile: UserProfile = {
   goal: '考研', examDate: '2026-12-21', topDistractions: ['手机'], onboarded: true,
+  pomodoroConfig: DEFAULT_POMODORO_CONFIG,
 };
 
 beforeEach(() => {

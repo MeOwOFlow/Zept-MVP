@@ -22,6 +22,7 @@ export function createPomodoroState(config: PomodoroConfig = {}): PomodoroState 
 
 export function nextMode(state: PomodoroState): PomodoroMode {
   if (state.mode === 'work') {
+    if (state.longBreakEvery <= 0) return 'short_break';
     const nextCycle = state.cyclesCompleted + 1;
     return nextCycle % state.longBreakEvery === 0 ? 'long_break' : 'short_break';
   }

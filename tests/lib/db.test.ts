@@ -50,6 +50,7 @@ const mockUser = (): UserProfile => ({
   examDate: '2026-12-21',
   topDistractions: ['手机', '微信'],
   onboarded: true,
+  pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5, longBreakMin: 15, longBreakEvery: 4 },
 });
 
 describe('db', () => {
