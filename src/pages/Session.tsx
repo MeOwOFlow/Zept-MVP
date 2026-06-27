@@ -15,10 +15,12 @@ import '../styles/session.css';
 type Rating = 1 | 2 | 3 | 4 | 5;
 type Phase = 'idle' | 'preAssess' | 'running' | 'confirmEnd' | 'postAssess' | 'loading' | 'insight';
 
-// 时长选项（与原 Settings 一致）
-const WORK_OPTIONS = [15, 20, 25, 30, 45, 50, 60, 90];
-const SHORT_BREAK_OPTIONS = [3, 5, 10, 15];
-const LONG_BREAK_OPTIONS = [10, 15, 20, 30];
+// 时长快捷值（chips 作为建议，输入框支持自定义任意分钟数）
+const WORK_OPTIONS = [15, 25, 45, 60];
+const SHORT_BREAK_OPTIONS = [3, 5, 10];
+const LONG_BREAK_OPTIONS = [10, 15, 20];
+const WORK_MIN = 1, WORK_MAX = 180;
+const BREAK_MIN = 1, BREAK_MAX = 60;
 const LONG_BREAK_EVERY_OPTIONS = [
   { value: 0, label: '关闭长休' },
   { value: 2, label: '每 2 轮' },
@@ -80,9 +82,15 @@ export default function Session() {
     }
   }, [phase, isRunning, tick]);
 
-  const allSet = draft.workDurationMin !== undefined
-    && draft.shortBreakMin !== undefined
-    && draft.longBreakMin !== undefined
+  const isValidWork = (v: number | undefined): v is number =>
+    v !== undefined && v >= WORK_MIN && v <= WORK_MAX && Number.isInteger(v);
+  const isValidBreak = (v: number | undefined): v is number =>
+    v !== undefined && v >= BREAK_MIN && v <= BREAK_MAX && Number.isInteger(v);
+
+  const longBreakDisabled = draft.longBreakEvery === 0;
+  const allSet = isValidWork(draft.workDurationMin)
+    && isValidBreak(draft.shortBreakMin)
+    && (longBreakDisabled || isValidBreak(draft.longBreakMin))
     && draft.longBreakEvery !== undefined;
 
   const updateDraft = (patch: Partial<DraftConfig>) => {
@@ -91,6 +99,11 @@ export default function Session() {
 
   const applyPreset = (config: PomodoroConfig) => {
     setDraft(config);
+  };
+
+  const parseNum = (raw: string): number | undefined => {
+    const v = parseInt(raw, 10);
+    return isNaN(v) ? undefined : v;
   };
 
   const handleStart = async () => {
@@ -227,6 +240,21 @@ export default function Session() {
                       </button>
                     ))}
                   </div>
+                  <div className="zept-session__number-field">
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={WORK_MIN}
+                      max={WORK_MAX}
+                      step={1}
+                      className="zept-session__number-input"
+                      value={draft.workDurationMin ?? ''}
+                      onChange={(e) => updateDraft({ workDurationMin: parseNum(e.target.value) })}
+                      placeholder="自定义"
+                      aria-label="专注时长（分钟）"
+                    />
+                    <span className="zept-session__number-suffix">分钟</span>
+                  </div>
                 </div>
 
                 <div className="zept-session__field">
@@ -243,6 +271,21 @@ export default function Session() {
                       </button>
                     ))}
                   </div>
+                  <div className="zept-session__number-field">
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={BREAK_MIN}
+                      max={BREAK_MAX}
+                      step={1}
+                      className="zept-session__number-input"
+                      value={draft.shortBreakMin ?? ''}
+                      onChange={(e) => updateDraft({ shortBreakMin: parseNum(e.target.value) })}
+                      placeholder="自定义"
+                      aria-label="短休时长（分钟）"
+                    />
+                    <span className="zept-session__number-suffix">分钟</span>
+                  </div>
                 </div>
 
                 <div className="zept-session__field">
@@ -254,11 +297,27 @@ export default function Session() {
                         type="button"
                         className={`zept-chip ${draft.longBreakMin === min ? 'zept-chip--active' : ''}`}
                         onClick={() => updateDraft({ longBreakMin: min })}
-                        disabled={draft.longBreakEvery === 0}
+                        disabled={longBreakDisabled}
                       >
                         {min} 分钟
                       </button>
                     ))}
+                  </div>
+                  <div className="zept-session__number-field">
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={BREAK_MIN}
+                      max={BREAK_MAX}
+                      step={1}
+                      className="zept-session__number-input"
+                      value={draft.longBreakMin ?? ''}
+                      onChange={(e) => updateDraft({ longBreakMin: parseNum(e.target.value) })}
+                      placeholder="自定义"
+                      aria-label="长休时长（分钟）"
+                      disabled={longBreakDisabled}
+                    />
+                    <span className="zept-session__number-suffix">分钟</span>
                   </div>
                 </div>
 
@@ -270,7 +329,13 @@ export default function Session() {
                         key={opt.value}
                         type="button"
                         className={`zept-chip ${draft.longBreakEvery === opt.value ? 'zept-chip--active' : ''}`}
-                        onClick={() => updateDraft({ longBreakEvery: opt.value })}
+                        onClick={() => {
+                          if (opt.value === 0) {
+                            updateDraft({ longBreakEvery: 0, longBreakMin: undefined });
+                          } else {
+                            updateDraft({ longBreakEvery: opt.value });
+                          }
+                        }}
                       >
                         {opt.label}
                       </button>
