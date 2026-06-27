@@ -2,7 +2,7 @@ import type { SessionRecord, SelfAssessment } from '../types/session';
 import type { UserProfile } from '../types/user';
 import { daysUntilExam } from './date';
 
-const INTERRUPTION_THRESHOLD_MS = 2000;
+const INTERRUPTION_THRESHOLD_MS = 10_000;
 
 interface InterruptionListener {
   target: 'document' | 'window';

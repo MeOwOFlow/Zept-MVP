@@ -13,11 +13,30 @@ import {
   getFallbackInsight,
 } from './rules';
 
+function fmtLeave(count: number, totalMs: number, longestMs: number): string {
+  if (count === 0) return '未离开';
+  const totalSec = Math.round(totalMs / 1000);
+  const longestSec = Math.round(longestMs / 1000);
+  const t = totalSec >= 60 ? `${Math.floor(totalSec / 60)}分${totalSec % 60}秒` : `${totalSec}秒`;
+  const l = longestSec >= 60 ? `${Math.floor(longestSec / 60)}分${longestSec % 60}秒` : `${longestSec}秒`;
+  return `离开${count}次共${t}，最长${l}`;
+}
+
+function leaveInfo(s: SessionRecord): { count: number; totalMs: number; longestMs: number } {
+  const events = s.interruptionEvents ?? [];
+  const totalMs = events.reduce((sum, e) => sum + e.durationMs, 0);
+  const longestMs = events.length > 0 ? Math.max(...events.map((e) => e.durationMs)) : 0;
+  return { count: s.interruptions, totalMs, longestMs };
+}
+
 function summarizeSessions(sessions: SessionRecord[]): string {
   if (sessions.length === 0) return '无历史会话';
   return sessions
     .slice(0, 3)
-    .map((s) => `${s.isPomodoro ? '番茄' : '自由'} ${Math.floor(s.actualDurationSec / 60)}分钟，中断${s.interruptions}次`)
+    .map((s) => {
+      const { count, totalMs, longestMs } = leaveInfo(s);
+      return `${s.isPomodoro ? '番茄' : '自由'} ${Math.floor(s.actualDurationSec / 60)}分钟，${fmtLeave(count, totalMs, longestMs)}`;
+    })
     .join('；');
 }
 
@@ -29,7 +48,8 @@ function summarizeInsights(insights: Insight[]): string {
 function summarizeCurrent(session: SessionRecord): string {
   const mood = session.postAssessment?.mood ?? 3;
   const focus = session.postAssessment?.focus ?? 3;
-  return `${session.isPomodoro ? '番茄' : '自由'} ${Math.floor(session.actualDurationSec / 60)}分钟，中断${session.interruptions}次，情绪${mood}，专注${focus}`;
+  const { count, totalMs, longestMs } = leaveInfo(session);
+  return `${session.isPomodoro ? '番茄' : '自由'} ${Math.floor(session.actualDurationSec / 60)}分钟，${fmtLeave(count, totalMs, longestMs)}，情绪${mood}，专注${focus}`;
 }
 
 function makeInsightId(): string {

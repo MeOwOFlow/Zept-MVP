@@ -74,21 +74,21 @@ describe('interruption tracking', () => {
     document.dispatchEvent(new Event('visibilitychange'));
   };
 
-  it('隐藏 > 2s 恢复后计为一次中断', () => {
+  it('隐藏 > 10s 恢复后计为一次中断', () => {
     const onRecover = vi.fn();
     startInterruptionTracking('s1', onRecover);
     setVisible('hidden');
-    vi.advanceTimersByTime(3000);
+    vi.advanceTimersByTime(15_000);
     setVisible('visible');
     expect(onRecover).toHaveBeenCalledTimes(1);
-    expect(onRecover.mock.calls[0][0]).toMatchObject({ interruptions: 1, durationMs: 3000 });
+    expect(onRecover.mock.calls[0][0]).toMatchObject({ interruptions: 1, durationMs: 15_000 });
   });
 
-  it('隐藏 < 2s 不计中断', () => {
+  it('隐藏 < 10s 不计中断', () => {
     const onRecover = vi.fn();
     startInterruptionTracking('s1', onRecover);
     setVisible('hidden');
-    vi.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(5_000);
     setVisible('visible');
     expect(onRecover).not.toHaveBeenCalled();
   });
@@ -97,10 +97,10 @@ describe('interruption tracking', () => {
     const onRecover = vi.fn();
     startInterruptionTracking('s1', onRecover);
     setVisible('hidden');
-    vi.advanceTimersByTime(3000);
+    vi.advanceTimersByTime(15_000);
     setVisible('visible');
     setVisible('hidden');
-    vi.advanceTimersByTime(5000);
+    vi.advanceTimersByTime(20_000);
     setVisible('visible');
     expect(onRecover).toHaveBeenCalledTimes(2);
     expect(onRecover.mock.calls[1][0].interruptions).toBe(2);
@@ -111,7 +111,7 @@ describe('interruption tracking', () => {
     startInterruptionTracking('s1', onRecover);
     stopInterruptionTracking();
     setVisible('hidden');
-    vi.advanceTimersByTime(3000);
+    vi.advanceTimersByTime(15_000);
     setVisible('visible');
     expect(onRecover).not.toHaveBeenCalled();
   });

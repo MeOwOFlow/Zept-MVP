@@ -342,7 +342,7 @@ export default function Session() {
           </div>
           <div className="zept-session__mode-label">{modeLabel}</div>
           {interruptions > 0 && (
-            <div className="zept-session__interrupt">中断 {interruptions} 次</div>
+            <div className="zept-session__interrupt">离开 {interruptions} 次</div>
           )}
           <div className="zept-session__controls">
             {isRunning ? (

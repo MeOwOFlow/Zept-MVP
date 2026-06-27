@@ -67,7 +67,7 @@ export default function Insights() {
               <div>
                 <div className="zept-insights__date">{date}</div>
                 <div className="zept-insights__meta">
-                  {formatDuration(session.actualDurationSec)} · 中断 {session.interruptions} 次
+                  {formatDuration(session.actualDurationSec)} · 离开 {session.interruptions} 次
                 </div>
               </div>
               <span className="material-symbols-rounded">{isOpen ? 'expand_less' : 'expand_more'}</span>

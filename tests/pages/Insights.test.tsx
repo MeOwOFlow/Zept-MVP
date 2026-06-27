@@ -43,7 +43,7 @@ describe('Insights', () => {
     });
     render(<Insights />);
     expect(await screen.findByText('上午更专注')).toBeInTheDocument();
-    expect(screen.getByText(/中断 1 次/)).toBeInTheDocument();
+    expect(screen.getByText(/离开 1 次/)).toBeInTheDocument();
   });
 
   it('点击展开详情并反馈', async () => {
