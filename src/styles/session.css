@@ -27,112 +27,189 @@
   margin-bottom: var(--space-4);
 }
 
-/* ---------- 番茄推荐区（仅首次未配置时显示） ---------- */
-.zept-session__presets {
-  margin-bottom: var(--space-4);
-  padding: var(--space-3);
-  background: var(--surface-variant);
-  border-radius: var(--radius-md);
-}
-.zept-session__presets-label {
-  font-size: var(--fs-label-lg);
-  color: var(--on-surface-variant);
-  margin-bottom: var(--space-2);
-  font-weight: var(--fw-medium);
-}
-.zept-session__presets-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-.zept-chip--preset {
-  background: var(--primary-container);
-  color: var(--on-primary-container);
-}
-
-/* ---------- 番茄配置区 ---------- */
+/* ---------- 配置区 ---------- */
 .zept-session__config {
   margin-bottom: var(--space-4);
-}
-.zept-session__field {
-  margin-bottom: var(--space-4);
-}
-.zept-session__field:last-child {
-  margin-bottom: 0;
-}
-.zept-session__field-label {
-  display: block;
-  font-size: var(--fs-label-lg);
-  color: var(--on-surface-variant);
-  margin-bottom: var(--space-2);
-  font-weight: var(--fw-medium);
-}
-.zept-session__chips {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-.zept-session__chips .zept-chip:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
-/* ---------- 数字输入框（MD3 Filled TextField 风格） ---------- */
-.zept-session__number-field {
-  position: relative;
+/* 预设 tile 行 */
+.zept-session__presets-row {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+.zept-preset-tile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-3) var(--space-2);
+  background: var(--surface-variant);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--ease), border-color var(--ease);
+  font-family: inherit;
+}
+.zept-preset-tile:active {
+  background: var(--surface-2);
+}
+.zept-preset-tile--active {
+  background: var(--primary-container);
+  border-color: var(--primary);
+}
+.zept-preset-tile__label {
+  font-size: var(--fs-label-lg);
+  font-weight: var(--fw-medium);
+  color: var(--on-surface);
+}
+.zept-preset-tile--active .zept-preset-tile__label {
+  color: var(--on-primary-container);
+}
+.zept-preset-tile__sub {
+  font-size: var(--fs-label-sm);
+  color: var(--on-surface-muted);
+  font-variant-numeric: tabular-nums;
+}
+.zept-preset-tile--active .zept-preset-tile__sub {
+  color: var(--on-primary-container);
+  opacity: 0.8;
+}
+
+/* Stepper 行 */
+.zept-stepper-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.zept-stepper-row--indented {
+  padding-left: var(--space-5);
+}
+.zept-stepper-row__label {
+  font-size: var(--fs-body-lg);
+  color: var(--on-surface);
+  font-weight: var(--fw-regular);
+  min-width: 48px;
+}
+
+/* Stepper 控件 [-] [N 分钟] [+] */
+.zept-stepper {
   display: inline-flex;
   align-items: center;
-  margin-top: var(--space-2);
+  gap: 0;
   background: var(--surface-variant);
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  border-bottom: 2px solid var(--on-surface-muted);
-  transition: border-color var(--ease);
-  min-width: 140px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
 }
-.zept-session__number-field:focus-within {
-  border-bottom-color: var(--primary);
+.zept-stepper--disabled {
+  opacity: 0.4;
+  pointer-events: none;
 }
-.zept-session__number-input {
-  appearance: textfield;
-  -moz-appearance: textfield;
+.zept-stepper__btn {
+  width: 36px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  font-weight: var(--fw-medium);
+  color: var(--on-surface);
+  cursor: pointer;
+  transition: background var(--ease);
+  font-family: inherit;
+  line-height: 1;
+  user-select: none;
+}
+.zept-stepper__btn:active {
+  background: var(--surface-2);
+}
+.zept-stepper__btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.zept-stepper__input {
+  width: 52px;
+  height: 40px;
+  text-align: center;
+  font-size: var(--fs-title-md);
+  font-weight: var(--fw-medium);
+  color: var(--on-surface);
   background: transparent;
   border: none;
   outline: none;
-  font-size: var(--fs-body-lg);
-  font-weight: var(--fw-medium);
-  color: var(--on-surface);
-  padding: var(--space-3) var(--space-2) var(--space-2) var(--space-3);
-  width: 80px;
-  text-align: left;
   font-family: inherit;
-  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+  padding: 0;
 }
-.zept-session__number-input::-webkit-inner-spin-button,
-.zept-session__number-input::-webkit-outer-spin-button {
+.zept-stepper__input::-webkit-inner-spin-button,
+.zept-stepper__input::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-.zept-session__number-input::placeholder {
+.zept-stepper__input::placeholder {
   color: var(--on-surface-muted);
   font-weight: var(--fw-regular);
 }
-.zept-session__number-input:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-.zept-session__number-suffix {
-  padding: var(--space-3) var(--space-3) var(--space-2) 0;
-  font-size: var(--fs-body);
-  color: var(--on-surface-variant);
-  user-select: none;
-  white-space: nowrap;
-}
-.zept-session__config-hint {
+.zept-stepper__unit {
   font-size: var(--fs-body-md);
-  color: var(--on-surface-muted);
-  margin-bottom: var(--space-4);
-  line-height: var(--lh-normal);
+  color: var(--on-surface-variant);
+  padding-right: var(--space-3);
+  padding-left: var(--space-1);
+  user-select: none;
 }
+
+/* MD3 Switch */
+.zept-switch {
+  position: relative;
+  width: 52px;
+  height: 32px;
+  border-radius: 16px;
+  border: 2px solid var(--outline);
+  background: var(--surface-variant);
+  cursor: pointer;
+  transition: background var(--ease), border-color var(--ease);
+  padding: 0;
+  flex-shrink: 0;
+}
+.zept-switch__thumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--outline);
+  transition: transform var(--ease), background var(--ease);
+}
+.zept-switch--on {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.zept-switch--on .zept-switch__thumb {
+  transform: translateX(20px);
+  background: var(--on-primary);
+}
+
+/* 长休间隔 chips（紧凑小尺寸） */
+.zept-session__cycles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+.zept-chip--sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--fs-label-sm);
+}
+
+/* ---------- 计时器 ---------- */
 .zept-session__timer {
   position: relative;
   width: 260px;

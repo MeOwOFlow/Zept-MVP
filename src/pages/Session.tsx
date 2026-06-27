@@ -15,33 +15,74 @@ import '../styles/session.css';
 type Rating = 1 | 2 | 3 | 4 | 5;
 type Phase = 'idle' | 'preAssess' | 'running' | 'confirmEnd' | 'postAssess' | 'loading' | 'insight';
 
-// 时长快捷值（chips 作为建议，输入框支持自定义任意分钟数）
-const WORK_OPTIONS = [15, 25, 45, 60];
-const SHORT_BREAK_OPTIONS = [3, 5, 10];
-const LONG_BREAK_OPTIONS = [10, 15, 20];
 const WORK_MIN = 1, WORK_MAX = 180;
 const BREAK_MIN = 1, BREAK_MAX = 60;
-const LONG_BREAK_EVERY_OPTIONS = [
-  { value: 0, label: '关闭长休' },
-  { value: 2, label: '每 2 轮' },
-  { value: 3, label: '每 3 轮' },
-  { value: 4, label: '每 4 轮' },
-  { value: 5, label: '每 5 轮' },
-  { value: 6, label: '每 6 轮' },
+
+const POMODORO_PRESETS: Array<{ id: string; label: string; sub: string; config: PomodoroConfig }> = [
+  { id: 'classic', label: '经典', sub: '25/5/15', config: { workDurationMin: 25, shortBreakMin: 5, longBreakMin: 15, longBreakEvery: 4 } },
+  { id: 'deep', label: '深度', sub: '50/10/20', config: { workDurationMin: 50, shortBreakMin: 10, longBreakMin: 20, longBreakEvery: 4 } },
+  { id: 'sprint', label: '冲刺', sub: '90/15/30', config: { workDurationMin: 90, shortBreakMin: 15, longBreakMin: 30, longBreakEvery: 3 } },
 ];
 
-// 常用推荐组合（仅首次未配置时显示，配置过后不再出现）
-const POMODORO_PRESETS: Array<{ id: string; label: string; config: PomodoroConfig }> = [
-  { id: 'classic', label: '经典番茄', config: { workDurationMin: 25, shortBreakMin: 5, longBreakMin: 15, longBreakEvery: 4 } },
-  { id: 'deep', label: '深度专注', config: { workDurationMin: 50, shortBreakMin: 10, longBreakMin: 20, longBreakEvery: 4 } },
-  { id: 'sprint', label: '冲刺模式', config: { workDurationMin: 90, shortBreakMin: 15, longBreakMin: 30, longBreakEvery: 3 } },
-];
+const LONG_BREAK_CYCLES = [2, 3, 4, 5, 6];
 
 interface DraftConfig {
   workDurationMin?: number;
   shortBreakMin?: number;
   longBreakMin?: number;
   longBreakEvery?: number;
+  longBreakEnabled?: boolean;
+}
+
+// Stepper: [-] [N 分钟] [+]
+function Stepper({
+  value, onChange, min, max, step = 1, disabled = false, unit = '分钟', ariaLabel,
+}: {
+  value?: number;
+  onChange: (v: number) => void;
+  min: number;
+  max: number;
+  step?: number;
+  disabled?: boolean;
+  unit?: string;
+  ariaLabel: string;
+}) {
+  const clamp = (v: number) => Math.max(min, Math.min(max, Math.round(v)));
+  return (
+    <div className={`zept-stepper ${disabled ? 'zept-stepper--disabled' : ''}`}>
+      <button
+        type="button"
+        className="zept-stepper__btn"
+        onClick={() => value !== undefined && onChange(clamp(value - step))}
+        disabled={disabled || value === undefined || value <= min}
+        aria-label={`${ariaLabel} 减少`}
+      >−</button>
+      <input
+        type="number"
+        inputMode="numeric"
+        min={min}
+        max={max}
+        step={step}
+        className="zept-stepper__input"
+        value={value ?? ''}
+        onChange={(e) => {
+          const v = parseInt(e.target.value, 10);
+          if (!isNaN(v)) onChange(clamp(v));
+        }}
+        disabled={disabled}
+        aria-label={ariaLabel}
+        placeholder="--"
+      />
+      <span className="zept-stepper__unit">{unit}</span>
+      <button
+        type="button"
+        className="zept-stepper__btn"
+        onClick={() => value !== undefined && onChange(clamp(value + step))}
+        disabled={disabled || value === undefined || value >= max}
+        aria-label={`${ariaLabel} 增加`}
+      >+</button>
+    </div>
+  );
 }
 
 export default function Session() {
@@ -68,10 +109,16 @@ export default function Session() {
   const [insight, setInsight] = useState<Insight | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // profile 加载后，若已配置过番茄则同步到 draft（默认选中上次的值）
   useEffect(() => {
     if (profile?.pomodoroConfig) {
-      setDraft(profile.pomodoroConfig);
+      const c = profile.pomodoroConfig;
+      setDraft({
+        workDurationMin: c.workDurationMin,
+        shortBreakMin: c.shortBreakMin,
+        longBreakMin: c.longBreakMin,
+        longBreakEvery: c.longBreakEvery,
+        longBreakEnabled: c.longBreakEvery > 0,
+      });
     }
   }, [profile]);
 
@@ -82,35 +129,47 @@ export default function Session() {
     }
   }, [phase, isRunning, tick]);
 
-  const isValidWork = (v: number | undefined): v is number =>
-    v !== undefined && v >= WORK_MIN && v <= WORK_MAX && Number.isInteger(v);
-  const isValidBreak = (v: number | undefined): v is number =>
-    v !== undefined && v >= BREAK_MIN && v <= BREAK_MAX && Number.isInteger(v);
+  const isValid = (v: number | undefined, min: number, max: number): v is number =>
+    v !== undefined && v >= min && v <= max && Number.isInteger(v);
 
-  const longBreakDisabled = draft.longBreakEvery === 0;
-  const allSet = isValidWork(draft.workDurationMin)
-    && isValidBreak(draft.shortBreakMin)
-    && (longBreakDisabled || isValidBreak(draft.longBreakMin))
-    && draft.longBreakEvery !== undefined;
+  const longBreakOn = draft.longBreakEnabled ?? false;
+  const allSet = isValid(draft.workDurationMin, WORK_MIN, WORK_MAX)
+    && isValid(draft.shortBreakMin, BREAK_MIN, BREAK_MAX)
+    && (!longBreakOn || isValid(draft.longBreakMin, BREAK_MIN, BREAK_MAX))
+    && (!longBreakOn || draft.longBreakEvery !== undefined);
 
   const updateDraft = (patch: Partial<DraftConfig>) => {
     setDraft((prev) => ({ ...prev, ...patch }));
   };
 
   const applyPreset = (config: PomodoroConfig) => {
-    setDraft(config);
+    setDraft({
+      workDurationMin: config.workDurationMin,
+      shortBreakMin: config.shortBreakMin,
+      longBreakMin: config.longBreakMin,
+      longBreakEvery: config.longBreakEvery,
+      longBreakEnabled: config.longBreakEvery > 0,
+    });
   };
 
-  const parseNum = (raw: string): number | undefined => {
-    const v = parseInt(raw, 10);
-    return isNaN(v) ? undefined : v;
+  const toggleLongBreak = (on: boolean) => {
+    if (on) {
+      updateDraft({ longBreakEnabled: true, longBreakEvery: draft.longBreakEvery ?? 4, longBreakMin: draft.longBreakMin ?? 15 });
+    } else {
+      updateDraft({ longBreakEnabled: false });
+    }
   };
 
   const handleStart = async () => {
     if (!profile) return;
     if (isPomodoro) {
       if (!allSet) return;
-      const config: PomodoroConfig = draft as PomodoroConfig;
+      const config: PomodoroConfig = {
+        workDurationMin: draft.workDurationMin!,
+        shortBreakMin: draft.shortBreakMin!,
+        longBreakMin: longBreakOn ? draft.longBreakMin! : 0,
+        longBreakEvery: longBreakOn ? draft.longBreakEvery! : 0,
+      };
       const current = profile.pomodoroConfig;
       const sameConfig = current
         && current.workDurationMin === config.workDurationMin
@@ -131,9 +190,7 @@ export default function Session() {
   };
 
   const handlePreDone = () => setPhase('running');
-
   const handleEndClick = () => setPhase('confirmEnd');
-
   const handleConfirmEnd = () => setPhase('postAssess');
 
   const handlePostSubmit = async () => {
@@ -164,7 +221,6 @@ export default function Session() {
     setPreMood(3); setPreFocus(3); setPostMood(3); setPostFocus(3);
   };
 
-  // 格式化倒计时
   const mins = Math.floor(remainingSec / 60);
   const secs = remainingSec % 60;
   const countdown = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
@@ -177,11 +233,7 @@ export default function Session() {
   const R = 120;
   const circumference = 2 * Math.PI * R;
   const dashOffset = circumference * (1 - progress);
-
   const modeLabel = pomodoroState?.mode === 'work' ? '专注中' : pomodoroState?.mode === 'short_break' ? '短休息' : '长休息';
-
-  // 推荐区仅在用户从未配置过番茄时显示（配置过后不再出现）
-  const showPresets = !profile?.pomodoroConfig;
 
   return (
     <div className="zept-session">
@@ -206,151 +258,94 @@ export default function Session() {
           </div>
 
           {isPomodoro && (
-            <>
-              {showPresets && (
-                <div className="zept-session__presets">
-                  <p className="zept-session__presets-label">常用推荐 · 点击即用</p>
-                  <div className="zept-session__presets-chips">
-                    {POMODORO_PRESETS.map((p) => (
-                      <button
-                        key={p.id}
-                        type="button"
-                        className="zept-chip zept-chip--preset"
-                        onClick={() => applyPreset(p.config)}
-                      >
-                        {p.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="zept-session__config">
-                <div className="zept-session__field">
-                  <label className="zept-session__field-label">专注时长</label>
-                  <div className="zept-session__chips">
-                    {WORK_OPTIONS.map((min) => (
-                      <button
-                        key={min}
-                        type="button"
-                        className={`zept-chip ${draft.workDurationMin === min ? 'zept-chip--active' : ''}`}
-                        onClick={() => updateDraft({ workDurationMin: min })}
-                      >
-                        {min} 分钟
-                      </button>
-                    ))}
-                  </div>
-                  <div className="zept-session__number-field">
-                    <input
-                      type="number"
-                      inputMode="numeric"
-                      min={WORK_MIN}
-                      max={WORK_MAX}
-                      step={1}
-                      className="zept-session__number-input"
-                      value={draft.workDurationMin ?? ''}
-                      onChange={(e) => updateDraft({ workDurationMin: parseNum(e.target.value) })}
-                      placeholder="自定义"
-                      aria-label="专注时长（分钟）"
-                    />
-                    <span className="zept-session__number-suffix">分钟</span>
-                  </div>
-                </div>
-
-                <div className="zept-session__field">
-                  <label className="zept-session__field-label">短休时长</label>
-                  <div className="zept-session__chips">
-                    {SHORT_BREAK_OPTIONS.map((min) => (
-                      <button
-                        key={min}
-                        type="button"
-                        className={`zept-chip ${draft.shortBreakMin === min ? 'zept-chip--active' : ''}`}
-                        onClick={() => updateDraft({ shortBreakMin: min })}
-                      >
-                        {min} 分钟
-                      </button>
-                    ))}
-                  </div>
-                  <div className="zept-session__number-field">
-                    <input
-                      type="number"
-                      inputMode="numeric"
-                      min={BREAK_MIN}
-                      max={BREAK_MAX}
-                      step={1}
-                      className="zept-session__number-input"
-                      value={draft.shortBreakMin ?? ''}
-                      onChange={(e) => updateDraft({ shortBreakMin: parseNum(e.target.value) })}
-                      placeholder="自定义"
-                      aria-label="短休时长（分钟）"
-                    />
-                    <span className="zept-session__number-suffix">分钟</span>
-                  </div>
-                </div>
-
-                <div className="zept-session__field">
-                  <label className="zept-session__field-label">长休时长</label>
-                  <div className="zept-session__chips">
-                    {LONG_BREAK_OPTIONS.map((min) => (
-                      <button
-                        key={min}
-                        type="button"
-                        className={`zept-chip ${draft.longBreakMin === min ? 'zept-chip--active' : ''}`}
-                        onClick={() => updateDraft({ longBreakMin: min })}
-                        disabled={longBreakDisabled}
-                      >
-                        {min} 分钟
-                      </button>
-                    ))}
-                  </div>
-                  <div className="zept-session__number-field">
-                    <input
-                      type="number"
-                      inputMode="numeric"
-                      min={BREAK_MIN}
-                      max={BREAK_MAX}
-                      step={1}
-                      className="zept-session__number-input"
-                      value={draft.longBreakMin ?? ''}
-                      onChange={(e) => updateDraft({ longBreakMin: parseNum(e.target.value) })}
-                      placeholder="自定义"
-                      aria-label="长休时长（分钟）"
-                      disabled={longBreakDisabled}
-                    />
-                    <span className="zept-session__number-suffix">分钟</span>
-                  </div>
-                </div>
-
-                <div className="zept-session__field">
-                  <label className="zept-session__field-label">长休触发</label>
-                  <div className="zept-session__chips">
-                    {LONG_BREAK_EVERY_OPTIONS.map((opt) => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        className={`zept-chip ${draft.longBreakEvery === opt.value ? 'zept-chip--active' : ''}`}
-                        onClick={() => {
-                          if (opt.value === 0) {
-                            updateDraft({ longBreakEvery: 0, longBreakMin: undefined });
-                          } else {
-                            updateDraft({ longBreakEvery: opt.value });
-                          }
-                        }}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+            <div className="zept-session__config">
+              <div className="zept-session__presets-row">
+                {POMODORO_PRESETS.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className={`zept-preset-tile ${
+                      draft.workDurationMin === p.config.workDurationMin
+                      && draft.shortBreakMin === p.config.shortBreakMin
+                      && draft.longBreakMin === p.config.longBreakMin
+                      && draft.longBreakEvery === p.config.longBreakEvery
+                        ? 'zept-preset-tile--active' : ''
+                    }`}
+                    onClick={() => applyPreset(p.config)}
+                    aria-label={`${p.label} ${p.sub}`}
+                  >
+                    <span className="zept-preset-tile__label">{p.label}</span>
+                    <span className="zept-preset-tile__sub">{p.sub}</span>
+                  </button>
+                ))}
               </div>
-            </>
+
+              <div className="zept-stepper-row">
+                <span className="zept-stepper-row__label">专注</span>
+                <Stepper
+                  value={draft.workDurationMin}
+                  onChange={(v) => updateDraft({ workDurationMin: v })}
+                  min={WORK_MIN} max={WORK_MAX}
+                  ariaLabel="专注时长"
+                />
+              </div>
+
+              <div className="zept-stepper-row">
+                <span className="zept-stepper-row__label">短休</span>
+                <Stepper
+                  value={draft.shortBreakMin}
+                  onChange={(v) => updateDraft({ shortBreakMin: v })}
+                  min={BREAK_MIN} max={BREAK_MAX}
+                  ariaLabel="短休时长"
+                />
+              </div>
+
+              <div className="zept-stepper-row">
+                <span className="zept-stepper-row__label">长休</span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={longBreakOn}
+                  aria-label="长休"
+                  className={`zept-switch ${longBreakOn ? 'zept-switch--on' : ''}`}
+                  onClick={() => toggleLongBreak(!longBreakOn)}
+                >
+                  <span className="zept-switch__thumb" />
+                </button>
+              </div>
+
+              {longBreakOn && (
+                <>
+                  <div className="zept-stepper-row zept-stepper-row--indented">
+                    <span className="zept-stepper-row__label">时长</span>
+                    <Stepper
+                      value={draft.longBreakMin}
+                      onChange={(v) => updateDraft({ longBreakMin: v })}
+                      min={BREAK_MIN} max={BREAK_MAX}
+                      ariaLabel="长休时长"
+                    />
+                  </div>
+                  <div className="zept-stepper-row zept-stepper-row--indented">
+                    <span className="zept-stepper-row__label">间隔</span>
+                    <div className="zept-session__cycles">
+                      {LONG_BREAK_CYCLES.map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          className={`zept-chip zept-chip--sm ${draft.longBreakEvery === n ? 'zept-chip--active' : ''}`}
+                          onClick={() => updateDraft({ longBreakEvery: n })}
+                        >
+                          每 {n} 轮
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           )}
 
-          <Button
-            variant="filled"
-            onClick={handleStart}
-            disabled={isPomodoro && !allSet}
-          >
+          <Button variant="filled" onClick={handleStart} disabled={isPomodoro && !allSet}>
             开始专注
           </Button>
         </Card>
@@ -433,9 +428,7 @@ export default function Session() {
                 </div>
               )}
               {insight.feedback && (
-                <p className="zept-session__feedback-done">
-                  已标记：{insight.feedback === 'useful' ? '有用' : '没用'}
-                </p>
+                <p className="zept-session__feedback-done">已标记：{insight.feedback === 'useful' ? '有用' : '没用'}</p>
               )}
             </>
           )}
