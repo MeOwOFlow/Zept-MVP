@@ -22,7 +22,7 @@ describe('Onboarding', () => {
   it('渲染三个问题区域', () => {
     render(<Onboarding />);
     expect(screen.getByPlaceholderText(/考研/)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/30/)).toBeInTheDocument();
+    expect(screen.getByLabelText('你的考试日期是')).toBeInTheDocument();
     expect(screen.getByText('手机')).toBeInTheDocument();
   });
 
@@ -35,10 +35,10 @@ describe('Onboarding', () => {
     const user = userEvent.setup();
     render(<Onboarding />);
     await user.type(screen.getByPlaceholderText(/考研/), '考研');
-    await user.type(screen.getByPlaceholderText(/30/), '100');
+    await user.type(screen.getByLabelText('你的考试日期是'), '2026-12-21');
     await user.click(screen.getByText('开始专注'));
     expect(setProfileMock).toHaveBeenCalledWith(
-      expect.objectContaining({ goal: '考研', daysToExam: 100, onboarded: true }),
+      expect.objectContaining({ goal: '考研', examDate: '2026-12-21', onboarded: true }),
     );
     expect(mockNavigate).toHaveBeenCalledWith('/session');
   });

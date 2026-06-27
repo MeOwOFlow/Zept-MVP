@@ -47,7 +47,7 @@ const mockInsight = (id: string, sessionId: string, createdAt: number): Insight 
 
 const mockUser = (): UserProfile => ({
   goal: '考研',
-  daysToExam: 60,
+  examDate: '2026-12-21',
   topDistractions: ['手机', '微信'],
   onboarded: true,
 });
@@ -103,7 +103,7 @@ describe('db', () => {
     await saveUser(mockUser());
     const got = await getUser();
     expect(got?.goal).toBe('考研');
-    expect(got?.daysToExam).toBe(60);
+    expect(got?.examDate).toBe('2026-12-21');
   });
 
   it('saveUser 多次写入只保留一条', async () => {

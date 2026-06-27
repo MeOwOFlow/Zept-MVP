@@ -1,5 +1,6 @@
 import type { SessionRecord, SelfAssessment } from '../types/session';
 import type { UserProfile } from '../types/user';
+import { daysUntilExam } from './date';
 
 const INTERRUPTION_THRESHOLD_MS = 2000;
 
@@ -17,7 +18,7 @@ export function createSession(user: UserProfile, isPomodoro: boolean): SessionRe
     id: `s_${now}_${Math.random().toString(36).slice(2, 8)}`,
     userId: 'local',
     goal: user.goal,
-    daysToExam: user.daysToExam,
+    daysToExam: daysUntilExam(user.examDate),
     startedAt: now,
     endedAt: null,
     status: 'planned',

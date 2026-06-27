@@ -18,7 +18,7 @@ import { useSessionStore } from '../../src/stores/sessionStore';
 import type { UserProfile } from '../../src/types/user';
 
 const user: UserProfile = {
-  goal: '考研', daysToExam: 100, topDistractions: ['手机'], onboarded: true,
+  goal: '考研', examDate: '2026-12-21', topDistractions: ['手机'], onboarded: true,
 };
 
 beforeEach(() => {

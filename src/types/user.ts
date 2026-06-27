@@ -1,6 +1,6 @@
 export interface UserProfile {
   goal: string;
-  daysToExam: number;
+  examDate: string;  // ISO YYYY-MM-DD
   topDistractions: string[];
   onboarded: boolean;
 }

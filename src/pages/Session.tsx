@@ -4,6 +4,7 @@ import { useSessionStore } from '../stores/sessionStore';
 import { generateInsight } from '../lib/insight';
 import { getRecentSessions, getUsefulInsights, updateInsightFeedback } from '../lib/db';
 import { shouldTriggerCareGate, CARE_GATE_RESOURCES } from '../lib/rules';
+import { daysUntilExam } from '../lib/date';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Slider } from '../components/Slider';
@@ -101,7 +102,7 @@ export default function Session() {
   return (
     <div className="zept-session">
       {profile && (
-        <div className="zept-session__badge">距考 {profile.daysToExam} 天</div>
+        <div className="zept-session__badge">距考 {daysUntilExam(profile.examDate)} 天</div>
       )}
 
       {phase === 'idle' && (

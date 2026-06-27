@@ -3,7 +3,7 @@ import type { UserProfile } from '../../src/types/user';
 
 expectTypeOf<UserProfile>().toMatchTypeOf<{
   goal: string;
-  daysToExam: number;
+  examDate: string;
   topDistractions: string[];
   onboarded: boolean;
 }>();

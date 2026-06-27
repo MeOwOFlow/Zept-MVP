@@ -11,7 +11,7 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const setProfile = useUserStore((s) => s.setProfile);
   const [goal, setGoal] = useState('');
-  const [days, setDays] = useState('');
+  const [examDate, setExamDate] = useState('');
   const [distractions, setDistractions] = useState<string[]>([]);
   const [customInput, setCustomInput] = useState('');
 
@@ -29,13 +29,13 @@ export default function Onboarding() {
     }
   };
 
-  const canSubmit = goal.trim().length > 0 && Number(days) > 0;
+  const canSubmit = goal.trim().length > 0 && examDate.length > 0;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
     await setProfile({
       goal: goal.trim(),
-      daysToExam: Number(days),
+      examDate,
       topDistractions: distractions,
       onboarded: true,
     });
@@ -48,8 +48,9 @@ export default function Onboarding() {
       <p className="zept-onboarding__subtitle">先了解你一下</p>
 
       <Card>
-        <label className="zept-onboarding__label">你的目标</label>
+        <label className="zept-onboarding__label" htmlFor="zept-goal">你的目标</label>
         <input
+          id="zept-goal"
           className="zept-onboarding__input"
           type="text"
           placeholder="比如：考研、期末、雅思"
@@ -59,19 +60,18 @@ export default function Onboarding() {
       </Card>
 
       <Card>
-        <label className="zept-onboarding__label">距考还有几天</label>
+        <label className="zept-onboarding__label" htmlFor="zept-exam-date">你的考试日期是</label>
         <input
+          id="zept-exam-date"
           className="zept-onboarding__input"
-          type="number"
-          min={1}
-          placeholder="比如：30"
-          value={days}
-          onChange={(e) => setDays(e.target.value)}
+          type="date"
+          value={examDate}
+          onChange={(e) => setExamDate(e.target.value)}
         />
       </Card>
 
       <Card>
-        <label className="zept-onboarding__label">最容易分心的是</label>
+        <label className="zept-onboarding__label" htmlFor="zept-custom">最容易分心的是</label>
         <div className="zept-onboarding__chips">
           {DISTRACTION_PRESETS.map((d) => (
             <button
@@ -85,6 +85,7 @@ export default function Onboarding() {
           ))}
         </div>
         <input
+          id="zept-custom"
           className="zept-onboarding__input"
           type="text"
           placeholder="自定义..."

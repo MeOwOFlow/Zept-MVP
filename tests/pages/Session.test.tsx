@@ -20,8 +20,8 @@ const mockState = vi.hoisted(() => ({
 }));
 
 vi.mock('../../src/stores/userStore', () => ({
-  useUserStore: (selector: (s: { profile: { goal: string; daysToExam: number; topDistractions: string[]; onboarded: boolean } }) => unknown) =>
-    selector({ profile: { goal: '考研', daysToExam: 100, topDistractions: ['手机'], onboarded: true } }),
+  useUserStore: (selector: (s: { profile: { goal: string; examDate: string; topDistractions: string[]; onboarded: boolean } }) => unknown) =>
+    selector({ profile: { goal: '考研', examDate: '2026-12-21', topDistractions: ['手机'], onboarded: true } }),
 }));
 vi.mock('../../src/stores/sessionStore', () => ({
   useSessionStore: (selector: (s: typeof mockState) => unknown) => selector(mockState),
@@ -54,7 +54,8 @@ describe('Session', () => {
     expect(screen.getByText('番茄模式')).toBeInTheDocument();
     expect(screen.getByText('自由模式')).toBeInTheDocument();
     expect(screen.getByText('开始专注')).toBeInTheDocument();
-    expect(screen.getByText('距考 100 天')).toBeInTheDocument();
+    // examDate 2026-12-21，距考天数随当前日期动态变化，只验证前缀
+    expect(screen.getByText(/距考 \d+ 天/)).toBeInTheDocument();
   });
 
   it('点击开始调用 startSession', async () => {
@@ -62,7 +63,7 @@ describe('Session', () => {
     render(<Session />);
     await user.click(screen.getByText('开始专注'));
     expect(startSessionMock).toHaveBeenCalledWith(
-      expect.objectContaining({ goal: '考研', daysToExam: 100 }),
+      expect.objectContaining({ goal: '考研', examDate: '2026-12-21' }),
       true,
     );
   });

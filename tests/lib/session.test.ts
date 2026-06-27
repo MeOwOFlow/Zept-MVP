@@ -10,7 +10,7 @@ import type { UserProfile } from '../../src/types/user';
 
 const user: UserProfile = {
   goal: '考研',
-  daysToExam: 100,
+  examDate: '2026-12-21',
   topDistractions: ['手机'],
   onboarded: true,
 };

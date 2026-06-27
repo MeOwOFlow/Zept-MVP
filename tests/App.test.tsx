@@ -54,7 +54,7 @@ describe('App routing', () => {
   });
 
   it('已 onboarded 时 / 重定向到 /session', async () => {
-    profileMock.current = { goal: '考研', daysToExam: 30, topDistractions: [], onboarded: true };
+    profileMock.current = { goal: '考研', examDate: '2026-12-21', topDistractions: [], onboarded: true };
     renderAt('/');
     await waitFor(() => {
       expect(screen.getByTestId('session-page')).toBeInTheDocument();
