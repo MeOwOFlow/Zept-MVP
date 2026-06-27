@@ -38,7 +38,7 @@ export function Button({
       ],
       {
         duration: 600,
-        easing: 'var(--easing-standard)',
+        easing: 'cubic-bezier(0.2, 0, 0, 1)',
         fill: 'forwards',
       },
     );

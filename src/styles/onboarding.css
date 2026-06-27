@@ -41,21 +41,6 @@
   gap: var(--space-2);
   margin-bottom: var(--space-3);
 }
-.zept-chip {
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-full);
-  border: 1px solid var(--outline);
-  background: transparent;
-  color: var(--on-surface-variant);
-  font-size: var(--fs-label-lg);
-  cursor: pointer;
-  transition: all var(--duration-short) var(--easing-standard);
-}
-.zept-chip--active {
-  background: var(--secondary-container);
-  border-color: var(--secondary);
-  color: var(--on-secondary-container);
-}
 .zept-onboarding__selected {
   font-size: var(--fs-body-md);
   color: var(--on-surface-muted);
