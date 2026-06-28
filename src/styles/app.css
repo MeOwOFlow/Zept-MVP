@@ -11,6 +11,18 @@
   margin: 0 auto;
   width: 100%;
   padding-bottom: 96px;
+  animation: zept-page-in var(--duration-medium) var(--easing-decelerated);
+}
+
+@keyframes zept-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (min-width: 768px) {
@@ -72,7 +84,12 @@
   text-decoration: none;
   flex: 1;
   max-width: 120px;
-  transition: color var(--duration-short) var(--easing-standard);
+  transition: color var(--duration-short) var(--easing-standard),
+    transform var(--duration-medium) var(--easing-spring);
+}
+
+.zept-nav__item:active {
+  transform: scale(0.92);
 }
 
 .zept-nav__item--active {

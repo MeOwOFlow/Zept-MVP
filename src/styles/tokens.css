@@ -26,7 +26,8 @@
   --on-surface-muted: #8b909a;
 
   /* ---------- Typography ---------- */
-  --font-display: 'Google Sans Flex', 'Noto Sans SC', system-ui, sans-serif;
+  /* 标题用衬线体（思源宋体），传递"读物感"与陪伴温度；正文保留无衬线保证可读性 */
+  --font-display: 'Noto Serif SC', 'Source Han Serif SC', 'STSong', serif;
   --font-body: 'Google Sans Flex', 'Noto Sans SC', system-ui, sans-serif;
   --fs-display-lg: 57px;
   --fs-display-md: 45px;
@@ -57,18 +58,20 @@
   --space-8: 48px;
 
   /* ---------- Radius ---------- */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 28px;
   --radius-full: 9999px;
 
   /* ---------- Easing ---------- */
   --easing-standard: cubic-bezier(0.2, 0, 0, 1);
   --easing-emphasized: cubic-bezier(0.3, 0, 0, 1);
   --easing-decelerated: cubic-bezier(0, 0, 0, 1);
+  --easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --duration-short: 150ms;
-  --duration-medium: 250ms;
-  --duration-long: 400ms;
+  --duration-medium: 300ms;
+  --duration-long: 500ms;
 
   /* ---------- Elevation ---------- */
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);

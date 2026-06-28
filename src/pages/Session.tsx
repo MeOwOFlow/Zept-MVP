@@ -328,7 +328,7 @@ export default function Session() {
 
       {phase === 'running' && (
         <Card>
-          <div className="zept-session__timer">
+          <div className={`zept-session__timer${isRunning ? " zept-session__timer--running" : ""}`}>
             <svg viewBox="0 0 260 260" className="zept-session__ring">
               <circle cx="130" cy="130" r={R} fill="none" stroke="var(--surface-2)" strokeWidth="8" />
               <circle
