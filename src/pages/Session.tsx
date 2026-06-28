@@ -123,6 +123,17 @@ export default function Session() {
     }
   }, [profile]);
 
+  // 刷新恢复：检测未完成的 session，自动进 running 阶段（isRunning=false 即 paused 态）
+  useEffect(() => {
+    if (currentSession
+      && currentSession.status !== 'completed'
+      && currentSession.status !== 'abandoned'
+      && phase === 'idle') {
+      setPhase('running');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (phase === 'running' && isRunning) {
       timerRef.current = setInterval(() => tick(), 1000);

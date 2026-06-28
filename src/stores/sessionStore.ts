@@ -25,12 +25,61 @@ function statusForMode(mode: PomodoroState['mode']): SessionStatus {
   return 'break';
 }
 
+// ---------- localStorage 持久化 ----------
+// 只持久化运行态数据，isRunning 恢复为 false（安全默认，刷新后变 paused）
+const STORAGE_KEY = 'zept-session-state';
+
+interface PersistedState {
+  currentSession: SessionRecord;
+  pomodoroState: PomodoroState;
+  remainingSec: number;
+  interruptions: number;
+}
+
+function loadPersistedState(): PersistedState | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PersistedState;
+    if (!parsed.currentSession
+      || parsed.currentSession.status === 'completed'
+      || parsed.currentSession.status === 'abandoned') {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function savePersistedState(state: PersistedState | null): void {
+  try {
+    if (state === null) {
+      localStorage.removeItem(STORAGE_KEY);
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+  } catch {
+    // localStorage 满或禁用时静默失败
+  }
+}
+
+function getPersistableState(): PersistedState | null {
+  const { currentSession, pomodoroState, remainingSec, interruptions } = useSessionStore.getState();
+  if (!currentSession || !pomodoroState) return null;
+  if (currentSession.status === 'completed' || currentSession.status === 'abandoned') return null;
+  return { currentSession, pomodoroState, remainingSec, interruptions };
+}
+
+const initialState = loadPersistedState();
+
 export const useSessionStore = create<SessionStore>((set, get) => ({
-  currentSession: null,
-  pomodoroState: null,
-  remainingSec: 0,
+  currentSession: initialState?.currentSession ?? null,
+  pomodoroState: initialState?.pomodoroState ?? null,
+  remainingSec: initialState?.remainingSec ?? 0,
   isRunning: false,
-  interruptions: 0,
+  interruptions: initialState?.interruptions ?? 0,
 
   startSession: (user, isPomodoro) => {
     const session = createSession(user, isPomodoro);
@@ -52,25 +101,30 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
           interruptionEvents: [...cs.interruptionEvents, { recoveredAt, durationMs }],
         },
       });
+      savePersistedState(getPersistableState());
     });
+    savePersistedState(getPersistableState());
   },
 
   setPreMood: (mood) => {
     const cs = get().currentSession;
     if (!cs) return;
     set({ currentSession: { ...cs, preAssessment: { mood } } });
+    savePersistedState(getPersistableState());
   },
 
   pauseSession: () => {
     const cs = get().currentSession;
     if (!cs) return;
     set({ isRunning: false, currentSession: { ...cs, status: 'paused' } });
+    savePersistedState(getPersistableState());
   },
 
   resumeSession: () => {
     const cs = get().currentSession;
     if (!cs) return;
     set({ isRunning: true, currentSession: { ...cs, status: 'focusing' } });
+    savePersistedState(getPersistableState());
   },
 
   tick: () => {
@@ -91,6 +145,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
         pomodoroState: { ...pomodoroState, cyclesCompleted: newCycles },
         currentSession: { ...currentSession, status: 'completed', pomodoroCyclesCompleted: newCycles },
       });
+      savePersistedState(getPersistableState());
       return;
     }
     const newCycles = pomodoroState.mode === 'work'
@@ -102,6 +157,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       remainingSec: getDurationSec(newState),
       currentSession: { ...currentSession, status: statusForMode(newMode), pomodoroCyclesCompleted: newCycles },
     });
+    savePersistedState(getPersistableState());
   },
 
   skipBreak: () => {
@@ -113,6 +169,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       remainingSec: getDurationSec(newState),
       currentSession: { ...currentSession, status: 'focusing' },
     });
+    savePersistedState(getPersistableState());
   },
 
   endSession: async (postAssessment) => {
@@ -122,5 +179,6 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     const final = endSessionRecord(currentSession, postAssessment);
     await saveSession(final);
     set({ currentSession: null, pomodoroState: null, remainingSec: 0, isRunning: false });
+    savePersistedState(null);
   },
 }));
