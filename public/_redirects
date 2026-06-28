@@ -1,2 +1,5 @@
-/api/*  /api/:splat  200
-/*      /index.html  200
+/api/*      /api/:splat  200
+/onboarding  /index.html  200
+/session     /index.html  200
+/insights    /index.html  200
+/settings    /index.html  200
