@@ -10,10 +10,8 @@ export const CARE_GATE_RESOURCES = {
   hotline: '12320 心理援助热线',
 } as const;
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
 export function shouldUseLLM(recentSessions: SessionRecord[]): boolean {
-  // 放宽门槛：只要有历史会话就允许调 LLM（首次专注 recentSessions 为空时走 template）
+  // 放宽门槛：总是允许调 LLM（首次专注 recentSessions 为空时也调）
   // care gate（mood ≤ 2）已在调用方前置处理，此处不再拦截
   return recentSessions.length >= 0;
 }
