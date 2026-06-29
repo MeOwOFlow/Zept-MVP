@@ -76,12 +76,12 @@ export function getFallbackInsight(
 
   if (mood === 3) {
     if (mode === 'work') {
-      return { text: `${prefix}状态中等也是状态，坚持完成这一轮就是进步。`, source: 'template', confidence: 'medium' };
+      return { text: `${prefix}状态起伏都正常，能开始就已经在路上了。`, source: 'template', confidence: 'medium' };
     }
-    return { text: '休息也是专注的一部分，深呼吸几次再继续。', source: 'template', confidence: 'medium' };
+    return { text: '休息也是专注的一部分，慢慢呼吸几次。', source: 'template', confidence: 'medium' };
   }
   if (mode === 'work') {
-    return { text: `${prefix}节奏稳健，保持当前步调，无需加码。`, source: 'template', confidence: 'medium' };
+    return { text: `${prefix}节奏稳住了，按这个步调继续就好。`, source: 'template', confidence: 'medium' };
   }
-  return { text: '休息充分，下一轮专注会更稳。', source: 'template', confidence: 'medium' };
+  return { text: '休息够了，下一轮会更稳。', source: 'template', confidence: 'medium' };
 }

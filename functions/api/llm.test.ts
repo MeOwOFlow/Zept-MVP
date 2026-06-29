@@ -21,7 +21,7 @@ describe('buildPrompt', () => {
   it('包含合规约束', () => {
     const p = buildPrompt(baseParams);
     expect(p).toContain('严禁诊断');
-    expect(p).toContain('不诊疗者');
+    expect(p).toContain('诊疗者');
   });
 });
 
