@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, type KeyboardEvent } from 'react';
+import { createPortal } from 'react-dom';
 
 export interface DatePickerProps {
   label: string;
@@ -178,7 +179,7 @@ export function DatePicker({ label, value, onChange, minDate, maxDate }: DatePic
         <span className="zept-dp__icon" aria-hidden>📅</span>
       </button>
 
-      {open && (
+      {open && createPortal(
         <div className="zept-dp__overlay" onKeyDown={handleKeyDown}>
           <div className="zept-dp__scrim" onClick={handleCancel} />
           <div
@@ -317,7 +318,8 @@ export function DatePicker({ label, value, onChange, minDate, maxDate }: DatePic
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

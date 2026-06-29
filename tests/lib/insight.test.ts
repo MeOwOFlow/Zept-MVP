@@ -76,11 +76,12 @@ describe('generateInsight', () => {
     expect(saveInsightMock).toHaveBeenCalledTimes(1);
   });
 
-  it('数据不足（无历史会话）→ source=template', async () => {
+  it('无历史会话也调 LLM（首次专注即有真实洞察）', async () => {
+    callLLMMock.mockResolvedValue({ success: true, text: '首次专注25分钟零离开，节奏稳健。' });
     const session = makeSession();
     const insight = await generateInsight(session, [], usefulInsights);
-    expect(insight.source).toBe('template');
-    expect(callLLMMock).not.toHaveBeenCalled();
+    expect(insight.source).toBe('llm');
+    expect(callLLMMock).toHaveBeenCalledTimes(1);
   });
 
   it('LLM 成功 → source=llm', async () => {

@@ -48,14 +48,14 @@ describe('CARE_GATE_RESOURCES', () => {
 });
 
 describe('shouldUseLLM', () => {
-  it('数据 < 3 天返回 false', () => {
-    expect(shouldUseLLM([makeSession(1), makeSession(2)])).toBe(false);
+  it('数据 < 3 天也返回 true（放宽门槛，首次即可调LLM）', () => {
+    expect(shouldUseLLM([makeSession(1), makeSession(2)])).toBe(true);
   });
   it('数据 >= 3 天返回 true', () => {
     expect(shouldUseLLM([makeSession(1), makeSession(2), makeSession(3)])).toBe(true);
   });
-  it('空数据返回 false', () => {
-    expect(shouldUseLLM([])).toBe(false);
+  it('空数据也返回 true（首次专注即调LLM）', () => {
+    expect(shouldUseLLM([])).toBe(true);
   });
 });
 

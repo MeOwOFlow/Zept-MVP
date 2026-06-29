@@ -4,7 +4,7 @@ import { useSessionStore } from '../stores/sessionStore';
 import { generateInsight } from '../lib/insight';
 import { getRecentSessions, getUsefulInsights, updateInsightFeedback } from '../lib/db';
 import { shouldTriggerCareGate, CARE_GATE_RESOURCES } from '../lib/rules';
-import { daysUntilExam } from '../lib/date';
+import { daysUntilBadge } from '../lib/date';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Slider } from '../components/Slider';
@@ -123,6 +123,17 @@ export default function Session() {
     }
   }, [profile]);
 
+  // 刷新恢复：检测未完成的 session，自动进 running 阶段（isRunning=false 即 paused 态）
+  useEffect(() => {
+    if (currentSession
+      && currentSession.status !== 'completed'
+      && currentSession.status !== 'abandoned'
+      && phase === 'idle') {
+      setPhase('running');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (phase === 'running' && isRunning) {
       timerRef.current = setInterval(() => tick(), 1000);
@@ -238,7 +249,7 @@ export default function Session() {
   return (
     <div className="zept-session">
       {profile && (
-        <div className="zept-session__badge">距考 {daysUntilExam(profile.examDate)} 天</div>
+        <div className="zept-session__badge">{daysUntilBadge(profile.examDate)}</div>
       )}
 
       {phase === 'idle' && (
@@ -328,7 +339,7 @@ export default function Session() {
 
       {phase === 'running' && (
         <Card>
-          <div className="zept-session__timer">
+          <div className={`zept-session__timer${isRunning ? " zept-session__timer--running" : ""}`}>
             <svg viewBox="0 0 260 260" className="zept-session__ring">
               <circle cx="130" cy="130" r={R} fill="none" stroke="var(--surface-2)" strokeWidth="8" />
               <circle

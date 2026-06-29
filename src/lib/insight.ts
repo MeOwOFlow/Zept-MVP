@@ -68,7 +68,7 @@ export async function generateInsight(
 
   // 1. 关怀门：mood ≤ 2 → care 兜底
   if (shouldTriggerCareGate(mood)) {
-    const fb = getFallbackInsight(mood, mode);
+    const fb = getFallbackInsight(mood, mode, currentSession);
     const insight: Insight = {
       id: makeInsightId(),
       sessionId,
@@ -85,7 +85,7 @@ export async function generateInsight(
 
   // 2. 数据充分性：不足 3 天 → template 兜底
   if (!shouldUseLLM(recentSessions)) {
-    const fb = getFallbackInsight(mood, mode);
+    const fb = getFallbackInsight(mood, mode, currentSession);
     const insight: Insight = {
       id: makeInsightId(),
       sessionId,
@@ -130,7 +130,7 @@ export async function generateInsight(
   }
 
   // 5. LLM 失败/黑名单 → fallback
-  const fb = getFallbackInsight(mood, mode);
+  const fb = getFallbackInsight(mood, mode, currentSession);
   const insight: Insight = {
     id: makeInsightId(),
     sessionId,

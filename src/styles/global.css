@@ -1,5 +1,5 @@
 /* 国内可访问的 Google Fonts 镜像 */
-@import url('https://fonts.loli.net/css2?family=Google+Sans+Flex:opsz,wght@6..144,100..1000&family=Noto+Sans+SC:wght@300;400;500;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+@import url('https://fonts.loli.net/css2?family=Google+Sans+Flex:opsz,wght@6..144,100..1000&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
 
 *,
 *::before,
@@ -101,9 +101,22 @@ img {
 .zept-card {
   background-color: var(--surface);
   color: var(--on-surface);
-  border-radius: var(--radius-md);
-  padding: var(--space-5);
-  transition: box-shadow var(--duration-short) var(--easing-standard);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  transition: box-shadow var(--duration-medium) var(--easing-standard),
+    transform var(--duration-medium) var(--easing-emphasized);
+  animation: zept-card-in var(--duration-medium) var(--easing-emphasized) both;
+}
+
+@keyframes zept-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .zept-btn {
@@ -158,6 +171,14 @@ img {
 
 .zept-btn:not(:disabled):active {
   filter: brightness(0.95);
+  transform: scale(0.97);
+  transition: transform 80ms var(--easing-standard);
+}
+
+.zept-btn:not(:disabled):not(:active) {
+  transition: background-color var(--duration-short) var(--easing-standard),
+    box-shadow var(--duration-short) var(--easing-standard),
+    transform var(--duration-medium) var(--easing-spring);
 }
 
 .zept-ripple {
@@ -212,7 +233,7 @@ img {
   font-weight: var(--fw-medium);
   transition: background-color var(--duration-short) var(--easing-standard),
     color var(--duration-short) var(--easing-standard),
-    transform var(--duration-short) var(--easing-emphasized);
+    transform var(--duration-medium) var(--easing-spring);
 }
 
 .zept-slider__tick--filled {
@@ -244,7 +265,12 @@ img {
   color: var(--on-surface-variant);
   font-size: var(--fs-label-lg);
   cursor: pointer;
-  transition: all var(--duration-short) var(--easing-standard);
+  transition: all var(--duration-short) var(--easing-standard),
+    transform var(--duration-medium) var(--easing-spring);
+}
+
+.zept-chip:active {
+  transform: scale(0.96);
 }
 
 .zept-chip--active {

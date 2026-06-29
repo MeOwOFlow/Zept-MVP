@@ -15,10 +15,12 @@
   align-self: flex-start;
 }
 .zept-session__title {
-  font-size: var(--fs-title-lg);
+  font-family: var(--font-display);
+  font-size: var(--fs-headline-md);
   font-weight: var(--fw-medium);
   color: var(--on-surface);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
+  letter-spacing: 0.5px;
 }
 .zept-session__mode {
   display: flex;
@@ -54,13 +56,18 @@
   border: 2px solid transparent;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background var(--ease), border-color var(--ease);
+  transition: background var(--duration-short) var(--easing-standard),
+    border-color var(--duration-short) var(--easing-standard),
+    transform var(--duration-medium) var(--easing-spring);
   font-family: inherit;
   overflow: hidden;
 }
+
 .zept-preset-tile:active {
+  transform: scale(0.96);
   background: var(--surface-2);
 }
+
 .zept-preset-tile--active {
   background: var(--primary-container);
   border-color: var(--primary);
@@ -127,13 +134,15 @@
   font-weight: var(--fw-medium);
   color: var(--on-surface);
   cursor: pointer;
-  transition: background var(--ease);
+  transition: background var(--duration-short) var(--easing-standard),
+    transform var(--duration-short) var(--easing-spring);
   font-family: inherit;
   line-height: 1;
   user-select: none;
 }
 .zept-stepper__btn:active {
   background: var(--surface-2);
+  transform: scale(0.9);
 }
 .zept-stepper__btn:disabled {
   opacity: 0.3;
@@ -176,12 +185,59 @@
   position: relative;
   width: 260px;
   height: 260px;
-  margin: 0 auto var(--space-4);
+  margin: 0 auto var(--space-5);
 }
+
+/* 计时环外层柔光，运行时呼吸——外层慢呼吸 */
+.zept-session__timer::before {
+  content: "";
+  position: absolute;
+  inset: -24px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--primary) 0%, transparent 65%);
+  opacity: 0;
+  transition: opacity var(--duration-long) var(--easing-standard);
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.zept-session__timer--running::before {
+  opacity: 0.22;
+  animation: zept-breathe 4s var(--easing-standard) infinite;
+}
+
+@keyframes zept-breathe {
+  0%, 100% { opacity: 0.18; transform: scale(0.94); }
+  50% { opacity: 0.38; transform: scale(1.06); }
+}
+
+/* 内层脉冲——进度环内侧的次级光晕，节奏更慢 */
+.zept-session__timer--running::after {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+  opacity: 0;
+  animation: zept-breathe-inner 6s var(--easing-standard) infinite;
+  pointer-events: none;
+}
+
+@keyframes zept-breathe-inner {
+  0%, 100% { opacity: 0.08; }
+  50% { opacity: 0.18; }
+}
+
 .zept-session__ring {
   width: 100%;
   height: 100%;
 }
+
+/* 进度环过渡——切阶段时平滑收缩 */
+.zept-session__ring circle:nth-child(2) {
+  transition: stroke-dashoffset 0.6s var(--easing-emphasized);
+}
+
 .zept-session__countdown {
   position: absolute;
   top: 50%;
@@ -191,23 +247,41 @@
   font-size: 48px;
   font-weight: var(--fw-bold);
   color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 1px;
 }
+
+/* 暂停态：倒计时变暗 */
+.zept-session__timer:not(.zept-session__timer--running) .zept-session__countdown {
+  opacity: 0.5;
+}
+
 .zept-session__mode-label {
   text-align: center;
   font-size: var(--fs-body-lg);
   color: var(--secondary);
   margin-bottom: var(--space-2);
+  font-weight: var(--fw-medium);
+  animation: zept-fade-in var(--duration-medium) var(--easing-decelerated);
 }
+
 .zept-session__interrupt {
   text-align: center;
   font-size: var(--fs-body-md);
   color: var(--tertiary);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
+  animation: zept-fade-in var(--duration-medium) var(--easing-decelerated);
 }
+
 .zept-session__controls {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-3);
   justify-content: center;
+}
+
+@keyframes zept-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .zept-session__confirm-text {
   font-size: var(--fs-body-lg);
@@ -218,16 +292,28 @@
   text-align: center;
   color: var(--on-surface-variant);
   padding: var(--space-6);
+  animation: zept-pulse 1.5s var(--easing-standard) infinite;
 }
+
+@keyframes zept-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
 .zept-session__insight-text {
-  font-size: var(--fs-body-lg);
+  font-family: var(--font-display);
+  font-size: var(--fs-title-lg);
   color: var(--secondary);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
+  line-height: 1.6;
+  animation: zept-fade-in var(--duration-long) var(--easing-decelerated);
 }
 .zept-session__care {
   font-size: var(--fs-body-lg);
   color: var(--tertiary);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
+  line-height: 1.6;
+  animation: zept-fade-in var(--duration-long) var(--easing-decelerated);
 }
 .zept-session__feedback {
   display: flex;
