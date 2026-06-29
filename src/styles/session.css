@@ -188,26 +188,44 @@
   margin: 0 auto var(--space-5);
 }
 
-/* 计时环外层柔光，运行时呼吸 */
+/* 计时环外层柔光，运行时呼吸——外层慢呼吸 */
 .zept-session__timer::before {
   content: "";
   position: absolute;
-  inset: -12px;
+  inset: -24px;
   border-radius: 50%;
-  background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--primary) 0%, transparent 65%);
   opacity: 0;
   transition: opacity var(--duration-long) var(--easing-standard);
   pointer-events: none;
+  will-change: opacity, transform;
 }
 
 .zept-session__timer--running::before {
-  opacity: 0.08;
+  opacity: 0.22;
   animation: zept-breathe 4s var(--easing-standard) infinite;
 }
 
 @keyframes zept-breathe {
-  0%, 100% { opacity: 0.06; transform: scale(0.97); }
-  50% { opacity: 0.14; transform: scale(1.02); }
+  0%, 100% { opacity: 0.18; transform: scale(0.94); }
+  50% { opacity: 0.38; transform: scale(1.06); }
+}
+
+/* 内层脉冲——进度环内侧的次级光晕，节奏更慢 */
+.zept-session__timer--running::after {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+  opacity: 0;
+  animation: zept-breathe-inner 6s var(--easing-standard) infinite;
+  pointer-events: none;
+}
+
+@keyframes zept-breathe-inner {
+  0%, 100% { opacity: 0.08; }
+  50% { opacity: 0.18; }
 }
 
 .zept-session__ring {

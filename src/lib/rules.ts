@@ -41,10 +41,27 @@ interface FallbackResult {
   confidence: InsightConfidence;
 }
 
+// 构造数据片段：专注时长 + 离开情况
+function buildDataFragment(session: SessionRecord): string {
+  const mins = Math.floor(session.actualDurationSec / 60);
+  const durStr = mins > 0 ? `${mins}分钟` : '本轮';
+  if (session.interruptions === 0) {
+    return `${durStr}零离开`;
+  }
+  const events = session.interruptionEvents ?? [];
+  if (events.length > 0) {
+    const longestSec = Math.round(Math.max(...events.map((e) => e.durationMs)) / 1000);
+    return `${durStr}离开${session.interruptions}次，最长${longestSec}秒`;
+  }
+  return `${durStr}离开${session.interruptions}次`;
+}
+
 export function getFallbackInsight(
   mood: number,
   mode: PomodoroState['mode'],
+  session?: SessionRecord,
 ): FallbackResult {
+  // care gate：mood ≤ 2 不拼接数据，保留合规资源出口
   if (mood <= 2) {
     return {
       text: `今天看起来有些吃力，允许自己慢一点。如果持续低落，可以联系${CARE_GATE_RESOURCES.counseling}，或拨打${CARE_GATE_RESOURCES.hotline}。`,
@@ -52,14 +69,19 @@ export function getFallbackInsight(
       confidence: 'low',
     };
   }
+
+  // 有 session 数据时，拼接数据片段让兜底也有个体差异
+  const dataFrag = session ? buildDataFragment(session) : '';
+  const prefix = dataFrag ? `${dataFrag}，` : '';
+
   if (mood === 3) {
     if (mode === 'work') {
-      return { text: '状态中等也是状态，坚持完成这一轮就是进步。', source: 'template', confidence: 'medium' };
+      return { text: `${prefix}状态中等也是状态，坚持完成这一轮就是进步。`, source: 'template', confidence: 'medium' };
     }
     return { text: '休息也是专注的一部分，深呼吸几次再继续。', source: 'template', confidence: 'medium' };
   }
   if (mode === 'work') {
-    return { text: '注意力曲线整体向上，保持当前节奏，无需加码。', source: 'template', confidence: 'medium' };
+    return { text: `${prefix}节奏稳健，保持当前步调，无需加码。`, source: 'template', confidence: 'medium' };
   }
   return { text: '休息充分，下一轮专注会更稳。', source: 'template', confidence: 'medium' };
 }
