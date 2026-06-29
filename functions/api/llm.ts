@@ -68,17 +68,8 @@ export async function onRequestPost(ctx: {
     });
   }
 
-  // 后端黑名单校验（即使前端已过滤）
-  const preFilter = filterBlacklist(
-    `${body.goal} ${body.recentSummary} ${body.usefulSummary} ${body.curSummary}`,
-  );
-  if (!preFilter.clean) {
-    return new Response(JSON.stringify({ error: 'blacklist hit' }), {
-      status: 422,
-      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
-    });
-  }
-
+  // 注：黑名单只过滤 LLM 输出（postFilter），不预过滤用户输入
+  // 用户 goal 可能合法包含"诊断学""药理学"等备考目标词，预过滤会误伤
   const prompt = buildPrompt(body);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
