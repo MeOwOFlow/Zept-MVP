@@ -64,7 +64,7 @@ export function getFallbackInsight(
   // care gate：mood ≤ 2 不拼接数据，保留合规资源出口
   if (mood <= 2) {
     return {
-      text: `今天看起来有些吃力，允许自己慢一点。如果持续低落，可以联系${CARE_GATE_RESOURCES.counseling}，或拨打${CARE_GATE_RESOURCES.hotline}。`,
+      text: `累了就歇会儿，没关系的。如果一直提不起劲，可以找${CARE_GATE_RESOURCES.counseling}聊聊，或打${CARE_GATE_RESOURCES.hotline}，我在这里。`,
       source: 'care',
       confidence: 'low',
     };
