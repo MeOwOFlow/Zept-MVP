@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { useUserStore } from './stores/userStore';
+import Welcome from './pages/Welcome';
 import Onboarding from './pages/Onboarding';
 import Session from './pages/Session';
 import Insights from './pages/Insights';
@@ -52,6 +53,11 @@ export default function App() {
   if (!ready) return null;
 
   const isOnboarding = location.pathname === '/onboarding';
+  const isWelcome = location.pathname === '/welcome';
+
+  // 首次访问且未看过 welcome 且无 profile → 跳 welcome
+  // 已有 profile 的老用户不再看 welcome（避免每次清空数据后被拦截）
+  const shouldShowWelcome = !profile && !localStorage.getItem('zept_welcome_seen');
 
   return (
     <div className="zept-app">
@@ -60,20 +66,23 @@ export default function App() {
           <Route
             path="/"
             element={
-              profile === null ? (
+              shouldShowWelcome ? (
+                <Navigate to="/welcome" replace />
+              ) : profile === null ? (
                 <Navigate to="/onboarding" replace />
               ) : (
                 <Navigate to="/session" replace />
               )
             }
           />
+          <Route path="/welcome" element={<Welcome />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/session" element={<Session />} />
           <Route path="/insights" element={<Insights />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </main>
-      {!isOnboarding && <NavBar />}
+      {!isOnboarding && !isWelcome && <NavBar />}
     </div>
   );
 }

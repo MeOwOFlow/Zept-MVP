@@ -17,6 +17,9 @@ vi.mock('../src/stores/userStore', () => ({
     }),
 }));
 
+vi.mock('../src/pages/Welcome', () => ({
+  default: () => <div data-testid="welcome-page">Welcome</div>,
+}));
 vi.mock('../src/pages/Onboarding', () => ({
   default: () => <div data-testid="onboarding-page">Onboarding</div>,
 }));
@@ -44,9 +47,18 @@ describe('App routing', () => {
   beforeEach(() => {
     profileMock.current = null;
     loadProfileMock.mockClear();
+    localStorage.clear();
   });
 
-  it('未 onboarded 时 / 重定向到 /onboarding', async () => {
+  it('未 onboarded 且未看过 welcome 时 / 重定向到 /welcome', async () => {
+    renderAt('/');
+    await waitFor(() => {
+      expect(screen.getByTestId('welcome-page')).toBeInTheDocument();
+    });
+  });
+
+  it('未 onboarded 但已看过 welcome 时 / 重定向到 /onboarding', async () => {
+    localStorage.setItem('zept_welcome_seen', '1');
     renderAt('/');
     await waitFor(() => {
       expect(screen.getByTestId('onboarding-page')).toBeInTheDocument();

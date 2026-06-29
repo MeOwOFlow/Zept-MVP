@@ -46,14 +46,24 @@ describe('onRequestPost', () => {
     vi.unstubAllGlobals();
   });
 
-  it('黑名单命中返回 422', async () => {
+  it('用户输入含黑名单词时不再预过滤（已删除 preFilter，避免误伤备考目标）', async () => {
+    // 用户 goal 含"诊断学"等正常备考词时不应被拦截
+    // 此测试验证 preFilter 已移除：请求会正常透传到 LLM
+    const fetchMock = vi.fn(async () =>
+      new Response(
+        JSON.stringify({ choices: [{ message: { content: '你专注稳定' } }] }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      ),
+    );
+    vi.stubGlobal('fetch', fetchMock);
     const req = new Request('http://localhost/api/llm', {
       method: 'POST',
-      body: JSON.stringify({ ...baseParams, curSummary: '建议就医检查' }),
+      body: JSON.stringify({ ...baseParams, goal: '诊断学考研' }),
       headers: { 'Content-Type': 'application/json' },
     });
     const resp = await onRequestPost({ request: req, env });
-    expect(resp.status).toBe(422);
+    expect(resp.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it('成功返回 200 + text', async () => {

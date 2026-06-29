@@ -1,4 +1,5 @@
 /api/*      /api/:splat  200
+/welcome     /index.html  200
 /onboarding  /index.html  200
 /session     /index.html  200
 /insights    /index.html  200
