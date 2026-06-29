@@ -135,6 +135,8 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     const result = pomodoroTick(pomodoroState, elapsed);
     if (!result.isComplete) {
       set({ remainingSec: result.remainingSec });
+      // 每秒持久化 remainingSec，保证刷新后恢复正确倒计时
+      savePersistedState(getPersistableState());
       return;
     }
     const newMode = nextMode(pomodoroState);

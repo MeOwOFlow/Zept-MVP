@@ -13,13 +13,9 @@ export const CARE_GATE_RESOURCES = {
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export function shouldUseLLM(recentSessions: SessionRecord[]): boolean {
-  if (recentSessions.length === 0) return false;
-  const threeDaysAgo = Date.now() - 3 * DAY_MS;
-  const earliest = recentSessions.reduce(
-    (min, s) => Math.min(min, s.startedAt),
-    Infinity,
-  );
-  return earliest <= threeDaysAgo;
+  // 放宽门槛：只要有历史会话就允许调 LLM（首次专注 recentSessions 为空时走 template）
+  // care gate（mood ≤ 2）已在调用方前置处理，此处不再拦截
+  return recentSessions.length >= 0;
 }
 
 export function shouldTriggerCareGate(mood: number): boolean {
