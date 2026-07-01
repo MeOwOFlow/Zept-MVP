@@ -23,6 +23,14 @@ describe('buildPrompt', () => {
     expect(p).toContain('严禁诊断');
     expect(p).toContain('诊疗者');
   });
+
+  it('careMode 下强制资源出口与 12356', () => {
+    const p = buildPrompt({ ...baseParams, careMode: true });
+    expect(p).toContain('12356 心理援助热线');
+    expect(p).toContain('校心理咨询中心');
+    expect(p).toContain('不是诊疗者');
+    expect(p).not.toContain('距考');
+  });
 });
 
 describe('filterBlacklist', () => {

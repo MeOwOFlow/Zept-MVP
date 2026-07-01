@@ -5,6 +5,7 @@ export interface LLMRequestParams {
   usefulSummary: string;
   curSummary: string;
   mood: number;
+  careMode?: boolean;
 }
 
 export interface LLMResult {

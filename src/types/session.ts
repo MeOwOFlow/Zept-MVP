@@ -22,7 +22,7 @@ export interface SelfAssessment {
 }
 
 // 洞察来源与置信度
-export type InsightSource = 'llm' | 'template' | 'fallback' | 'care';
+export type InsightSource = 'llm' | 'template' | 'fallback' | 'care' | 'care-llm';
 export type InsightConfidence = 'high' | 'medium' | 'low';
 export type InsightFeedback = 'useful' | 'useless' | null;
 

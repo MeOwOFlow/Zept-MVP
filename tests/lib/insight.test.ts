@@ -67,12 +67,28 @@ afterEach(() => {
 });
 
 describe('generateInsight', () => {
-  it('mood ≤ 2 触发关怀门，source=care', async () => {
+  it('mood ≤ 2 触发关怀门，LLM 成功时 source=care-llm', async () => {
+    callLLMMock.mockResolvedValue({
+      success: true,
+      text: '现在不容易，累了就歇会儿。可以找校心理咨询中心聊聊，或拨打12356心理援助热线。',
+    });
     const session = makeSession({ postAssessment: { mood: 2, focus: 2 } });
     const insight = await generateInsight(session, [makeOldSession(5)], usefulInsights);
-    expect(insight.source).toBe('care');
+    expect(insight.source).toBe('care-llm');
     expect(insight.mood).toBe(2);
     expect(insight.text).toContain('心理咨询中心');
+    expect(insight.text).toContain('12356');
+    expect(callLLMMock).toHaveBeenCalledTimes(1);
+    expect(saveInsightMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('mood ≤ 2 但 LLM 输出缺资源 → 落回 source=care 兜底', async () => {
+    callLLMMock.mockResolvedValue({ success: true, text: '今天辛苦了，早点休息。' });
+    const session = makeSession({ postAssessment: { mood: 1, focus: 1 } });
+    const insight = await generateInsight(session, [makeOldSession(5)], usefulInsights);
+    expect(insight.source).toBe('care');
+    expect(insight.text).toContain('心理咨询中心');
+    expect(insight.text).toContain('12356');
     expect(saveInsightMock).toHaveBeenCalledTimes(1);
   });
 

@@ -43,7 +43,7 @@ describe('BLACKLIST_WORDS', () => {
 describe('CARE_GATE_RESOURCES', () => {
   it('包含咨询中心与热线', () => {
     expect(CARE_GATE_RESOURCES.counseling).toBe('校心理咨询中心');
-    expect(CARE_GATE_RESOURCES.hotline).toBe('12320 心理援助热线');
+    expect(CARE_GATE_RESOURCES.hotline).toBe('12356 心理援助热线');
   });
 });
 
