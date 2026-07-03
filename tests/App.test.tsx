@@ -70,6 +70,7 @@ describe('App routing', () => {
       goal: '考研', examDate: '2026-12-21', topDistractions: [], onboarded: true,
       pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5, targetCycles: 4 },
       theme: 'auto',
+      replyStyle: 'balanced',
     };
     renderAt('/');
     await waitFor(() => {

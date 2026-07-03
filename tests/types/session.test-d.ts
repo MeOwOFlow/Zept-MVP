@@ -20,7 +20,7 @@ expectTypeOf<Rating>().toEqualTypeOf<1 | 2 | 3 | 4 | 5>();
 expectTypeOf<PreAssessment>().toMatchTypeOf<{ mood: Rating }>();
 expectTypeOf<SelfAssessment>().toMatchTypeOf<{ mood: Rating; focus: Rating }>();
 
-expectTypeOf<InsightSource>().toEqualTypeOf<'llm' | 'template' | 'fallback' | 'care'>();
+expectTypeOf<InsightSource>().toEqualTypeOf<'llm' | 'template' | 'fallback' | 'care' | 'care-llm'>();
 expectTypeOf<InsightConfidence>().toEqualTypeOf<'high' | 'medium' | 'low'>();
 
 expectTypeOf<Insight>().toMatchTypeOf<{
@@ -52,6 +52,7 @@ expectTypeOf<SessionRecord>().toMatchTypeOf<{
   endHour: number;
   preAssessment: PreAssessment | null;
   postAssessment: SelfAssessment | null;
+  breakMoods: Array<{ cycleIndex: number; mood: 1 | 2 | 3 | null; timestamp: number }>;
   insightId?: string;
 }>();
 

@@ -279,6 +279,50 @@
   justify-content: center;
 }
 
+/* ---------- 休息时快速情绪采样 ---------- */
+.zept-break-mood {
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-1);
+  border-radius: var(--radius-md);
+  animation: zept-fade-in var(--duration-medium) var(--easing-decelerated);
+}
+.zept-break-mood__question {
+  font-family: var(--font-display);
+  font-size: var(--fs-body-lg);
+  color: var(--on-surface);
+  margin-bottom: var(--space-3);
+  text-align: center;
+}
+.zept-break-mood__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: center;
+}
+.zept-break-mood__option {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--outline-variant);
+  background: var(--surface-2);
+  color: var(--on-surface);
+  font-size: var(--fs-body-md);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all var(--duration-short) var(--easing-standard);
+}
+.zept-break-mood__option:hover {
+  background: var(--surface-3);
+  border-color: var(--primary);
+}
+.zept-break-mood__option:active {
+  transform: scale(0.95);
+}
+.zept-break-mood__option--skip {
+  color: var(--on-surface-muted);
+  border-style: dashed;
+}
+
 @keyframes zept-fade-in {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }

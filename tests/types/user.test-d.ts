@@ -6,4 +6,5 @@ expectTypeOf<UserProfile>().toMatchTypeOf<{
   examDate: string;
   topDistractions: string[];
   onboarded: boolean;
+  replyStyle: 'rational' | 'emotional' | 'balanced';
 }>();

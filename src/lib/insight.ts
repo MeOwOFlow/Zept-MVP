@@ -3,6 +3,7 @@ import type {
   Insight,
   PomodoroState,
 } from '../types/session';
+import type { ReplyStyle } from '../types/user';
 import { saveInsight } from './db';
 import { callLLM } from './llm';
 import {
@@ -11,6 +12,7 @@ import {
   filterBlacklist,
   getConfidence,
   getFallbackInsight,
+  CARE_GATE_RESOURCES,
 } from './rules';
 
 function fmtLeave(count: number, totalMs: number, longestMs: number): string {
@@ -61,13 +63,50 @@ export async function generateInsight(
   recentSessions: SessionRecord[],
   usefulInsights: Insight[],
   mode: PomodoroState['mode'] = 'work',
+  replyStyle: ReplyStyle = 'balanced',
 ): Promise<Insight> {
   const mood = currentSession.postAssessment?.mood ?? 3;
   const sessionId = currentSession.id;
   const now = Date.now();
 
-  // 1. 关怀门：mood ≤ 2 → care 兜底
+  // 1. 关怀门：mood ≤ 2 → 尝试 LLM careMode，失败则兜底
   if (shouldTriggerCareGate(mood)) {
+    try {
+      const result = await callLLM({
+        goal: currentSession.goal,
+        daysToExam: currentSession.daysToExam,
+        recentSummary: summarizeSessions(recentSessions),
+        usefulSummary: summarizeInsights(usefulInsights),
+        curSummary: summarizeCurrent(currentSession),
+        mood,
+        careMode: true,
+        replyStyle,
+      });
+
+      if (result.success) {
+        const filtered = filterBlacklist(result.text);
+        const hasResources =
+          filtered.text.includes(CARE_GATE_RESOURCES.counseling) &&
+          filtered.text.includes(CARE_GATE_RESOURCES.hotline.replace(/ .*/, ''));
+        if (filtered.clean && hasResources) {
+          const insight: Insight = {
+            id: makeInsightId(),
+            sessionId,
+            createdAt: now,
+            text: filtered.text,
+            source: 'care-llm',
+            confidence: 'low',
+            feedback: null,
+            mood,
+          };
+          await saveInsight(insight);
+          return insight;
+        }
+      }
+    } catch {
+      // 任何异常都落回兜底
+    }
+
     const fb = getFallbackInsight(mood, mode, currentSession);
     const insight: Insight = {
       id: makeInsightId(),
@@ -108,6 +147,7 @@ export async function generateInsight(
     usefulSummary: summarizeInsights(usefulInsights),
     curSummary: summarizeCurrent(currentSession),
     mood,
+    replyStyle,
   });
 
   // 4. LLM 成功 + 黑名单通过 → source=llm

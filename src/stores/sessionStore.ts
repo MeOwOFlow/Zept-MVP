@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { SessionRecord, SessionStatus, SelfAssessment, PomodoroState, Rating } from '../types/session';
+import type { SessionRecord, SessionStatus, SelfAssessment, PomodoroState, Rating, BreakMood } from '../types/session';
 import type { UserProfile } from '../types/user';
 import { saveSession } from '../lib/db';
 import { createPomodoroState, nextMode, getDurationSec, tick as pomodoroTick, canSkip } from '../lib/pomodoro';
@@ -13,6 +13,7 @@ interface SessionStore {
   interruptions: number;
   startSession: (user: UserProfile, isPomodoro: boolean) => void;
   setPreMood: (mood: Rating) => void;
+  setBreakMood: (mood: 1 | 2 | 3 | null) => void;
   pauseSession: () => void;
   resumeSession: () => void;
   tick: () => void;
@@ -110,6 +111,22 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     const cs = get().currentSession;
     if (!cs) return;
     set({ currentSession: { ...cs, preAssessment: { mood } } });
+    savePersistedState(getPersistableState());
+  },
+
+  setBreakMood: (mood) => {
+    const { currentSession, pomodoroState } = get();
+    if (!currentSession || !pomodoroState) return;
+    const cycleIndex = pomodoroState.cyclesCompleted;
+    // 同一个 break 只记录一次
+    if (currentSession.breakMoods.some((b) => b.cycleIndex === cycleIndex)) return;
+    const entry: BreakMood = { cycleIndex, mood, timestamp: Date.now() };
+    set({
+      currentSession: {
+        ...currentSession,
+        breakMoods: [...currentSession.breakMoods, entry],
+      },
+    });
     savePersistedState(getPersistableState());
   },
 

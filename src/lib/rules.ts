@@ -7,7 +7,7 @@ export const BLACKLIST_WORDS: string[] = [
 
 export const CARE_GATE_RESOURCES = {
   counseling: '校心理咨询中心',
-  hotline: '12320 心理援助热线',
+  hotline: '12356 心理援助热线',
 } as const;
 
 export function shouldUseLLM(recentSessions: SessionRecord[]): boolean {

@@ -22,13 +22,38 @@ export interface PromptParams {
   usefulSummary: string;
   curSummary: string;
   mood: number;
+  careMode?: boolean;
+  replyStyle?: 'rational' | 'emotional' | 'balanced';
 }
 
-export function buildPrompt(p: PromptParams): string {
+function buildCarePrompt(): string {
+  return [
+    '你是「凝时」，用户的陪伴者，不是诊疗者。',
+    '用户当前情绪评分较低，你的唯一任务是：温和承认情绪 + 提供资源出口。',
+    '',
+    '请生成一句 ≤40 字的回应，必须同时满足：',
+    `① 必须包含"校心理咨询中心"和"12356 心理援助热线"`,
+    '② 只描述感受，不分析原因、不给建议、不诊断',
+    '③ 语气像朋友在身旁，不要鸡汤、不要说教',
+    '④ 严禁出现任何疾病名称、诊断、治疗、药物、处方相关词汇',
+    '',
+    '示例（仅作格式参考，不要照搬）：',
+    '"现在确实不容易，累了就歇会儿。可以找校心理咨询中心聊聊，或拨打12356心理援助热线。"',
+  ].join('\n');
+}
+
+const REPLY_STYLE_TONES: Record<string, string> = {
+  rational: '用数据说话，直给不绕弯，但结尾可以给一句落到具体行为上的鼓励（如"按这个节奏继续"）。',
+  emotional: '像朋友在身旁，温柔地看见和鼓励，鼓励要落到具体行为上，不要空泛鸡汤。',
+  balanced: '先看见数据，再说一句具体的陪伴和鼓励，理性与温度并重。',
+};
+
+function buildNormalPrompt(p: PromptParams): string {
+  const tone = REPLY_STYLE_TONES[p.replyStyle ?? 'balanced'] ?? REPLY_STYLE_TONES.balanced;
   return [
     '你是「凝时」，凝视用户每一刻专注的陪伴者，不是诊疗者。',
-    '语气温和、像朋友一样，先看见数据，再说一句陪伴的话。',
-    '不要评判对错、不要鸡汤、不要说教。',
+    `语气要求：${tone}`,
+    '不要评判对错、不要空泛鸡汤、不要说教，但可以温柔地给一句具体的鼓励——温柔不是空话，是看见 ta 的努力。',
     '',
     `用户：目标 ${p.goal}，距考 ${p.daysToExam} 天。`,
     `最近 3 次会话：${p.recentSummary}。`,
@@ -38,9 +63,14 @@ export function buildPrompt(p: PromptParams): string {
     '请生成一句 ≤50 字的洞察，遵守：',
     '① 必须引用本次会话的具体数据（时长/离开次数/情绪）',
     '② 先看见再陪伴——"25分钟零离开"是看见，"你真棒"是评判，前者才对',
-    '③ 情绪 ≤2 时引导资源出口（校心理咨询/12320）',
-    '④ 严禁诊断/医疗/处方词汇',
+    '③ 结尾可以加一句具体的鼓励（如"这节奏稳，继续"），但鼓励必须基于本次数据，不要空泛',
+    '④ 情绪 ≤2 时引导资源出口（校心理咨询/12356）',
+    '⑤ 严禁诊断/医疗/处方词汇',
   ].join('\n');
+}
+
+export function buildPrompt(p: PromptParams): string {
+  return p.careMode ? buildCarePrompt() : buildNormalPrompt(p);
 }
 
 export function filterBlacklist(text: string): { clean: boolean; text: string } {

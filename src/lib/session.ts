@@ -1,4 +1,4 @@
-import type { SessionRecord, SelfAssessment } from '../types/session';
+import type { SessionRecord, SelfAssessment, BreakMood } from '../types/session';
 import type { UserProfile } from '../types/user';
 import { daysUntilExam } from './date';
 
@@ -35,6 +35,7 @@ export function createSession(user: UserProfile, isPomodoro: boolean): SessionRe
     endHour: 0,
     preAssessment: null,
     postAssessment: null,
+    breakMoods: [] as BreakMood[],
   };
 }
 

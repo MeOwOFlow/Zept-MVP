@@ -47,6 +47,44 @@
   margin-top: var(--space-2);
 }
 
+/* ---------- 回复风格选择 ---------- */
+.zept-reply-style__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.zept-reply-style__option {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--outline-variant);
+  background: var(--surface-1);
+  cursor: pointer;
+  transition: all var(--duration-short) var(--easing-standard);
+  text-align: left;
+}
+.zept-reply-style__option:hover {
+  background: var(--surface-2);
+}
+.zept-reply-style__option--active {
+  border-color: var(--primary);
+  background: var(--primary-container);
+}
+.zept-reply-style__option--active .zept-reply-style__label {
+  color: var(--on-primary-container);
+}
+.zept-reply-style__label {
+  font-size: var(--fs-body-lg);
+  font-weight: var(--fw-medium);
+  color: var(--on-surface);
+}
+.zept-reply-style__desc {
+  font-size: var(--fs-body-md);
+  color: var(--on-surface-muted);
+}
+
 @media (min-width: 768px) {
   .zept-onboarding {
     padding: var(--space-8);

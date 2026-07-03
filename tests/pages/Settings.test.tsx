@@ -7,6 +7,7 @@ const clearAllMock = vi.hoisted(() => vi.fn(async () => undefined));
 const mockNavigate = vi.hoisted(() => vi.fn());
 const loadProfileMock = vi.hoisted(() => vi.fn(async () => undefined));
 const setThemeMock = vi.hoisted(() => vi.fn(async () => undefined));
+const setReplyStyleMock = vi.hoisted(() => vi.fn(async () => undefined));
 
 const DEFAULT_PROFILE = {
   goal: '考研',
@@ -15,6 +16,7 @@ const DEFAULT_PROFILE = {
   onboarded: true,
   pomodoroConfig: null,
   theme: 'auto' as const,
+  replyStyle: 'balanced' as const,
 };
 
 vi.mock('react-router-dom', () => ({ useNavigate: () => mockNavigate }));
@@ -27,11 +29,13 @@ vi.mock('../../src/stores/userStore', () => ({
     profile: typeof DEFAULT_PROFILE | null;
     loadProfile: typeof loadProfileMock;
     setTheme: typeof setThemeMock;
+    setReplyStyle: typeof setReplyStyleMock;
   }) => unknown) =>
     selector({
       profile: DEFAULT_PROFILE,
       loadProfile: loadProfileMock,
       setTheme: setThemeMock,
+      setReplyStyle: setReplyStyleMock,
     }),
 }));
 
@@ -43,6 +47,7 @@ beforeEach(() => {
   mockNavigate.mockClear();
   loadProfileMock.mockClear();
   setThemeMock.mockClear();
+  setReplyStyleMock.mockClear();
 });
 
 describe('Settings - 渲染', () => {

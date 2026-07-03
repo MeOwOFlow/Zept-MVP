@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../stores/userStore';
-import { DEFAULT_THEME } from '../types/user';
+import { DEFAULT_THEME, DEFAULT_REPLY_STYLE } from '../types/user';
+import type { ReplyStyle } from '../types/user';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { DatePicker } from '../components/DatePicker';
@@ -10,6 +11,12 @@ import '../styles/datepicker.css';
 
 const DISTRACTION_PRESETS = ['手机', '社交媒体', '游戏', '噪音', '疲劳', '焦虑'];
 
+const REPLY_STYLE_OPTIONS: Array<{ value: ReplyStyle; label: string; desc: string }> = [
+  { value: 'rational', label: '数据派', desc: '用数字说话，直给不绕弯' },
+  { value: 'balanced', label: '平衡', desc: '先看见数据，再说句陪伴' },
+  { value: 'emotional', label: '陪伴派', desc: '偏感性，像朋友在身旁' },
+];
+
 export default function Onboarding() {
   const navigate = useNavigate();
   const setProfile = useUserStore((s) => s.setProfile);
@@ -17,6 +24,7 @@ export default function Onboarding() {
   const [examDate, setExamDate] = useState('');
   const [distractions, setDistractions] = useState<string[]>([]);
   const [customInput, setCustomInput] = useState('');
+  const [replyStyle, setReplyStyle] = useState<ReplyStyle>(DEFAULT_REPLY_STYLE);
 
   const toggleDistraction = (d: string) => {
     setDistractions((prev) =>
@@ -43,6 +51,7 @@ export default function Onboarding() {
       onboarded: true,
       pomodoroConfig: null,  // 番茄时长由用户在 Session 首次选择
       theme: DEFAULT_THEME,
+      replyStyle,
     });
     navigate('/session');
   };
@@ -98,6 +107,23 @@ export default function Onboarding() {
         {distractions.length > 0 && (
           <p className="zept-onboarding__selected">已选：{distractions.join('、')}</p>
         )}
+      </Card>
+
+      <Card>
+        <label className="zept-onboarding__label">回复风格</label>
+        <div className="zept-reply-style__options">
+          {REPLY_STYLE_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className={`zept-reply-style__option ${replyStyle === opt.value ? 'zept-reply-style__option--active' : ''}`}
+              onClick={() => setReplyStyle(opt.value)}
+            >
+              <span className="zept-reply-style__label">{opt.label}</span>
+              <span className="zept-reply-style__desc">{opt.desc}</span>
+            </button>
+          ))}
+        </div>
       </Card>
 
       <Button variant="filled" onClick={handleSubmit} disabled={!canSubmit}>

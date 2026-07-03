@@ -23,6 +23,32 @@ describe('buildPrompt', () => {
     expect(p).toContain('严禁诊断');
     expect(p).toContain('诊疗者');
   });
+
+  it('careMode 下强制资源出口与 12356', () => {
+    const p = buildPrompt({ ...baseParams, careMode: true });
+    expect(p).toContain('12356 心理援助热线');
+    expect(p).toContain('校心理咨询中心');
+    expect(p).toContain('不是诊疗者');
+    expect(p).not.toContain('距考');
+  });
+
+  it('replyStyle=rational 时 prompt 含数据派语气约束', () => {
+    const p = buildPrompt({ ...baseParams, replyStyle: 'rational' });
+    expect(p).toContain('用数据说话');
+    expect(p).toContain('直给不绕弯');
+  });
+
+  it('replyStyle=emotional 时 prompt 含陪伴派语气约束', () => {
+    const p = buildPrompt({ ...baseParams, replyStyle: 'emotional' });
+    expect(p).toContain('像朋友在身旁');
+    expect(p).toContain('温柔');
+  });
+
+  it('replyStyle=balanced 时 prompt 含平衡语气约束', () => {
+    const p = buildPrompt({ ...baseParams, replyStyle: 'balanced' });
+    expect(p).toContain('先看见数据');
+    expect(p).toContain('理性与温度并重');
+  });
 });
 
 describe('filterBlacklist', () => {

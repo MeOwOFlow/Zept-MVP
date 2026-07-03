@@ -32,6 +32,7 @@ const mockSession = (id: string, startedAt: number): SessionRecord => ({
   endHour: 9,
   preAssessment: null,
   postAssessment: null,
+  breakMoods: [],
 });
 
 const mockInsight = (id: string, sessionId: string, createdAt: number): Insight => ({
@@ -52,6 +53,7 @@ const mockUser = (): UserProfile => ({
   onboarded: true,
   pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5, targetCycles: 4 },
   theme: 'auto',
+  replyStyle: 'balanced',
 });
 
 describe('db', () => {

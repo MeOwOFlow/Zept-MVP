@@ -11,8 +11,10 @@ export const DEFAULT_POMODORO_CONFIG: PomodoroConfig = {
 };
 
 export type ThemeMode = 'auto' | 'light' | 'dark';
-
 export const DEFAULT_THEME: ThemeMode = 'auto';
+
+export type ReplyStyle = 'rational' | 'emotional' | 'balanced';
+export const DEFAULT_REPLY_STYLE: ReplyStyle = 'balanced';
 
 export interface UserProfile {
   goal: string;
@@ -21,4 +23,5 @@ export interface UserProfile {
   onboarded: boolean;
   pomodoroConfig: PomodoroConfig | null;  // null = 未配置，由用户在 Session 首次选择
   theme: ThemeMode;
+  replyStyle: ReplyStyle;
 }

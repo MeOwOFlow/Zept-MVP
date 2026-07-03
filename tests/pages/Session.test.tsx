@@ -12,12 +12,14 @@ const CONFIGURED_PROFILE: UserProfile = {
   goal: '考研', examDate: '2026-12-21', topDistractions: ['手机'], onboarded: true,
   pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5, targetCycles: 4 },
   theme: 'auto',
+  replyStyle: 'balanced',
 };
 
 const UNCONFIGURED_PROFILE: UserProfile = {
   goal: '考研', examDate: '2026-12-21', topDistractions: ['手机'], onboarded: true,
   pomodoroConfig: null,
   theme: 'auto',
+  replyStyle: 'balanced',
 };
 
 const profileMock = vi.hoisted(() => ({ current: null as UserProfile | null }));

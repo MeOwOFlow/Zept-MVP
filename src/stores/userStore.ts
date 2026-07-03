@@ -1,13 +1,14 @@
 import { create } from 'zustand';
 import { saveUser, getUser } from '../lib/db';
 import { applyTheme } from '../lib/theme';
-import type { UserProfile, ThemeMode } from '../types/user';
+import type { UserProfile, ThemeMode, ReplyStyle } from '../types/user';
 
 interface UserStore {
   profile: UserProfile | null;
   setProfile: (p: UserProfile) => Promise<void>;
   loadProfile: () => Promise<void>;
   setTheme: (mode: ThemeMode) => Promise<void>;
+  setReplyStyle: (style: ReplyStyle) => Promise<void>;
 }
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -28,6 +29,14 @@ export const useUserStore = create<UserStore>((set, get) => ({
     const next = { ...current, theme: mode };
     await saveUser(next);
     applyTheme(mode);
+    set({ profile: next });
+  },
+
+  setReplyStyle: async (style) => {
+    const current = get().profile;
+    if (!current) return;
+    const next = { ...current, replyStyle: style };
+    await saveUser(next);
     set({ profile: next });
   },
 }));
