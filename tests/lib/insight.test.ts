@@ -35,6 +35,7 @@ function makeSession(overrides: Partial<SessionRecord> = {}): SessionRecord {
     endHour: 12,
     preAssessment: null,
     postAssessment: { mood: 4, focus: 4 },
+    breakMoods: [],
     ...overrides,
   };
 }

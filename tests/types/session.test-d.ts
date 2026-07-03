@@ -52,6 +52,7 @@ expectTypeOf<SessionRecord>().toMatchTypeOf<{
   endHour: number;
   preAssessment: PreAssessment | null;
   postAssessment: SelfAssessment | null;
+  breakMoods: Array<{ cycleIndex: number; mood: 1 | 2 | 3 | null; timestamp: number }>;
   insightId?: string;
 }>();
 

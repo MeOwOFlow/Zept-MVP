@@ -25,6 +25,7 @@ describe('createSession', () => {
     expect(s.status).toBe('planned');
     expect(s.interruptions).toBe(0);
     expect(s.interruptionEvents).toEqual([]);
+    expect(s.breakMoods).toEqual([]);
     expect(s.id).toMatch(/^s_\d+_/);
     expect(s.userId).toBe('local');
     expect(s.goal).toBe('考研');

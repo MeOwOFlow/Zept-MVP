@@ -28,6 +28,7 @@ const makeSession = (daysAgo: number): SessionRecord => ({
   endHour: 10,
   preAssessment: null,
   postAssessment: null,
+  breakMoods: [],
 });
 
 describe('BLACKLIST_WORDS', () => {

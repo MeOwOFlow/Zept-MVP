@@ -32,6 +32,7 @@ const mockSession = (id: string, startedAt: number): SessionRecord => ({
   endHour: 9,
   preAssessment: null,
   postAssessment: null,
+  breakMoods: [],
 });
 
 const mockInsight = (id: string, sessionId: string, createdAt: number): Insight => ({

@@ -36,6 +36,7 @@ describe('Insights', () => {
       plannedDurationSec: 1500, actualDurationSec: 1500, isPomodoro: true,
       pomodoroCyclesCompleted: 1, interruptions: 1, interruptionEvents: [],
       startHour: 12, endHour: 12, preAssessment: null, postAssessment: { mood: 4, focus: 4 },
+      breakMoods: [],
     });
     mockInsights.push({
       id: 'i1', sessionId: 's1', createdAt: NOW, text: '上午更专注',
@@ -53,7 +54,8 @@ describe('Insights', () => {
       startedAt: NOW, endedAt: NOW + 1800000, status: 'completed',
       plannedDurationSec: 1500, actualDurationSec: 1500, isPomodoro: true,
       pomodoroCyclesCompleted: 1, interruptions: 0, interruptionEvents: [],
-      startHour: 12, endHour: 12, preAssessment: null, postAssessment: { mood: 4, focus: 4 },
+      startHour: 12, endHour: 12, preAssessment: { mood: 3 }, postAssessment: { mood: 4, focus: 4 },
+      breakMoods: [],
     });
     mockInsights.push({
       id: 'i1', sessionId: 's1', createdAt: NOW, text: '测试洞察',
@@ -62,7 +64,7 @@ describe('Insights', () => {
     render(<Insights />);
     await screen.findByText(/测试洞察/);
     await user.click(screen.getByText('expand_more'));
-    expect(screen.getByText('来源：llm')).toBeInTheDocument();
+    expect(screen.getByText(/情绪 3 ↑ 4/)).toBeInTheDocument();
     await user.click(screen.getByText('有用'));
     expect(updateFeedbackMock).toHaveBeenCalledWith('i1', 'useful');
   });

@@ -95,6 +95,7 @@ export default function Session() {
   const resumeSession = useSessionStore((s) => s.resumeSession);
   const tick = useSessionStore((s) => s.tick);
   const setPreMoodInStore = useSessionStore((s) => s.setPreMood);
+  const setBreakMoodInStore = useSessionStore((s) => s.setBreakMood);
   const endSession = useSessionStore((s) => s.endSession);
 
   const [phase, setPhase] = useState<Phase>('idle');
@@ -246,6 +247,13 @@ export default function Session() {
       : '休息中'
     : '';
 
+  const isOnBreak = pomodoroState?.mode === 'short_break';
+  const currentBreakCycle = pomodoroState?.cyclesCompleted ?? 0;
+  const breakMoodRecorded = currentSession?.breakMoods.some(
+    (b) => b.cycleIndex === currentBreakCycle,
+  ) ?? false;
+  const showBreakMood = isOnBreak && !breakMoodRecorded;
+
   return (
     <div className="zept-session">
       {profile && (
@@ -354,6 +362,33 @@ export default function Session() {
           <div className="zept-session__mode-label">{modeLabel}</div>
           {interruptions > 0 && (
             <div className="zept-session__interrupt">离开 {interruptions} 次</div>
+          )}
+          {showBreakMood && (
+            <div className="zept-break-mood">
+              <p className="zept-break-mood__question">感觉如何？</p>
+              <div className="zept-break-mood__options">
+                <button
+                  type="button"
+                  className="zept-break-mood__option"
+                  onClick={() => setBreakMoodInStore(3)}
+                >还行</button>
+                <button
+                  type="button"
+                  className="zept-break-mood__option"
+                  onClick={() => setBreakMoodInStore(2)}
+                >一般</button>
+                <button
+                  type="button"
+                  className="zept-break-mood__option"
+                  onClick={() => setBreakMoodInStore(1)}
+                >有点累</button>
+                <button
+                  type="button"
+                  className="zept-break-mood__option zept-break-mood__option--skip"
+                  onClick={() => setBreakMoodInStore(null)}
+                >不想回答</button>
+              </div>
+            </div>
           )}
           <div className="zept-session__controls">
             {isRunning ? (

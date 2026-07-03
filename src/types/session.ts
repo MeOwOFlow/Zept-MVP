@@ -21,6 +21,14 @@ export interface SelfAssessment {
   focus: Rating;
 }
 
+// 休息时快速情绪采样：三选一 + 可跳过
+// mood: 3=还行, 2=一般, 1=有点累; null=用户选择"不想回答"
+export interface BreakMood {
+  cycleIndex: number;   // 第几个 work→break 切换（0-based）
+  mood: 1 | 2 | 3 | null;
+  timestamp: number;
+}
+
 // 洞察来源与置信度
 export type InsightSource = 'llm' | 'template' | 'fallback' | 'care' | 'care-llm';
 export type InsightConfidence = 'high' | 'medium' | 'low';
@@ -63,6 +71,7 @@ export interface SessionRecord {
   endHour: number;
   preAssessment: PreAssessment | null;
   postAssessment: SelfAssessment | null;
+  breakMoods: BreakMood[];
   insightId?: string;
 }
 
