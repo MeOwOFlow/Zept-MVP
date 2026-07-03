@@ -40,8 +40,8 @@ describe('buildPrompt', () => {
 
   it('replyStyle=emotional 时 prompt 含陪伴派语气约束', () => {
     const p = buildPrompt({ ...baseParams, replyStyle: 'emotional' });
-    expect(p).toContain('偏感性');
     expect(p).toContain('像朋友在身旁');
+    expect(p).toContain('温柔');
   });
 
   it('replyStyle=balanced 时 prompt 含平衡语气约束', () => {
