@@ -42,18 +42,27 @@ function buildCarePrompt(): string {
   ].join('\n');
 }
 
+const REPLY_STYLE_STRUCTURES: Record<string, string> = {
+  rational: '结构：以数据为主，先给出关键事实（时长/离开/情绪），再一句简短结论。少形容词，不绕弯。',
+  emotional: '结构：重感受与陪伴，不直接罗列数字。可以用"这么久没离开""情绪稳住了"这种带温度的表达概括数据，核心放在理解和一句具体鼓励上。',
+  balanced: '结构：一句轻量数据（如"25分钟里只离开一次"），一句陪伴或鼓励，理性与温度并重。',
+};
+
 const REPLY_STYLE_TONES: Record<string, string> = {
-  rational: '用数据说话，直给不绕弯，但结尾可以给一句落到具体行为上的鼓励（如"按这个节奏继续"）。',
-  emotional: '像朋友在身旁，温柔地看见和鼓励，鼓励要落到具体行为上，不要空泛鸡汤。',
-  balanced: '先看见数据，再说一句具体的陪伴和鼓励，理性与温度并重。',
+  rational: '语气冷静、直接，像一位懂数据的同行者。',
+  emotional: '语气像朋友在身旁，温柔、克制、不说教，鼓励要落到具体行为上。',
+  balanced: '语气平和，先看见再陪伴，既有事实也有温度。',
 };
 
 function buildNormalPrompt(p: PromptParams): string {
-  const tone = REPLY_STYLE_TONES[p.replyStyle ?? 'balanced'] ?? REPLY_STYLE_TONES.balanced;
+  const style = p.replyStyle ?? 'balanced';
+  const structure = REPLY_STYLE_STRUCTURES[style] ?? REPLY_STYLE_STRUCTURES.balanced;
+  const tone = REPLY_STYLE_TONES[style] ?? REPLY_STYLE_TONES.balanced;
   return [
     '你是「凝时」，凝视用户每一刻专注的陪伴者，不是诊疗者。',
-    `语气要求：${tone}`,
-    '不要评判对错、不要空泛鸡汤、不要说教，但可以温柔地给一句具体的鼓励——温柔不是空话，是看见 ta 的努力。',
+    structure,
+    `语气：${tone}`,
+    '不要评判对错、不要空泛鸡汤、不要说教；鼓励如果给，必须基于本次数据或行为，不要空泛。',
     '',
     `用户：目标 ${p.goal}，距考 ${p.daysToExam} 天。`,
     `最近 3 次会话：${p.recentSummary}。`,
@@ -61,11 +70,9 @@ function buildNormalPrompt(p: PromptParams): string {
     `本次会话：${p.curSummary}。`,
     '',
     '请生成一句 ≤50 字的洞察，遵守：',
-    '① 必须引用本次会话的具体数据（时长/离开次数/情绪）',
-    '② 先看见再陪伴——"25分钟零离开"是看见，"你真棒"是评判，前者才对',
-    '③ 结尾可以加一句具体的鼓励（如"这节奏稳，继续"），但鼓励必须基于本次数据，不要空泛',
-    '④ 情绪 ≤2 时引导资源出口（校心理咨询/12356）',
-    '⑤ 严禁诊断/医疗/处方词汇',
+    '① 用符合上述结构的表达方式回应',
+    '② 严禁诊断/医疗/处方词汇',
+    '③ 情绪 ≤2 时引导资源出口（校心理咨询/12356）',
   ].join('\n');
 }
 

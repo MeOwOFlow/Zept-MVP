@@ -32,22 +32,22 @@ describe('buildPrompt', () => {
     expect(p).not.toContain('距考');
   });
 
-  it('replyStyle=rational 时 prompt 含数据派语气约束', () => {
+  it('replyStyle=rational 时 prompt 以数据为主、语气直接', () => {
     const p = buildPrompt({ ...baseParams, replyStyle: 'rational' });
-    expect(p).toContain('用数据说话');
-    expect(p).toContain('直给不绕弯');
+    expect(p).toContain('以数据为主');
+    expect(p).toContain('冷静、直接');
   });
 
-  it('replyStyle=emotional 时 prompt 含陪伴派语气约束', () => {
+  it('replyStyle=emotional 时 prompt 不直接罗列数字', () => {
     const p = buildPrompt({ ...baseParams, replyStyle: 'emotional' });
+    expect(p).toContain('不直接罗列数字');
     expect(p).toContain('像朋友在身旁');
-    expect(p).toContain('温柔');
   });
 
-  it('replyStyle=balanced 时 prompt 含平衡语气约束', () => {
+  it('replyStyle=balanced 时 prompt 一句数据一句陪伴', () => {
     const p = buildPrompt({ ...baseParams, replyStyle: 'balanced' });
-    expect(p).toContain('先看见数据');
-    expect(p).toContain('理性与温度并重');
+    expect(p).toContain('一句轻量数据');
+    expect(p).toContain('先看见再陪伴');
   });
 });
 
