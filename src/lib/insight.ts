@@ -3,6 +3,7 @@ import type {
   Insight,
   PomodoroState,
 } from '../types/session';
+import type { ReplyStyle } from '../types/user';
 import { saveInsight } from './db';
 import { callLLM } from './llm';
 import {
@@ -62,6 +63,7 @@ export async function generateInsight(
   recentSessions: SessionRecord[],
   usefulInsights: Insight[],
   mode: PomodoroState['mode'] = 'work',
+  replyStyle: ReplyStyle = 'balanced',
 ): Promise<Insight> {
   const mood = currentSession.postAssessment?.mood ?? 3;
   const sessionId = currentSession.id;
@@ -78,6 +80,7 @@ export async function generateInsight(
         curSummary: summarizeCurrent(currentSession),
         mood,
         careMode: true,
+        replyStyle,
       });
 
       if (result.success) {
@@ -144,6 +147,7 @@ export async function generateInsight(
     usefulSummary: summarizeInsights(usefulInsights),
     curSummary: summarizeCurrent(currentSession),
     mood,
+    replyStyle,
   });
 
   // 4. LLM 成功 + 黑名单通过 → source=llm

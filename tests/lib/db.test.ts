@@ -53,6 +53,7 @@ const mockUser = (): UserProfile => ({
   onboarded: true,
   pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5, targetCycles: 4 },
   theme: 'auto',
+  replyStyle: 'balanced',
 });
 
 describe('db', () => {

@@ -213,7 +213,8 @@ export default function Session() {
     const sessionForInsight: SessionRecord = { ...currentSession, postAssessment };
     await endSession(postAssessment);
     const mode: PomodoroState['mode'] = pomodoroState?.mode ?? 'work';
-    const generated = await generateInsight(sessionForInsight, recentSessions, usefulInsights, mode);
+    const replyStyle = profile?.replyStyle ?? 'balanced';
+    const generated = await generateInsight(sessionForInsight, recentSessions, usefulInsights, mode, replyStyle);
     setInsight(generated);
     setPhase('insight');
   };

@@ -60,7 +60,11 @@
   font-size: var(--fs-label-lg);
   color: var(--on-surface-variant);
   margin-bottom: var(--space-2);
-  font-weight: var(--fw-medium);
+}
+.zept-settings__field-hint {
+  font-size: var(--fs-label-md);
+  color: var(--on-surface-muted);
+  margin-top: var(--space-2);
 }
 .zept-settings__chips {
   display: flex;

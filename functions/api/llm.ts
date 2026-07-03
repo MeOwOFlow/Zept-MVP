@@ -23,6 +23,7 @@ export interface PromptParams {
   curSummary: string;
   mood: number;
   careMode?: boolean;
+  replyStyle?: 'rational' | 'emotional' | 'balanced';
 }
 
 function buildCarePrompt(): string {
@@ -41,10 +42,17 @@ function buildCarePrompt(): string {
   ].join('\n');
 }
 
+const REPLY_STYLE_TONES: Record<string, string> = {
+  rational: '用数据说话，直给不绕弯，少用感叹号和情绪词。',
+  emotional: '偏感性，像朋友在身旁，可以温暖但不要鸡汤。',
+  balanced: '先看见数据，再说一句陪伴，理性与温度并重。',
+};
+
 function buildNormalPrompt(p: PromptParams): string {
+  const tone = REPLY_STYLE_TONES[p.replyStyle ?? 'balanced'] ?? REPLY_STYLE_TONES.balanced;
   return [
     '你是「凝时」，凝视用户每一刻专注的陪伴者，不是诊疗者。',
-    '语气温和、像朋友一样，先看见数据，再说一句陪伴的话。',
+    `语气要求：${tone}`,
     '不要评判对错、不要鸡汤、不要说教。',
     '',
     `用户：目标 ${p.goal}，距考 ${p.daysToExam} 天。`,

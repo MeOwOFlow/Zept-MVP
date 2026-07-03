@@ -31,6 +31,24 @@ describe('buildPrompt', () => {
     expect(p).toContain('不是诊疗者');
     expect(p).not.toContain('距考');
   });
+
+  it('replyStyle=rational 时 prompt 含数据派语气约束', () => {
+    const p = buildPrompt({ ...baseParams, replyStyle: 'rational' });
+    expect(p).toContain('用数据说话');
+    expect(p).toContain('直给不绕弯');
+  });
+
+  it('replyStyle=emotional 时 prompt 含陪伴派语气约束', () => {
+    const p = buildPrompt({ ...baseParams, replyStyle: 'emotional' });
+    expect(p).toContain('偏感性');
+    expect(p).toContain('像朋友在身旁');
+  });
+
+  it('replyStyle=balanced 时 prompt 含平衡语气约束', () => {
+    const p = buildPrompt({ ...baseParams, replyStyle: 'balanced' });
+    expect(p).toContain('先看见数据');
+    expect(p).toContain('理性与温度并重');
+  });
 });
 
 describe('filterBlacklist', () => {

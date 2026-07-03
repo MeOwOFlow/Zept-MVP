@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { exportAll, clearAll } from '../lib/db';
 import { useUserStore } from '../stores/userStore';
-import { type ThemeMode } from '../types/user';
+import { type ThemeMode, type ReplyStyle } from '../types/user';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import '../styles/settings.css';
@@ -13,11 +13,18 @@ const THEME_OPTIONS: Array<{ value: ThemeMode; label: string }> = [
   { value: 'dark', label: '夜间' },
 ];
 
+const REPLY_STYLE_OPTIONS: Array<{ value: ReplyStyle; label: string }> = [
+  { value: 'rational', label: '数据派' },
+  { value: 'balanced', label: '平衡' },
+  { value: 'emotional', label: '陪伴派' },
+];
+
 export default function Settings() {
   const navigate = useNavigate();
   const profile = useUserStore((s) => s.profile);
   const loadProfile = useUserStore((s) => s.loadProfile);
   const setTheme = useUserStore((s) => s.setTheme);
+  const setReplyStyle = useUserStore((s) => s.setReplyStyle);
   const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
@@ -62,6 +69,23 @@ export default function Settings() {
             ))}
           </div>
         </div>
+      </Card>
+
+      <Card>
+        <h2 className="zept-settings__section">回复风格</h2>
+        <div className="zept-settings__chips">
+          {REPLY_STYLE_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className={`zept-chip ${(profile?.replyStyle ?? 'balanced') === opt.value ? 'zept-chip--active' : ''}`}
+              onClick={() => setReplyStyle(opt.value)}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+        <p className="zept-settings__field-hint">影响洞察回复的语气风格</p>
       </Card>
 
       <Card>
