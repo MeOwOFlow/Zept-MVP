@@ -1,5 +1,4 @@
 .zept-session {
-  padding: var(--space-6);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -123,8 +122,8 @@
   pointer-events: none;
 }
 .zept-stepper__btn {
-  width: 36px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -150,7 +149,7 @@
 }
 .zept-stepper__input {
   width: 52px;
-  height: 40px;
+  height: 44px;
   text-align: center;
   font-size: var(--fs-title-md);
   font-weight: var(--fw-medium);

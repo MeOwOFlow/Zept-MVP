@@ -11,5 +11,6 @@ coverage
 .wrangler
 *.tsbuildinfo
 screenshots/
+.screenshots/
 .vscode/*
 !.vscode/extensions.json

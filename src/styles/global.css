@@ -259,6 +259,10 @@ img {
 
 .zept-chip {
   padding: var(--space-2) var(--space-4);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--radius-full);
   border: 1px solid var(--outline);
   background: transparent;
