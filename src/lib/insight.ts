@@ -47,11 +47,18 @@ function summarizeInsights(insights: Insight[]): string {
   return insights.map((i) => i.text).join('；');
 }
 
+function summarizeBreakMoods(session: SessionRecord): string {
+  const moods = session.breakMoods ?? [];
+  if (moods.length === 0) return '休息期间无情绪采样';
+  const vals = moods.map((m) => m.value).join('→');
+  return `休息间情绪采样：${vals}`;
+}
+
 function summarizeCurrent(session: SessionRecord): string {
   const mood = session.postAssessment?.mood ?? 3;
   const focus = session.postAssessment?.focus ?? 3;
   const { count, totalMs, longestMs } = leaveInfo(session);
-  return `${session.isPomodoro ? '番茄' : '自由'} ${Math.floor(session.actualDurationSec / 60)}分钟，${fmtLeave(count, totalMs, longestMs)}，情绪${mood}，专注${focus}`;
+  return `${session.isPomodoro ? '番茄' : '自由'} ${Math.floor(session.actualDurationSec / 60)}分钟，${fmtLeave(count, totalMs, longestMs)}，${summarizeBreakMoods(session)}，后评情绪${mood}，专注${focus}`;
 }
 
 function makeInsightId(): string {
