@@ -50,7 +50,7 @@ function summarizeInsights(insights: Insight[]): string {
 function summarizeBreakMoods(session: SessionRecord): string {
   const moods = session.breakMoods ?? [];
   if (moods.length === 0) return '休息期间无情绪采样';
-  const vals = moods.map((m) => m.value).join('→');
+  const vals = moods.map((m) => m.mood).join('→');
   return `休息间情绪采样：${vals}`;
 }
 
