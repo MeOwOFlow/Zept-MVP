@@ -40,7 +40,7 @@ describe('buildPrompt', () => {
 
   it('replyStyle=emotional 时 prompt 不直接罗列数字', () => {
     const p = buildPrompt({ ...baseParams, replyStyle: 'emotional' });
-    expect(p).toContain('不直接罗列数字');
+    expect(p).toContain('严禁直接罗列原始数字');
     expect(p).toContain('像朋友在身旁');
   });
 
