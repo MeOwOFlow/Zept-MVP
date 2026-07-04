@@ -58,7 +58,7 @@ describe('Settings - 渲染', () => {
     expect(screen.getByText('数据')).toBeInTheDocument();
     expect(screen.getByText('导出 JSON')).toBeInTheDocument();
     expect(screen.getByText('清空所有数据')).toBeInTheDocument();
-    expect(screen.getByText('合规声明')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /合规声明/ })).toBeInTheDocument();
     // 番茄配置已移至 Session 页
     expect(screen.queryByText('番茄设置')).not.toBeInTheDocument();
     expect(screen.queryByText('专注时长')).not.toBeInTheDocument();

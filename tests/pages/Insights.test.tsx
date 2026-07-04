@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import type { SessionRecord, Insight } from '../../src/types/session';
 
@@ -17,6 +18,8 @@ import Insights from '../../src/pages/Insights';
 
 const NOW = new Date('2026-06-27T12:00:00Z').getTime();
 
+const renderInsights = () => render(<MemoryRouter><Insights /></MemoryRouter>);
+
 beforeEach(() => {
   mockSessions.length = 0;
   mockInsights.length = 0;
@@ -25,7 +28,7 @@ beforeEach(() => {
 
 describe('Insights', () => {
   it('空状态显示引导', async () => {
-    render(<Insights />);
+    renderInsights();
     expect(await screen.findByText(/还没有专注记录/)).toBeInTheDocument();
   });
 
@@ -42,7 +45,7 @@ describe('Insights', () => {
       id: 'i1', sessionId: 's1', createdAt: NOW, text: '上午更专注',
       source: 'llm', confidence: 'high', feedback: null, mood: 4,
     });
-    render(<Insights />);
+    renderInsights();
     expect(await screen.findByText('上午更专注')).toBeInTheDocument();
     expect(screen.getByText(/离开 1 次/)).toBeInTheDocument();
   });
@@ -61,7 +64,7 @@ describe('Insights', () => {
       id: 'i1', sessionId: 's1', createdAt: NOW, text: '测试洞察',
       source: 'llm', confidence: 'high', feedback: null, mood: 4,
     });
-    render(<Insights />);
+    renderInsights();
     await screen.findByText(/测试洞察/);
     await user.click(screen.getByText('expand_more'));
     expect(screen.getByText(/情绪 3 ↑ 4/)).toBeInTheDocument();

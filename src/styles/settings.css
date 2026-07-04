@@ -1,5 +1,4 @@
 .zept-settings {
-  padding: var(--space-6);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -74,6 +73,42 @@
 .zept-settings__chips .zept-chip:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.zept-settings__compliance-toggle {
+  background: transparent;
+  border: none;
+  color: var(--tertiary);
+  font-size: var(--fs-body-md);
+  font-family: inherit;
+  cursor: pointer;
+  padding: var(--space-2) 0;
+  min-height: 44px;
+  text-align: left;
+  width: 100%;
+}
+
+.zept-settings__compliance {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--outline-variant);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.zept-settings__compliance h3 {
+  font-size: var(--fs-label-lg);
+  font-weight: var(--fw-medium);
+  color: var(--secondary);
+  margin-top: var(--space-3);
+}
+.zept-settings__compliance h3:first-of-type {
+  margin-top: var(--space-2);
+}
+.zept-settings__compliance p {
+  font-size: var(--fs-body-sm);
+  color: var(--on-surface-muted);
+  line-height: 1.6;
 }
 
 @media (min-width: 768px) {

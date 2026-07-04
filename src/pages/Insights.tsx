@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getAllSessions, getAllInsights, updateInsightFeedback } from '../lib/db';
 import { formatDuration } from '../lib/session';
 import type { SessionRecord, Insight } from '../types/session';
@@ -10,6 +11,7 @@ import '../styles/insights.css';
 interface Item { session: SessionRecord; insight: Insight | null; }
 
 export default function Insights() {
+  const navigate = useNavigate();
   const [items, setItems] = useState<Item[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,7 +46,10 @@ export default function Insights() {
     return (
       <div className="zept-insights">
         <h1 className="zept-insights__title">我的专注</h1>
-        <Card><p className="zept-insights__empty">还没有专注记录，开始第一次专注吧。</p></Card>
+        <Card>
+          <p className="zept-insights__empty">还没有专注记录，开始第一次专注吧。</p>
+          <Button variant="filled" onClick={() => navigate('/session')}>去开始专注</Button>
+        </Card>
       </div>
     );
   }
