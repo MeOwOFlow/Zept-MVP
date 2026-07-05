@@ -3,7 +3,7 @@ import { useUserStore } from '../stores/userStore';
 import { useSessionStore } from '../stores/sessionStore';
 import { generateInsight } from '../lib/insight';
 import { getRecentSessions, getUsefulInsights, updateInsightFeedback } from '../lib/db';
-import { shouldTriggerCareGate, CARE_GATE_RESOURCES } from '../lib/rules';
+import { shouldTriggerCareGate } from '../lib/rules';
 import { daysUntilBadge } from '../lib/date';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
