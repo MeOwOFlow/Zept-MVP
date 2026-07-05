@@ -429,7 +429,7 @@ export default function Session() {
           {shouldTriggerCareGate(insight.mood) ? (
             <>
               <h2 className="zept-session__title">今天看起来有些吃力</h2>
-              <p className="zept-session__care">如果持续低落，可以联系{CARE_GATE_RESOURCES.counseling}，或拨打{CARE_GATE_RESOURCES.hotline}。</p>
+              <p className="zept-session__care">{insight.text}</p>
             </>
           ) : (
             <>
