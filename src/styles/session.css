@@ -51,12 +51,10 @@
   align-items: center;
   gap: 2px;
   padding: var(--space-3) var(--space-1);
-  background: var(--surface-variant);
-  border: 2px solid transparent;
+  background-color: var(--surface-1);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background var(--duration-short) var(--easing-standard),
-    border-color var(--duration-short) var(--easing-standard),
+  transition: background-color var(--duration-short) var(--easing-standard),
     transform var(--duration-medium) var(--easing-spring);
   font-family: inherit;
   overflow: hidden;
@@ -64,12 +62,12 @@
 
 .zept-preset-tile:active {
   transform: scale(0.96);
-  background: var(--surface-2);
+  filter: brightness(0.92);
 }
 
 .zept-preset-tile--active {
-  background: var(--primary-container);
-  border-color: var(--primary);
+  background-color: var(--primary);
+  border-color: transparent;
 }
 .zept-preset-tile__label {
   font-size: var(--fs-label-lg);
@@ -78,7 +76,7 @@
   white-space: nowrap;
 }
 .zept-preset-tile--active .zept-preset-tile__label {
-  color: var(--on-primary-container);
+  color: var(--on-primary);
 }
 .zept-preset-tile__sub {
   font-size: var(--fs-label-sm);
@@ -87,7 +85,7 @@
   white-space: nowrap;
 }
 .zept-preset-tile--active .zept-preset-tile__sub {
-  color: var(--on-primary-container);
+  color: var(--on-primary);
   opacity: 0.8;
 }
 
@@ -108,14 +106,15 @@
   flex-shrink: 0;
 }
 
-/* Stepper 控件 [-] [N 分钟] [+] */
+/* Stepper 控件 [-] [N 分钟] [+] —— 玻璃凹陷容器 */
 .zept-stepper {
   display: inline-flex;
   align-items: center;
   gap: 0;
-  background: var(--surface-variant);
+  background-color: var(--surface-variant);
   border-radius: var(--radius-sm);
   overflow: hidden;
+  box-shadow: var(--shadow-inset);
 }
 .zept-stepper--disabled {
   opacity: 0.4;
@@ -185,15 +184,17 @@
   width: 260px;
   height: 260px;
   margin: 0 auto var(--space-5);
+  border-radius: 50%;
+  background-color: var(--surface);
+  border: none;
 }
 
 /* 计时环外层柔光，运行时呼吸——外层慢呼吸 */
 .zept-session__timer::before {
   content: "";
   position: absolute;
-  inset: -24px;
+  inset: -16px;
   border-radius: 50%;
-  background: radial-gradient(circle, var(--primary) 0%, transparent 65%);
   opacity: 0;
   transition: opacity var(--duration-long) var(--easing-standard);
   pointer-events: none;
@@ -216,7 +217,6 @@
   position: absolute;
   inset: 16px;
   border-radius: 50%;
-  background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
   opacity: 0;
   animation: zept-breathe-inner 6s var(--easing-standard) infinite;
   pointer-events: none;
@@ -282,7 +282,7 @@
 .zept-break-mood {
   margin-top: var(--space-3);
   padding: var(--space-4);
-  background: var(--surface-1);
+  background-color: var(--surface-1);
   border-radius: var(--radius-md);
   animation: zept-fade-in var(--duration-medium) var(--easing-decelerated);
 }
@@ -301,25 +301,24 @@
 }
 .zept-break-mood__option {
   padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-full);
-  border: 1px solid var(--outline-variant);
-  background: var(--surface-2);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-2);
   color: var(--on-surface);
   font-size: var(--fs-body-md);
   font-family: var(--font-body);
   cursor: pointer;
-  transition: all var(--duration-short) var(--easing-standard);
+  transition: color var(--duration-short) var(--easing-standard),
+    filter var(--duration-short) var(--easing-standard);
 }
 .zept-break-mood__option:hover {
-  background: var(--surface-3);
-  border-color: var(--primary);
+  color: var(--primary);
 }
 .zept-break-mood__option:active {
+  filter: brightness(0.92);
   transform: scale(0.95);
 }
 .zept-break-mood__option--skip {
   color: var(--on-surface-muted);
-  border-style: dashed;
 }
 
 @keyframes zept-fade-in {

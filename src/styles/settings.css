@@ -25,8 +25,9 @@
 .zept-settings__confirm {
   margin-top: var(--space-3);
   padding: var(--space-3);
-  background: var(--surface-variant);
+  background-color: var(--surface-variant);
   border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-inset);
 }
 .zept-settings__confirm p {
   color: var(--error);
@@ -76,22 +77,30 @@
 }
 
 .zept-settings__compliance-toggle {
-  background: transparent;
-  border: none;
+  background-color: var(--surface-1);
   color: var(--tertiary);
   font-size: var(--fs-body-md);
   font-family: inherit;
   cursor: pointer;
-  padding: var(--space-2) 0;
+  padding: var(--space-3) var(--space-4);
+  margin-top: var(--space-2);
   min-height: 44px;
   text-align: left;
   width: 100%;
+  border-radius: var(--radius-sm);
+  transition: filter var(--duration-short) var(--easing-standard);
+}
+
+.zept-settings__compliance-toggle:active {
+  filter: brightness(0.92);
 }
 
 .zept-settings__compliance {
   margin-top: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--outline-variant);
+  padding: var(--space-4);
+  background-color: var(--surface-variant);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-inset);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);

@@ -74,7 +74,7 @@
   justify-content: center;
   margin-bottom: var(--space-6);
   border-radius: 50%;
-  background: radial-gradient(circle, var(--primary-container) 0%, transparent 70%);
+  background-color: var(--surface-2);
 }
 
 .zept-welcome__icon-wrap::before {
@@ -82,8 +82,7 @@
   position: absolute;
   inset: -16px;
   border-radius: 50%;
-  background: radial-gradient(circle, var(--primary) 0%, transparent 65%);
-  opacity: 0.18;
+  opacity: 0.22;
   animation: zept-welcome-breathe 5s var(--easing-standard) infinite;
   pointer-events: none;
 }
@@ -141,17 +140,17 @@
 /* 指示点 */
 .zept-welcome__dots {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-3);
   justify-content: center;
   padding: var(--space-4) 0;
 }
 
 .zept-welcome__dot {
   position: relative;
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: var(--outline-variant);
+  background: var(--outline);
   border: none;
   padding: 0;
   cursor: pointer;
@@ -166,7 +165,7 @@
 
 .zept-welcome__dot--active {
   background: var(--primary);
-  width: 24px;
+  width: 28px;
   border-radius: var(--radius-full);
 }
 

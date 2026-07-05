@@ -78,22 +78,25 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: var(--space-1) var(--space-3);
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   color: var(--on-surface-muted);
   text-decoration: none;
   flex: 1;
   max-width: 120px;
   transition: color var(--duration-short) var(--easing-standard),
+    background-color var(--duration-short) var(--easing-standard),
     transform var(--duration-medium) var(--easing-spring);
 }
 
 .zept-nav__item:active {
   transform: scale(0.92);
+  background-color: var(--surface-variant);
 }
 
 .zept-nav__item--active {
   color: var(--primary);
+  background-color: var(--primary-container);
 }
 
 .zept-nav__icon {
