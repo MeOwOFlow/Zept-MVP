@@ -2,6 +2,12 @@ import type { SessionRecord, SelfAssessment, BreakMood } from '../types/session'
 import type { UserProfile } from '../types/user';
 import { daysUntilExam } from './date';
 
+/**
+ * @rn-status WEB-ONLY (interruption tracking) / RN-READY (rest)
+ * createSession / endSession / formatDuration 等纯函数 RN 可复用。
+ * startInterruptionTracking 用 document.visibilitychange + window blur/focus，
+ * RN 迁移时改用 AppState 'active'/'background' 事件。
+ */
 const INTERRUPTION_THRESHOLD_MS = 10_000;
 
 interface InterruptionListener {

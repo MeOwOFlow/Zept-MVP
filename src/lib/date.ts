@@ -1,4 +1,7 @@
-// 日期 helper（框架无关，为 RN 迁移预留）
+/**
+ * @rn-status RN-READY
+ * 日期 helper（框架无关，为 RN 迁移预留）
+ */
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

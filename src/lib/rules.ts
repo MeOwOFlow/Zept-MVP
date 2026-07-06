@@ -1,3 +1,8 @@
+/**
+ * @rn-status RN-READY
+ * 纯逻辑：黑名单、care gate 阈值、置信度判定、降级文案。
+ * 无 DOM、无 I/O，RN 直接复用。
+ */
 import type { SessionRecord, SessionInsightMode, InsightSource, InsightConfidence } from '../types/session';
 
 export const BLACKLIST_WORDS: string[] = [

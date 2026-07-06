@@ -2,6 +2,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllSessions, getAllInsights, updateInsightFeedback } from '../lib/db';
 import { formatDuration } from '../lib/session';
+import { computeStreakDays, computeTotalDurationSec } from '../lib/streak';
+import { exportInsightImage } from '../lib/exportImage';
+import {
+  generateDailyReport,
+  generateWeeklyReport,
+  getDailyPeriodKey,
+  getWeeklyPeriodKey,
+  type FocusReport,
+} from '../lib/report';
+import { useUserStore } from '../stores/userStore';
 import type { SessionRecord, Insight } from '../types/session';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
@@ -10,11 +20,80 @@ import '../styles/insights.css';
 
 interface Item { session: SessionRecord; insight: Insight | null; }
 
+// PWA 持久化：localStorage；RN 迁移时替换为 AsyncStorage
+const REPORT_STORAGE_PREFIX = 'zept-report-';
+
+function loadReport(scope: 'daily' | 'weekly', periodKey: string): FocusReport | null {
+  try {
+    const raw = localStorage.getItem(REPORT_STORAGE_PREFIX + scope + '-' + periodKey);
+    return raw ? (JSON.parse(raw) as FocusReport) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveReport(report: FocusReport): void {
+  try {
+    localStorage.setItem(
+      REPORT_STORAGE_PREFIX + report.scope + '-' + report.periodKey,
+      JSON.stringify(report),
+    );
+  } catch {
+    // 忽略 quota / 序列化错误
+  }
+}
+
 export default function Insights() {
   const navigate = useNavigate();
+  const profile = useUserStore((s) => s.profile);
   const [items, setItems] = useState<Item[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState<string | null>(null);
+  const [dailyReport, setDailyReport] = useState<FocusReport | null>(null);
+  const [weeklyReport, setWeeklyReport] = useState<FocusReport | null>(null);
+  const [generating, setGenerating] = useState<'daily' | 'weekly' | null>(null);
+
+  const streakDays = computeStreakDays(items.map((it) => it.session));
+  const totalDurationSec = computeTotalDurationSec(items.map((it) => it.session));
+
+  const handleExport = async (session: SessionRecord, insight: Insight) => {
+    setExporting(session.id);
+    try {
+      await exportInsightImage({
+        insight,
+        session,
+        streakDays,
+        totalDurationSec,
+      });
+    } catch (err) {
+      console.error('export insight image failed', err);
+      alert('导出失败，请稍后重试');
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  const handleGenerate = async (scope: 'daily' | 'weekly') => {
+    if (!profile) return;
+    setGenerating(scope);
+    try {
+      const sessions = items.map((it) => it.session);
+      const insights = items.map((it) => it.insight).filter((x): x is Insight => x !== null);
+      const report =
+        scope === 'daily'
+          ? await generateDailyReport({ sessions, insights, profile })
+          : await generateWeeklyReport({ sessions, insights, profile });
+      saveReport(report);
+      if (scope === 'daily') setDailyReport(report);
+      else setWeeklyReport(report);
+    } catch (err) {
+      console.error('generate report failed', err);
+      alert('生成失败，请稍后重试');
+    } finally {
+      setGenerating(null);
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -36,6 +115,9 @@ export default function Insights() {
         setLoading(false);
       }
     })();
+    // 加载已缓存的今日/本周报告
+    setDailyReport(loadReport('daily', getDailyPeriodKey()));
+    setWeeklyReport(loadReport('weekly', getWeeklyPeriodKey()));
     return () => { mounted = false; };
   }, []);
 
@@ -67,6 +149,54 @@ export default function Insights() {
   return (
     <div className="zept-insights">
       <h1 className="zept-insights__title">我的专注</h1>
+
+      <Card>
+        <div className="zept-report">
+          <div className="zept-report__header">
+            <span className="zept-report__title">专注报告</span>
+            <div className="zept-report__actions">
+              <Button
+                variant="outlined"
+                onClick={() => handleGenerate('daily')}
+                disabled={generating !== null}
+              >
+                {generating === 'daily' ? '生成中…' : '今日'}
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => handleGenerate('weekly')}
+                disabled={generating !== null}
+              >
+                {generating === 'weekly' ? '生成中…' : '本周'}
+              </Button>
+            </div>
+          </div>
+          {dailyReport && (
+            <div className="zept-report__body">
+              <div className="zept-report__label">
+                {dailyReport.dateLabel} · 今日
+                {dailyReport.source === 'fallback' && <span className="zept-report__tag">离线</span>}
+              </div>
+              <p className="zept-report__text">{dailyReport.text}</p>
+            </div>
+          )}
+          {weeklyReport && (
+            <div className="zept-report__body">
+              <div className="zept-report__label">
+                {weeklyReport.dateLabel} · 本周
+                {weeklyReport.source === 'fallback' && <span className="zept-report__tag">离线</span>}
+              </div>
+              <p className="zept-report__text">{weeklyReport.text}</p>
+            </div>
+          )}
+          {!dailyReport && !weeklyReport && (
+            <p className="zept-report__hint">
+              点击「今日」或「本周」，让凝时给你一段陪伴的回顾。
+            </p>
+          )}
+        </div>
+      </Card>
+
       <MoodTrend sessions={items.map((it) => it.session)} />
       {items.map(({ session, insight }) => {
         const date = new Date(session.startedAt).toLocaleString('zh-CN', {
@@ -121,6 +251,17 @@ export default function Insights() {
                     已标记：{insight.feedback === 'useful' ? '有用' : '没用'}
                   </div>
                 ) : null}
+                {insight && (
+                  <div className="zept-insights__export">
+                    <Button
+                      variant="text"
+                      onClick={() => handleExport(session, insight)}
+                      disabled={exporting === session.id}
+                    >
+                      {exporting === session.id ? '生成中…' : '导出长图'}
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </Card>

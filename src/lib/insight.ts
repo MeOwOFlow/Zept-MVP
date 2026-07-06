@@ -1,3 +1,8 @@
+/**
+ * @rn-status RN-READY-WITH-CONFIG
+ * 业务编排层，本身不依赖 DOM。依赖 db.ts（saveInsight）与 llm.ts（callLLM），
+ * 这两个文件迁移后即可在 RN 直接复用。
+ */
 import type {
   SessionRecord,
   Insight,

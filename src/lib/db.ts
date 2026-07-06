@@ -1,3 +1,8 @@
+/**
+ * @rn-status WEB-ONLY
+ * IndexedDB 存储层。RN 迁移时需替换为 WatermelonDB / SQLite / MMKV。
+ * 对外暴露的 saveX/getX 接口签名可保持不变，仅替换内部实现。
+ */
 import Dexie, { type Table } from 'dexie';
 import type { SessionRecord, Insight, UserProfile } from '../types';
 

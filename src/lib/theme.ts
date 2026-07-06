@@ -1,3 +1,8 @@
+/**
+ * @rn-status WEB-ONLY (applyTheme/watchSystemTheme 的 DOM 部分) / RN-READY (getThemeColor)
+ * applyTheme 已通过 applyFn 注入解耦，RN 端可传 Platform.setColorScheme。
+ * theme-color meta 与 matchMedia 仅浏览器有，RN 需用 Appearance 模块替代。
+ */
 import type { ThemeMode } from '../types/user';
 
 /**

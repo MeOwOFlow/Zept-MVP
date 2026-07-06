@@ -1,3 +1,10 @@
+/**
+ * @rn-status WEB-ONLY (persistence) / RN-READY (state logic with adapter injection)
+ * Zustand 在 RN 可用。但当前实现强耦合：
+ *   - localStorage 持久化（RN 需替换为 AsyncStorage 或 MMKV）
+ *   - saveSession 依赖 Dexie/IndexedDB（RN 需替换为 WatermelonDB / SQLite）
+ * RN 迁移时需将持久化层抽象为可注入的 storage adapter，store 逻辑本身可复用。
+ */
 import { create } from 'zustand';
 import type { SessionRecord, SessionStatus, SelfAssessment, PomodoroState, Rating, BreakMood } from '../types/session';
 import type { UserProfile } from '../types/user';

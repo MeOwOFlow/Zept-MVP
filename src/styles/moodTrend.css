@@ -16,14 +16,33 @@
   font-weight: var(--fw-medium);
   color: var(--on-surface);
 }
-.zept-mood-trend__count {
+.zept-mood-trend__confidence {
   font-size: var(--fs-label-md);
-  color: var(--on-surface-muted);
+  font-weight: var(--fw-medium);
+  font-variant-numeric: tabular-nums;
+}
+.zept-mood-trend__warning {
+  font-size: var(--fs-label-md);
+  color: var(--tertiary);
+  margin-bottom: var(--space-2);
+  line-height: 1.4;
 }
 .zept-mood-trend__svg {
   width: 100%;
   height: auto;
   display: block;
+}
+.zept-mood-trend__legend {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  font-size: var(--fs-label-md);
+  color: var(--on-surface-muted);
+}
+.zept-mood-trend__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
 .zept-mood-trend--empty {
   text-align: center;

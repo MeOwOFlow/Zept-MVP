@@ -1,3 +1,10 @@
+/**
+ * @rn-status WEB-ONLY (persistence) / RN-READY (state logic with adapter injection)
+ * Zustand 在 RN 可用。但当前实现强耦合：
+ *   - saveUser/getUser 依赖 Dexie/IndexedDB（RN 需替换为 WatermelonDB / SQLite）
+ *   - applyTheme 内部操作 document.documentElement，RN 需传 Platform.setColorScheme
+ * RN 迁移时需将 db 层抽象为可注入的 userStorage adapter，theme applyFn 已支持解耦。
+ */
 import { create } from 'zustand';
 import { saveUser, getUser } from '../lib/db';
 import { applyTheme } from '../lib/theme';

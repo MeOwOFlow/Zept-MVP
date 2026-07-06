@@ -1,3 +1,7 @@
+/**
+ * @rn-status RN-READY
+ * 纯类型定义，无运行时依赖，RN 直接复用。
+ */
 export interface PomodoroConfig {
   workDurationMin: number;
   shortBreakMin: number;
