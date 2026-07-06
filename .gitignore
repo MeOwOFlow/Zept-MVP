@@ -12,5 +12,6 @@ coverage
 *.tsbuildinfo
 screenshots/
 .screenshots/
+scripts/shots/
 .vscode/*
 !.vscode/extensions.json
