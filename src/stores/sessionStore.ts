@@ -11,6 +11,7 @@ interface SessionStore {
   remainingSec: number;
   isRunning: boolean;
   interruptions: number;
+  lastPersistedAt: number;
   startSession: (user: UserProfile, isPomodoro: boolean) => void;
   setPreMood: (mood: Rating) => void;
   setBreakMood: (mood: 1 | 2 | 3 | null) => void;
@@ -73,6 +74,8 @@ function getPersistableState(): PersistedState | null {
   return { currentSession, pomodoroState, remainingSec, interruptions };
 }
 
+const PERSIST_INTERVAL_MS = 5000;
+
 const initialState = loadPersistedState();
 
 export const useSessionStore = create<SessionStore>((set, get) => ({
@@ -81,6 +84,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   remainingSec: initialState?.remainingSec ?? 0,
   isRunning: false,
   interruptions: initialState?.interruptions ?? 0,
+  lastPersistedAt: 0,
 
   startSession: (user, isPomodoro) => {
     const session = createSession(user, isPomodoro);
@@ -105,6 +109,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       savePersistedState(getPersistableState());
     });
     savePersistedState(getPersistableState());
+    set({ lastPersistedAt: Date.now() });
   },
 
   setPreMood: (mood) => {
@@ -135,6 +140,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     if (!cs) return;
     set({ isRunning: false, currentSession: { ...cs, status: 'paused' } });
     savePersistedState(getPersistableState());
+    set({ lastPersistedAt: Date.now() });
   },
 
   resumeSession: () => {
@@ -142,6 +148,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     if (!cs) return;
     set({ isRunning: true, currentSession: { ...cs, status: 'focusing' } });
     savePersistedState(getPersistableState());
+    set({ lastPersistedAt: Date.now() });
   },
 
   tick: () => {
@@ -152,8 +159,12 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     const result = pomodoroTick(pomodoroState, elapsed);
     if (!result.isComplete) {
       set({ remainingSec: result.remainingSec });
-      // 每秒持久化 remainingSec，保证刷新后恢复正确倒计时
-      savePersistedState(getPersistableState());
+      // 节流持久化：5 秒写一次 localStorage，减少每秒写盘开销
+      const now = Date.now();
+      if (now - get().lastPersistedAt >= PERSIST_INTERVAL_MS) {
+        savePersistedState(getPersistableState());
+        set({ lastPersistedAt: now });
+      }
       return;
     }
     const newMode = nextMode(pomodoroState);
@@ -212,7 +223,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     stopInterruptionTracking();
     const final = endSessionRecord(currentSession, postAssessment);
     await saveSession(final);
-    set({ currentSession: null, pomodoroState: null, remainingSec: 0, isRunning: false });
+    set({ currentSession: null, pomodoroState: null, remainingSec: 0, isRunning: false, lastPersistedAt: Date.now() });
     savePersistedState(null);
   },
 }));

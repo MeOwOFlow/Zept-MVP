@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, type KeyboardEvent } from 'react';
+import { useState, useEffect, useCallback, useRef, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 
 export interface DatePickerProps {
@@ -146,11 +146,25 @@ export function DatePicker({ label, value, onChange, minDate, maxDate }: DatePic
     setDraft(iso);
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = (e: ReactKeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Escape') {
       handleCancel();
     }
   };
+
+  // 全局监听 Escape：焦点在 sheet 内部按钮上也能关闭
+  useEffect(() => {
+    if (!open) return;
+    const handleGlobalKeyDown = (e: globalThis.KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        setOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleGlobalKeyDown, true);
+    return () => document.removeEventListener('keydown', handleGlobalKeyDown, true);
+  }, [open]);
 
   const years: number[] = [];
   for (let y = min.getFullYear(); y <= max.getFullYear(); y++) {

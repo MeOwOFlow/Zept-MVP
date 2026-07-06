@@ -13,6 +13,16 @@ export function applyTheme(
   applyFn: (mode: ThemeMode) => void = defaultDomApply,
 ): void {
   applyFn(mode);
+  // 同步更新 PWA theme-color
+  const isDark = mode === 'dark' || (mode === 'auto' && getSystemTheme() === 'dark');
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) {
+    meta.setAttribute('content', getThemeColor(isDark));
+  }
+}
+
+export function getThemeColor(isDark: boolean): string {
+  return isDark ? '#000000' : '#f2f2f7';
 }
 
 function defaultDomApply(mode: ThemeMode): void {
@@ -36,7 +46,14 @@ export function getSystemTheme(): 'light' | 'dark' {
 export function watchSystemTheme(onChange: (theme: 'light' | 'dark') => void): () => void {
   if (typeof window === 'undefined' || !window.matchMedia) return () => {};
   const mq = window.matchMedia('(prefers-color-scheme: light)');
-  const handler = (e: MediaQueryListEvent) => onChange(e.matches ? 'light' : 'dark');
+  const handler = (e: MediaQueryListEvent) => {
+    // 同步更新 theme-color
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute('content', getThemeColor(!e.matches));
+    }
+    onChange(e.matches ? 'light' : 'dark');
+  };
   mq.addEventListener('change', handler);
   return () => mq.removeEventListener('change', handler);
 }

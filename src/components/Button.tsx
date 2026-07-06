@@ -1,4 +1,4 @@
-import { useRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { useEffect, useRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 
 export type ButtonVariant = 'filled' | 'outlined' | 'text';
 
@@ -16,6 +16,16 @@ export function Button({
   ...rest
 }: ButtonProps) {
   const btnRef = useRef<HTMLButtonElement>(null);
+  const rippleRef = useRef<HTMLSpanElement | null>(null);
+  const animRef = useRef<Animation | null>(null);
+
+  useEffect(() => {
+    return () => {
+      // 卸载时取消动画并移除 ripple，避免内存泄漏与 DOM 残留
+      animRef.current?.cancel();
+      rippleRef.current?.remove();
+    };
+  }, []);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
     const btn = btnRef.current;
@@ -30,6 +40,7 @@ export function Button({
     ripple.style.width = `${size}px`;
     ripple.style.height = `${size}px`;
     btn.appendChild(ripple);
+    rippleRef.current = ripple;
 
     const animation = ripple.animate(
       [
@@ -42,8 +53,11 @@ export function Button({
         fill: 'forwards',
       },
     );
+    animRef.current = animation;
 
     animation.onfinish = () => {
+      rippleRef.current = null;
+      animRef.current = null;
       ripple.remove();
     };
   };

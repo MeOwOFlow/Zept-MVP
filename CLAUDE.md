@@ -2,19 +2,19 @@
 凝时 Zept — 备考生的 AI 专注陪伴 Web 应用。把专注数据翻译成"看见你"的洞察与陪伴，本地优先保护隐私，合规对齐《生成式 AI 办法》《拟人化互动办法》，不诊疗只陪伴。7/15 上线。
 
 ## 技术栈
-- 构建：Vite 5
+- 构建：Vite 8
 - 框架： React 18 + TypeScript
-- 组件库：MD3 React
-- 样式: CSS Modules + 共享 tokens.css
-- 状态管理：Zus1and
-- 路由：React Router v6
-- 数据管理：Dexie.js
-- LLM：DeepSeek-v4-flash API
+- 组件库：Apple HIG 风格手写 React 组件（实色分层，双主题）
+- 样式: 全局 CSS + 共享 tokens.css（CSS Modules 预留）
+- 状态管理：Zustand
+- 路由：React Router v7
+- 数据管理：Dexie.js（IndexedDB）
+- LLM：DeepSeek API
 - 部署：Cloudflare Pages（git push 自动部署）
 - LLM 代理：functions/api/llm.ts（Pages Functions，基于 Workers）
 - PWA实现：vite-plugin-pwa
 - 测试:	Vitest + React Testing Library
-- 代码质量：ESLint + Prettier
+- 代码质量：ESLint + Prettier（待配置）
 
 ## 项目结构
 - src/

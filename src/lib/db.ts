@@ -53,11 +53,13 @@ export async function getAllInsights(): Promise<Insight[]> {
 }
 
 export async function getUsefulInsights(n: number): Promise<Insight[]> {
-  const all = await db.insights.toArray();
-  return all
-    .filter((i) => i.feedback === 'useful')
-    .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(0, n);
+  // 走 feedback 索引，避免全表扫描
+  const list = await db.insights
+    .where('feedback')
+    .equals('useful')
+    .reverse()
+    .sortBy('createdAt');
+  return list.slice(0, n);
 }
 
 export async function updateInsightFeedback(id: string, feedback: 'useful' | 'useless'): Promise<void> {
