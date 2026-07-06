@@ -44,16 +44,21 @@ export default function Onboarding() {
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
-    await setProfile({
-      goal: goal.trim(),
-      examDate,
-      topDistractions: distractions,
-      onboarded: true,
-      pomodoroConfig: null,  // 番茄时长由用户在 Session 首次选择
-      theme: DEFAULT_THEME,
-      replyStyle,
-    });
-    navigate('/session');
+    try {
+      await setProfile({
+        goal: goal.trim(),
+        examDate,
+        topDistractions: distractions,
+        onboarded: true,
+        pomodoroConfig: null,  // 番茄时长由用户在 Session 首次选择
+        theme: DEFAULT_THEME,
+        replyStyle,
+      });
+      navigate('/session');
+    } catch (err) {
+      console.error('failed to save profile', err);
+      alert('保存失败，请检查浏览器存储权限后重试');
+    }
   };
 
   return (

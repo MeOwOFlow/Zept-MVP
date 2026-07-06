@@ -17,16 +17,26 @@ export default function Insights() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
     (async () => {
-      const [sessions, insights] = await Promise.all([getAllSessions(), getAllInsights()]);
-      const map = new Map(insights.map((i) => [i.sessionId, i]));
-      setItems(
-        sessions
-          .sort((a, b) => b.startedAt - a.startedAt)
-          .map((s) => ({ session: s, insight: map.get(s.id) ?? null })),
-      );
-      setLoading(false);
+      try {
+        const [sessions, insights] = await Promise.all([getAllSessions(), getAllInsights()]);
+        if (!mounted) return;
+        const map = new Map(insights.map((i) => [i.sessionId, i]));
+        setItems(
+          sessions
+            .sort((a, b) => b.startedAt - a.startedAt)
+            .map((s) => ({ session: s, insight: map.get(s.id) ?? null })),
+        );
+      } catch (err) {
+        if (!mounted) return;
+        console.error('failed to load insights', err);
+      } finally {
+        if (!mounted) return;
+        setLoading(false);
+      }
     })();
+    return () => { mounted = false; };
   }, []);
 
   const handleFeedback = async (insightId: string, feedback: 'useful' | 'useless') => {

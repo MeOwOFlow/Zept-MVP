@@ -8,7 +8,7 @@ import { daysUntilBadge } from '../lib/date';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Slider } from '../components/Slider';
-import type { SelfAssessment, Insight, SessionRecord, PomodoroState } from '../types/session';
+import type { SelfAssessment, Insight, SessionRecord, SessionInsightMode } from '../types/session';
 import type { PomodoroConfig } from '../types/user';
 import '../styles/session.css';
 
@@ -212,9 +212,24 @@ export default function Session() {
     ]);
     const sessionForInsight: SessionRecord = { ...currentSession, postAssessment };
     await endSession(postAssessment);
-    const mode: PomodoroState['mode'] = pomodoroState?.mode ?? 'work';
+    const mode: SessionInsightMode = pomodoroState?.mode ?? 'free';
     const replyStyle = profile?.replyStyle ?? 'balanced';
-    const generated = await generateInsight(sessionForInsight, recentSessions, usefulInsights, mode, replyStyle);
+    let generated: Insight | null = null;
+    try {
+      generated = await generateInsight(sessionForInsight, recentSessions, usefulInsights, mode, replyStyle);
+    } catch (err) {
+      console.error('insight generation failed', err);
+      generated = {
+        id: `i_${Date.now()}_err`,
+        sessionId: sessionForInsight.id,
+        createdAt: Date.now(),
+        text: '这轮专注结束了，记录已保存。',
+        source: 'fallback',
+        confidence: 'low',
+        feedback: null,
+        mood: postMood,
+      };
+    }
     setInsight(generated);
     setPhase('insight');
   };

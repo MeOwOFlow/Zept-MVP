@@ -159,10 +159,25 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     const newMode = nextMode(pomodoroState);
     if (newMode === 'done') {
       const newCycles = pomodoroState.cyclesCompleted + 1;
+      const now = Date.now();
+      const actualDurationSec = Math.max(0, Math.round((now - currentSession.startedAt) / 1000));
+      const completedSession: SessionRecord = {
+        ...currentSession,
+        status: 'completed',
+        endedAt: now,
+        endHour: new Date(now).getHours(),
+        actualDurationSec,
+        pomodoroCyclesCompleted: newCycles,
+      };
+      // 先落库，即使用户在 postAssess 刷新也不会丢失整段专注
+      saveSession(completedSession).catch((err) => {
+        console.error('failed to save completed session', err);
+      });
+      stopInterruptionTracking();
       set({
         isRunning: false,
         pomodoroState: { ...pomodoroState, cyclesCompleted: newCycles },
-        currentSession: { ...currentSession, status: 'completed', pomodoroCyclesCompleted: newCycles },
+        currentSession: completedSession,
       });
       savePersistedState(getPersistableState());
       return;

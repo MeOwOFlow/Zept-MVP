@@ -1,4 +1,4 @@
-import type { SessionRecord, PomodoroState, InsightSource, InsightConfidence } from '../types/session';
+import type { SessionRecord, SessionInsightMode, InsightSource, InsightConfidence } from '../types/session';
 
 export const BLACKLIST_WORDS: string[] = [
   '抑郁', '焦虑症', '抑郁症', '你应该', '建议就医',
@@ -58,7 +58,7 @@ function buildDataFragment(session: SessionRecord): string {
 
 export function getFallbackInsight(
   mood: number,
-  mode: PomodoroState['mode'],
+  mode: SessionInsightMode,
   session?: SessionRecord,
 ): FallbackResult {
   // care gate：mood ≤ 2 不拼接数据，保留合规资源出口
@@ -75,10 +75,16 @@ export function getFallbackInsight(
   const prefix = dataFrag ? `${dataFrag}，` : '';
 
   if (mood === 3) {
+    if (mode === 'free') {
+      return { text: '专注有起伏很正常，接下来的时间可以按自己的感觉调整。', source: 'template', confidence: 'medium' };
+    }
     if (mode === 'work') {
       return { text: `${prefix}状态起伏都正常，能开始就已经在路上了。`, source: 'template', confidence: 'medium' };
     }
     return { text: '休息也是专注的一部分，慢慢呼吸几次。', source: 'template', confidence: 'medium' };
+  }
+  if (mode === 'free') {
+    return { text: '这段时间你保持了自己的节奏，继续按这个步调来就好。', source: 'template', confidence: 'medium' };
   }
   if (mode === 'work') {
     return { text: `${prefix}节奏稳住了，按这个步调继续就好。`, source: 'template', confidence: 'medium' };

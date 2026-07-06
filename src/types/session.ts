@@ -83,3 +83,8 @@ export interface PomodoroState {
   shortBreakMin: number;
   targetCycles: number;
 }
+
+/**
+ * 用于洞察生成的会话模式：番茄钟轮次 + 自由模式
+ */
+export type SessionInsightMode = PomodoroState['mode'] | 'free';

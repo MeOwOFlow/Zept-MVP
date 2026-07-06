@@ -81,6 +81,9 @@ export async function getUser(): Promise<UserProfile | undefined> {
 
 export async function clearAll(): Promise<void> {
   await Promise.all([db.sessions.clear(), db.insights.clear(), db.profiles.clear()]);
+  // 一键清空需包含运行态和欢迎标记
+  localStorage.removeItem('zept-session-state');
+  localStorage.removeItem('zept_welcome_seen');
 }
 
 export async function exportAll(): Promise<{

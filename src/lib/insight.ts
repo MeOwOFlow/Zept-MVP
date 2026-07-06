@@ -1,7 +1,7 @@
 import type {
   SessionRecord,
   Insight,
-  PomodoroState,
+  SessionInsightMode,
 } from '../types/session';
 import type { ReplyStyle } from '../types/user';
 import { saveInsight } from './db';
@@ -69,7 +69,7 @@ export async function generateInsight(
   currentSession: SessionRecord,
   recentSessions: SessionRecord[],
   usefulInsights: Insight[],
-  mode: PomodoroState['mode'] = 'work',
+  mode: SessionInsightMode = 'work',
   replyStyle: ReplyStyle = 'balanced',
 ): Promise<Insight> {
   const mood = currentSession.postAssessment?.mood ?? 3;
