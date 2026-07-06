@@ -1,6 +1,4 @@
-/* 国内可访问的 Google Fonts 镜像 */
-@import url('https://fonts.loli.net/css2?family=Google+Sans+Flex:opsz,wght@6..144,100..1000&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
-
+/* 字体改在 index.html 用 <link> 并行加载，避免 @import 阻塞渲染 */
 *,
 *::before,
 *::after {

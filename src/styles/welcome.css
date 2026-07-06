@@ -147,23 +147,29 @@
 
 .zept-welcome__dot {
   position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.zept-welcome__dot::after {
+  content: "";
+  display: block;
   width: 10px;
   height: 10px;
   border-radius: 50%;
   background: var(--outline);
-  border: none;
-  padding: 0;
-  cursor: pointer;
   transition: background var(--duration-short) var(--easing-standard),
     width var(--duration-medium) var(--easing-emphasized);
 }
-.zept-welcome__dot::before {
-  content: "";
-  position: absolute;
-  inset: -10px;
-}
 
-.zept-welcome__dot--active {
+.zept-welcome__dot--active::after {
   background: var(--primary);
   width: 28px;
   border-radius: var(--radius-full);

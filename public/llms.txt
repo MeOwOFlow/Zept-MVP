@@ -1,0 +1,25 @@
+# 凝时 Zept
+
+> 备考生的 AI 专注陪伴 PWA。番茄计时 + AI 洞察 + 关怀门，本地优先保护隐私。
+
+## 概述
+凝时 Zept 是一款面向备考生（高考/考研/公考/考证）的专注陪伴 Web 应用。以专注质量洞察为 Hero 功能，番茄钟为默认模式，科技与人文平衡关怀。本地优先保护隐私，LLM 调用仅发送脱敏聚合数据。
+
+## 核心功能
+- 番茄计时（完整状态机 + 中断检测）
+- 双滑块会话前后自评（情绪 + 专注度）
+- LLM 洞察生成（规则兜底 + DeepSeek + 黑名单）
+- 关怀门（mood ≤ 2 触发资源出口，LLM 生成温柔文案）
+- 洞察日报/周报（连续专注文案 + 降级陪伴）
+- MoodTrend 情绪趋势折线图（置信度 + 去虚假）
+- 洞察长图导出（PNG，社交传播友好）
+- 本地留存与回看（Dexie/IndexedDB）
+- 数据导出 JSON / 一键清空
+- PWA 离线可用
+
+## 链接
+- [首页](https://zept.pages.dev/)
+- [合规说明](https://zept.pages.dev/compliance.html)
+
+## 技术栈
+React 18 + TypeScript + Vite 8 + Zustand + Dexie.js + Cloudflare Pages Functions + DeepSeek API
