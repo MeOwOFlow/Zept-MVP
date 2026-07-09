@@ -53,7 +53,7 @@ export default function Settings() {
 
   return (
     <div className="zept-settings">
-      <h1 className="zept-settings__title">设置</h1>
+      <h1 className="zept-settings__title">我的</h1>
 
       <Card>
         <h2 className="zept-settings__section">外观</h2>

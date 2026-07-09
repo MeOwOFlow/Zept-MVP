@@ -93,12 +93,12 @@ describe('App routing', () => {
     });
   });
 
-  it('导航栏含 专注/洞察/设置 三个链接', async () => {
+  it('导航栏含 番茄钟/洞察/我的 三个链接', async () => {
     renderAt('/session');
     await waitFor(() => {
-      expect(screen.getByRole('link', { name: '专注' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: '番茄钟' })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: '洞察' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: '设置' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: '我的' })).toBeInTheDocument();
     });
   });
 });

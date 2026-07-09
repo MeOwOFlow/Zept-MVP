@@ -10,9 +10,9 @@ import Settings from './pages/Settings';
 import './styles/app.css';
 
 const NAV_ITEMS = [
-  { to: '/session', label: '专注', icon: 'timer' },
+  { to: '/session', label: '番茄钟', icon: 'timer' },
   { to: '/insights', label: '洞察', icon: 'insights' },
-  { to: '/settings', label: '设置', icon: 'settings' },
+  { to: '/settings', label: '我的', icon: 'person' },
 ] as const;
 
 function NavBar() {

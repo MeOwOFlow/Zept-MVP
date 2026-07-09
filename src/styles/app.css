@@ -10,7 +10,8 @@
   max-width: 480px;
   margin: 0 auto;
   width: 100%;
-  padding-bottom: 96px;
+  /* 给底部浮层导航留足空间：浮层高度 + 底部边距 + 安全区 */
+  padding-bottom: calc(64px + var(--space-3) + var(--space-4) + env(safe-area-inset-bottom));
   animation: zept-page-in var(--duration-medium) var(--easing-decelerated);
 }
 
@@ -29,7 +30,7 @@
   .zept-app__content {
     max-width: 720px;
     padding: var(--space-6);
-    padding-bottom: 104px;
+    padding-bottom: calc(72px + var(--space-4) + var(--space-5) + env(safe-area-inset-bottom));
   }
 }
 
@@ -39,68 +40,62 @@
   }
 }
 
+/* ---------- 底部浮层导航（蓝白配色优先） ---------- */
 .zept-nav {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 80px;
+  bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - var(--space-6));
+  max-width: 360px;
+  height: 64px;
   background-color: var(--surface);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-glass-floating);
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  padding-bottom: env(safe-area-inset-bottom);
-  border-top: 1px solid var(--outline-variant);
+  justify-content: space-between;
+  padding: var(--space-1);
   z-index: 100;
 }
 
 @media (min-width: 768px) {
   .zept-nav {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: 720px;
-    max-width: 100%;
-    border-left: 1px solid var(--outline-variant);
-    border-right: 1px solid var(--outline-variant);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  }
-}
-
-@media (min-width: 1024px) {
-  .zept-nav {
-    width: 880px;
+    max-width: 400px;
+    height: 72px;
+    bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
   }
 }
 
 .zept-nav__item {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 6px;
   padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   color: var(--on-surface-muted);
   text-decoration: none;
   flex: 1;
-  max-width: 120px;
+  min-width: 0;
   transition: color var(--duration-short) var(--easing-standard),
     background-color var(--duration-short) var(--easing-standard),
     transform var(--duration-medium) var(--easing-spring);
 }
 
 .zept-nav__item:active {
-  transform: scale(0.92);
-  background-color: var(--surface-variant);
+  transform: scale(0.96);
 }
 
 .zept-nav__item--active {
-  color: var(--primary);
-  background-color: var(--primary-container);
+  color: var(--on-secondary);
+  background-color: var(--secondary);
 }
 
 .zept-nav__icon {
-  font-size: 24px;
+  font-size: 22px;
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
@@ -111,4 +106,5 @@
 .zept-nav__label {
   font-size: var(--fs-label-md);
   font-weight: var(--fw-medium);
+  white-space: nowrap;
 }
