@@ -8,6 +8,13 @@ import type { SessionRecord, Insight, UserProfile } from '../types';
 
 const SINGLETON_KEY = 'local';
 
+/**
+ * 数据层版本号。变更 schema 或字段语义时 +1，对应 db.version(N).upgrade()。
+ * 当前 v1：初始结构。新版本需在 constructor 里链式加 .version(2).stores().upgrade()。
+ */
+export const DATA_VERSION = 1;
+const LS_VERSION_KEY = 'zept-data-version';
+
 class ZeptDB extends Dexie {
   sessions!: Table<SessionRecord, string>;
   insights!: Table<Insight, string>;
@@ -20,6 +27,10 @@ class ZeptDB extends Dexie {
       insights: 'id, sessionId, createdAt, feedback',
       profiles: 'id',
     });
+    // 未来 schema 变更示例（保持兼容链）：
+    // this.version(2).stores({ sessions: 'id, startedAt, status, endHour' }).upgrade(async tx => {
+    //   await tx.table('sessions').toCollection().modify(s => { if (s.endHour === undefined) s.endHour = new Date(s.endedAt ?? Date.now()).getHours(); });
+    // });
   }
 }
 
@@ -98,6 +109,8 @@ export async function clearAll(): Promise<void> {
     if (key?.startsWith('zept-report-')) keysToRemove.push(key);
   }
   keysToRemove.forEach((k) => localStorage.removeItem(k));
+  // 清理数据版本标记（下次启动会重新跑完整性校验）
+  localStorage.removeItem(LS_VERSION_KEY);
 }
 
 export async function exportAll(): Promise<{
@@ -111,4 +124,74 @@ export async function exportAll(): Promise<{
     getUser(),
   ]);
   return { sessions, insights, user };
+}
+
+// ---------- 数据完整性校验（部署后字段缺失防护） ----------
+
+/**
+ * 修复单条会话缺失/异常字段，返回新对象（不 mutate 原对象）。
+ * 场景：升级部署后老数据缺 breakMoods / interruptionEvents / endHour 等字段。
+ */
+export function migrateLegacySession(s: Partial<SessionRecord> & { id: string; startedAt: number }): SessionRecord {
+  const endedAt = s.endedAt ?? null;
+  return {
+    id: s.id,
+    userId: s.userId ?? SINGLETON_KEY,
+    goal: s.goal ?? '',
+    daysToExam: s.daysToExam ?? 0,
+    startedAt: s.startedAt,
+    endedAt,
+    status: s.status ?? 'completed',
+    plannedDurationSec: s.plannedDurationSec ?? 0,
+    actualDurationSec: s.actualDurationSec ?? (endedAt ? Math.max(0, Math.round((endedAt - s.startedAt) / 1000)) : 0),
+    isPomodoro: s.isPomodoro ?? false,
+    pomodoroCyclesCompleted: s.pomodoroCyclesCompleted ?? 0,
+    interruptions: s.interruptions ?? 0,
+    interruptionEvents: Array.isArray(s.interruptionEvents) ? s.interruptionEvents : [],
+    startHour: s.startHour ?? new Date(s.startedAt).getHours(),
+    endHour: s.endHour ?? (endedAt !== null ? new Date(endedAt).getHours() : -1),
+    preAssessment: s.preAssessment ?? null,
+    postAssessment: s.postAssessment ?? null,
+    breakMoods: Array.isArray(s.breakMoods) ? s.breakMoods : [],
+    insightId: s.insightId,
+  };
+}
+
+/**
+ * 启动时校验数据完整性：扫描 sessions 表，修复缺字段的老记录。
+ * - 幂等：已完整的记录不会被改动
+ * - 安全：只补默认值，不删数据
+ * - 返回修复的条数（用于调试/日志）
+ */
+export async function ensureDataIntegrity(): Promise<number> {
+  const all = await db.sessions.toArray();
+  const needMigration = all.filter((s) =>
+    !Array.isArray(s.interruptionEvents) ||
+    !Array.isArray(s.breakMoods) ||
+    s.endHour === undefined ||
+    s.plannedDurationSec === undefined,
+  );
+  if (needMigration.length === 0) return 0;
+
+  const fixed = needMigration.map((s) => migrateLegacySession(s));
+  await db.sessions.bulkPut(fixed);
+  return fixed.length;
+}
+
+/**
+ * 检查数据版本是否匹配。不匹配时触发 ensureDataIntegrity。
+ * - 当前版本一致 → 跳过
+ * - 版本不一致或首次 → 跑一次完整性校验，然后写入当前版本号
+ */
+export async function checkDataVersion(): Promise<{ migrated: boolean; fixedCount: number }> {
+  const stored = localStorage.getItem(LS_VERSION_KEY);
+  const current = String(DATA_VERSION);
+  if (stored === current) {
+    // 已校验过，无需重复
+    return { migrated: false, fixedCount: 0 };
+  }
+  // 版本变化或首次 → 跑完整性校验
+  const fixedCount = await ensureDataIntegrity();
+  localStorage.setItem(LS_VERSION_KEY, current);
+  return { migrated: true, fixedCount };
 }

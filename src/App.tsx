@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { useUserStore } from './stores/userStore';
+import { checkDataVersion } from './lib/db';
 import Welcome from './pages/Welcome';
 import Onboarding from './pages/Onboarding';
 import Session from './pages/Session';
@@ -47,7 +48,10 @@ export default function App() {
   useEffect(() => {
     // 首屏先以 auto 应用主题，避免 profile 加载前出现深色 FOUC
     document.documentElement.setAttribute('data-theme', 'auto');
-    loadProfile().finally(() => setReady(true));
+    // 启动时校验数据完整性：部署后老数据字段缺失会自动补默认值
+    Promise.all([loadProfile(), checkDataVersion()])
+      .catch((err) => console.error('startup data check failed', err))
+      .finally(() => setReady(true));
   }, [loadProfile]);
 
   if (!ready) return null;
