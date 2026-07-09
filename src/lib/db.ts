@@ -91,6 +91,13 @@ export async function clearAll(): Promise<void> {
   // 一键清空需包含运行态和欢迎标记
   localStorage.removeItem('zept-session-state');
   localStorage.removeItem('zept_welcome_seen');
+  // 清理日报/周报缓存（zept-report-{scope}-{periodKey}）
+  const keysToRemove: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key?.startsWith('zept-report-')) keysToRemove.push(key);
+  }
+  keysToRemove.forEach((k) => localStorage.removeItem(k));
 }
 
 export async function exportAll(): Promise<{

@@ -368,6 +368,12 @@
   margin-bottom: var(--space-3);
 }
 
+.zept-session__export {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-3);
+}
+
 /* ---------- 大屏适配 (≥768px) ---------- */
 @media (min-width: 768px) {
   .zept-session {

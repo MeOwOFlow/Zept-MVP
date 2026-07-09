@@ -78,6 +78,21 @@ describe("period key helpers", () => {
     const ts = new Date("2026-07-06T10:00:00+08:00").getTime();
     expect(formatWeeklyLabel(ts)).toBe("2026年第28周");
   });
+
+  it("getWeeklyPeriodKey 跨年边界：2027-01-01 周五属于 2026-W53", () => {
+    const ts = new Date("2027-01-01T10:00:00+08:00").getTime();
+    expect(getWeeklyPeriodKey(ts)).toBe("2026-W53");
+  });
+
+  it("getWeeklyPeriodKey 跨年边界：2025-01-01 周三属于 2025-W01", () => {
+    const ts = new Date("2025-01-01T10:00:00+08:00").getTime();
+    expect(getWeeklyPeriodKey(ts)).toBe("2025-W01");
+  });
+
+  it("getWeeklyPeriodKey 跨年边界：2024-12-30 周一属于 2025-W01", () => {
+    const ts = new Date("2024-12-30T10:00:00+08:00").getTime();
+    expect(getWeeklyPeriodKey(ts)).toBe("2025-W01");
+  });
 });
 
 describe("generateDailyReport - LLM 成功", () => {

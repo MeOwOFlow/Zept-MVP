@@ -16,6 +16,7 @@ interface UserStore {
   loadProfile: () => Promise<void>;
   setTheme: (mode: ThemeMode) => Promise<void>;
   setReplyStyle: (style: ReplyStyle) => Promise<void>;
+  resetProfile: () => void;
 }
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -45,5 +46,9 @@ export const useUserStore = create<UserStore>((set, get) => ({
     const next = { ...current, replyStyle: style };
     await saveUser(next);
     set({ profile: next });
+  },
+
+  resetProfile: () => {
+    set({ profile: null });
   },
 }));

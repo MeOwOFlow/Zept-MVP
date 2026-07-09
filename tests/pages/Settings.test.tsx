@@ -8,6 +8,7 @@ const mockNavigate = vi.hoisted(() => vi.fn());
 const loadProfileMock = vi.hoisted(() => vi.fn(async () => undefined));
 const setThemeMock = vi.hoisted(() => vi.fn(async () => undefined));
 const setReplyStyleMock = vi.hoisted(() => vi.fn(async () => undefined));
+const resetProfileMock = vi.hoisted(() => vi.fn());
 
 const DEFAULT_PROFILE = {
   goal: '考研',
@@ -30,12 +31,14 @@ vi.mock('../../src/stores/userStore', () => ({
     loadProfile: typeof loadProfileMock;
     setTheme: typeof setThemeMock;
     setReplyStyle: typeof setReplyStyleMock;
+    resetProfile: typeof resetProfileMock;
   }) => unknown) =>
     selector({
       profile: DEFAULT_PROFILE,
       loadProfile: loadProfileMock,
       setTheme: setThemeMock,
       setReplyStyle: setReplyStyleMock,
+      resetProfile: resetProfileMock,
     }),
 }));
 
@@ -48,6 +51,7 @@ beforeEach(() => {
   loadProfileMock.mockClear();
   setThemeMock.mockClear();
   setReplyStyleMock.mockClear();
+  resetProfileMock.mockClear();
 });
 
 describe('Settings - 渲染', () => {
@@ -109,6 +113,7 @@ describe('Settings - 数据管理', () => {
     expect(screen.getByText('确认清空')).toBeInTheDocument();
     await user.click(screen.getByText('确认清空'));
     expect(clearAllMock).toHaveBeenCalledTimes(1);
+    expect(resetProfileMock).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith('/onboarding');
   });
 });

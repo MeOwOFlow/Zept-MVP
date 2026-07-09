@@ -11,6 +11,7 @@
  */
 
 import type { Insight, SessionRecord } from "../types/session";
+import { formatTotalDurationMin } from "../lib/streak";
 
 interface ExportParams {
   insight: Insight;
@@ -170,13 +171,12 @@ function drawFooter(
 ): void {
   let y = height - PADDING - 80;
 
-  // 连续专注 / 累计时长
+  // 连续专注 / 累计时长（与 Insights Hero 口径一致）
   if (streakDays || totalDurationSec) {
     const parts: string[] = [];
     if (streakDays) parts.push(`连续专注 ${streakDays} 天`);
     if (totalDurationSec) {
-      const hours = Math.round(totalDurationSec / 3600);
-      parts.push(`累计 ${hours} 小时`);
+      parts.push(formatTotalDurationMin(totalDurationSec));
     }
     ctx.fillStyle = "#EA9E8E";
     ctx.font = "16px 'Noto Sans SC', sans-serif";

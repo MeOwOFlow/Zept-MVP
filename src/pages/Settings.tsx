@@ -25,6 +25,7 @@ export default function Settings() {
   const loadProfile = useUserStore((s) => s.loadProfile);
   const setTheme = useUserStore((s) => s.setTheme);
   const setReplyStyle = useUserStore((s) => s.setReplyStyle);
+  const resetProfile = useUserStore((s) => s.resetProfile);
   const [confirming, setConfirming] = useState(false);
   const [showCompliance, setShowCompliance] = useState(false);
 
@@ -45,6 +46,7 @@ export default function Settings() {
 
   const handleClear = async () => {
     await clearAll();
+    resetProfile();
     setConfirming(false);
     navigate('/onboarding');
   };

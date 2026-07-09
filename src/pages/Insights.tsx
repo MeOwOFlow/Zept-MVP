@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllSessions, getAllInsights, updateInsightFeedback } from '../lib/db';
 import { formatDuration } from '../lib/session';
-import { computeStreakDays, computeTotalDurationSec } from '../lib/streak';
+import { computeStreakDays, computeTotalDurationSec, formatTotalDurationMin, streakLabel } from '../lib/streak';
 import { exportInsightImage } from '../lib/exportImage';
 import {
   generateDailyReport,
@@ -149,6 +149,15 @@ export default function Insights() {
   return (
     <div className="zept-insights">
       <h1 className="zept-insights__title">我的专注</h1>
+
+      <Card>
+        <div className="zept-hero">
+          {streakDays > 0 && (
+            <p className="zept-hero__streak">{streakLabel(streakDays)}</p>
+          )}
+          <p className="zept-hero__total">{formatTotalDurationMin(totalDurationSec)}</p>
+        </div>
+      </Card>
 
       <Card>
         <div className="zept-report">

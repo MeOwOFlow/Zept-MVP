@@ -2,9 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useUserStore } from '../stores/userStore';
 import { useSessionStore } from '../stores/sessionStore';
 import { generateInsight } from '../lib/insight';
-import { getRecentSessions, getUsefulInsights, updateInsightFeedback } from '../lib/db';
+import { getRecentSessions, getUsefulInsights, getAllSessions, updateInsightFeedback } from '../lib/db';
 import { shouldTriggerCareGate } from '../lib/rules';
 import { daysUntilBadge } from '../lib/date';
+import { computeStreakDays, computeTotalDurationSec } from '../lib/streak';
+import { exportInsightImage } from '../lib/exportImage';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Slider } from '../components/Slider';
@@ -105,6 +107,8 @@ export default function Session() {
   const [postMood, setPostMood] = useState<Rating>(3);
   const [postFocus, setPostFocus] = useState<Rating>(3);
   const [insight, setInsight] = useState<Insight | null>(null);
+  const [completedSession, setCompletedSession] = useState<SessionRecord | null>(null);
+  const [exporting, setExporting] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -212,6 +216,7 @@ export default function Session() {
     ]);
     const sessionForInsight: SessionRecord = { ...currentSession, postAssessment };
     await endSession(postAssessment);
+    setCompletedSession(sessionForInsight);
     const mode: SessionInsightMode = pomodoroState?.mode ?? 'free';
     const replyStyle = profile?.replyStyle ?? 'balanced';
     let generated: Insight | null = null;
@@ -243,7 +248,30 @@ export default function Session() {
   const handleReset = () => {
     setPhase('idle');
     setInsight(null);
+    setCompletedSession(null);
     setPreMood(3); setPostMood(3); setPostFocus(3);
+  };
+
+  const handleExportInsight = async () => {
+    if (!insight || !completedSession) return;
+    setExporting(true);
+    try {
+      // endSession 已把 completedSession 写入 IndexedDB，直接取全量即可，避免重复计算
+      const allSessions = await getAllSessions();
+      const streakDays = computeStreakDays(allSessions);
+      const totalDurationSec = computeTotalDurationSec(allSessions);
+      await exportInsightImage({
+        insight,
+        session: completedSession,
+        streakDays,
+        totalDurationSec,
+      });
+    } catch (err) {
+      console.error('export insight image failed', err);
+      alert('导出失败，请稍后重试');
+    } finally {
+      setExporting(false);
+    }
   };
 
   const mins = Math.floor(remainingSec / 60);
@@ -459,6 +487,15 @@ export default function Session() {
               {insight.feedback && (
                 <p className="zept-session__feedback-done">已标记：{insight.feedback === 'useful' ? '有用' : '没用'}</p>
               )}
+              <div className="zept-session__export">
+                <Button
+                  variant="text"
+                  onClick={handleExportInsight}
+                  disabled={exporting}
+                >
+                  {exporting ? '生成中…' : '导出长图'}
+                </Button>
+              </div>
             </>
           )}
           <Button variant="filled" onClick={handleReset}>完成</Button>

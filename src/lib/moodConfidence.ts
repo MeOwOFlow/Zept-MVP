@@ -94,7 +94,7 @@ export function getDatasetConfidence(sessions: SessionRecord[]): {
 
   // 置信度判定逻辑
   let level: ConfidenceLevel;
-  if (flatline || totalPoints < 3) {
+  if (flatline || totalPoints < 3 || sessions.length === 0) {
     level = "low";
   } else if (fullCount >= sessions.length * 0.6 && sessions.length >= 3) {
     level = "high";
