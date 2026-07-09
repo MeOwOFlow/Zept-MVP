@@ -64,6 +64,15 @@ describe('sessionStore - tick', () => {
     expect(s.pomodoroState!.cyclesCompleted).toBe(1);
     expect(s.remainingSec).toBe(5 * 60);
   });
+
+  it('自由模式正计时：每秒递增', () => {
+    useSessionStore.getState().startSession(user, false);
+    expect(useSessionStore.getState().remainingSec).toBe(0);
+    useSessionStore.getState().tick();
+    expect(useSessionStore.getState().remainingSec).toBe(1);
+    useSessionStore.getState().tick();
+    expect(useSessionStore.getState().remainingSec).toBe(2);
+  });
 });
 
 describe('sessionStore - endSession', () => {

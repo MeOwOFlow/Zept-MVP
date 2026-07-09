@@ -289,7 +289,7 @@ export default function Session() {
     ? pomodoroState.mode === 'work'
       ? `专注中 ${pomodoroState.cyclesCompleted + 1}/${pomodoroState.targetCycles}`
       : '休息中'
-    : '';
+    : '专注中';
 
   const isOnBreak = pomodoroState?.mode === 'short_break';
   const currentBreakCycle = pomodoroState?.cyclesCompleted ?? 0;

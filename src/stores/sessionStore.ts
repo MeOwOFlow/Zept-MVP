@@ -160,7 +160,17 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
 
   tick: () => {
     const { isRunning, pomodoroState, remainingSec, currentSession } = get();
-    if (!isRunning || !pomodoroState || !currentSession) return;
+    if (!isRunning || !currentSession) return;
+    // 自由模式（无番茄状态）：正计时，remainingSec 递增作为已过时长
+    if (!pomodoroState) {
+      set({ remainingSec: remainingSec + 1 });
+      const now = Date.now();
+      if (now - get().lastPersistedAt >= PERSIST_INTERVAL_MS) {
+        savePersistedState(getPersistableState());
+        set({ lastPersistedAt: now });
+      }
+      return;
+    }
     const total = getDurationSec(pomodoroState);
     const elapsed = total - remainingSec + 1;
     const result = pomodoroTick(pomodoroState, elapsed);
