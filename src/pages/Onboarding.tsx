@@ -53,6 +53,8 @@ export default function Onboarding() {
         pomodoroConfig: null,  // 番茄时长由用户在 Session 首次选择
         theme: DEFAULT_THEME,
         replyStyle,
+        soundEnabled: true,
+        vibrationEnabled: true,
       });
       navigate('/session');
     } catch (err) {

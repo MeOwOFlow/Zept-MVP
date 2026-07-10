@@ -16,6 +16,8 @@ const user: UserProfile = {
   pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5, targetCycles: 4 },
   theme: 'auto',
   replyStyle: 'balanced',
+  soundEnabled: true,
+  vibrationEnabled: true,
 };
 
 describe('createSession', () => {

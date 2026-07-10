@@ -18,6 +18,8 @@ const profile: UserProfile = {
   pomodoroConfig: DEFAULT_POMODORO_CONFIG,
   theme: DEFAULT_THEME,
   replyStyle: DEFAULT_REPLY_STYLE,
+  soundEnabled: true,
+  vibrationEnabled: true,
 };
 
 beforeEach(() => {

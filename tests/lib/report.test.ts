@@ -51,6 +51,8 @@ const baseProfile: UserProfile = {
   pomodoroConfig: null,
   theme: "auto",
   replyStyle: "balanced",
+  soundEnabled: true,
+  vibrationEnabled: true,
 };
 
 beforeEach(() => {

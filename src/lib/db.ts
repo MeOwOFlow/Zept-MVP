@@ -92,6 +92,9 @@ export async function getUser(): Promise<UserProfile | undefined> {
   const row = await db.profiles.get(SINGLETON_KEY);
   if (!row) return undefined;
   const { id: _id, ...rest } = row;
+  // 老用户 profile 可能缺 soundEnabled / vibrationEnabled，补默认值
+  if (rest.soundEnabled === undefined) rest.soundEnabled = true;
+  if (rest.vibrationEnabled === undefined) rest.vibrationEnabled = true;
   return rest;
 }
 

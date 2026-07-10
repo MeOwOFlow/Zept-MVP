@@ -13,6 +13,8 @@ const CONFIGURED_PROFILE: UserProfile = {
   pomodoroConfig: { workDurationMin: 25, shortBreakMin: 5, targetCycles: 4 },
   theme: 'auto',
   replyStyle: 'balanced',
+  soundEnabled: true,
+  vibrationEnabled: true,
 };
 
 const UNCONFIGURED_PROFILE: UserProfile = {
@@ -20,6 +22,8 @@ const UNCONFIGURED_PROFILE: UserProfile = {
   pomodoroConfig: null,
   theme: 'auto',
   replyStyle: 'balanced',
+  soundEnabled: true,
+  vibrationEnabled: true,
 };
 
 const profileMock = vi.hoisted(() => ({ current: null as UserProfile | null }));

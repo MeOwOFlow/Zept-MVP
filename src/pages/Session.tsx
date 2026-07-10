@@ -7,6 +7,7 @@ import { shouldTriggerCareGate } from '../lib/rules';
 import { daysUntilBadge } from '../lib/date';
 import { computeStreakDays, computeTotalDurationSec } from '../lib/streak';
 import { exportInsightImage } from '../lib/exportImage';
+import { unlockAudioContext, requestNotificationPermission } from '../lib/chime';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Slider } from '../components/Slider';
@@ -174,6 +175,9 @@ export default function Session() {
 
   const handleStart = async () => {
     if (!profile) return;
+    // 在用户手势调用栈内解锁 AudioContext（iOS Safari 必须）+ 请求通知权限
+    unlockAudioContext();
+    requestNotificationPermission();
     if (isPomodoro) {
       if (!allSet) return;
       const config: PomodoroConfig = {

@@ -11,6 +11,7 @@ import type { UserProfile } from '../types/user';
 import { saveSession } from '../lib/db';
 import { createPomodoroState, nextMode, getDurationSec, tick as pomodoroTick, canSkip } from '../lib/pomodoro';
 import { createSession, startInterruptionTracking, stopInterruptionTracking, endSession as endSessionRecord } from '../lib/session';
+import { playChime, vibrate, notifyBackground } from '../lib/chime';
 
 interface SessionStore {
   currentSession: SessionRecord | null;
@@ -19,6 +20,8 @@ interface SessionStore {
   isRunning: boolean;
   interruptions: number;
   lastPersistedAt: number;
+  soundEnabled: boolean;
+  vibrationEnabled: boolean;
   startSession: (user: UserProfile, isPomodoro: boolean) => void;
   setPreMood: (mood: Rating) => void;
   setBreakMood: (mood: 1 | 2 | 3 | null) => void;
@@ -92,6 +95,8 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   isRunning: false,
   interruptions: initialState?.interruptions ?? 0,
   lastPersistedAt: 0,
+  soundEnabled: true,
+  vibrationEnabled: true,
 
   startSession: (user, isPomodoro) => {
     const session = createSession(user, isPomodoro);
@@ -102,6 +107,8 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     set({
       currentSession: { ...session, status: 'focusing' },
       pomodoroState, remainingSec, isRunning: true, interruptions: 0,
+      soundEnabled: user.soundEnabled ?? true,
+      vibrationEnabled: user.vibrationEnabled ?? true,
     });
     startInterruptionTracking(session.id, ({ interruptions, recoveredAt, durationMs }) => {
       set({ interruptions });
@@ -189,6 +196,11 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       const newCycles = pomodoroState.cyclesCompleted + 1;
       const now = Date.now();
       const actualDurationSec = Math.max(0, Math.round((now - currentSession.startedAt) / 1000));
+      // 全部完成：C-E-G 琶音 + 振动 + 后台通知
+      const { soundEnabled, vibrationEnabled } = get();
+      playChime("all-done", soundEnabled);
+      vibrate(vibrationEnabled);
+      notifyBackground("专注完成", "今天的番茄钟全部完成了，辛苦了");
       const completedSession: SessionRecord = {
         ...currentSession,
         status: 'completed',
@@ -213,6 +225,17 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     const newCycles = pomodoroState.mode === 'work'
       ? pomodoroState.cyclesCompleted + 1
       : pomodoroState.cyclesCompleted;
+    // 阶段切换提示音 + 振动 + 后台通知
+    const { soundEnabled, vibrationEnabled } = get();
+    if (newMode === 'short_break') {
+      playChime("work-to-break", soundEnabled);
+      vibrate(vibrationEnabled);
+      notifyBackground("专注结束", "可以休息一下了");
+    } else if (newMode === 'work') {
+      playChime("break-to-work", soundEnabled);
+      vibrate(vibrationEnabled);
+      notifyBackground("休息结束", "回到专注吧");
+    }
     const newState: PomodoroState = { ...pomodoroState, mode: newMode, cyclesCompleted: newCycles };
     set({
       pomodoroState: newState,

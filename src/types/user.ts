@@ -28,4 +28,6 @@ export interface UserProfile {
   pomodoroConfig: PomodoroConfig | null;  // null = 未配置，由用户在 Session 首次选择
   theme: ThemeMode;
   replyStyle: ReplyStyle;
+  soundEnabled: boolean;      // 番茄钟阶段切换提示音，默认 true
+  vibrationEnabled: boolean;  // 振动反馈（Android），默认 true
 }

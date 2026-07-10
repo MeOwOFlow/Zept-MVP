@@ -25,6 +25,8 @@ export default function Settings() {
   const loadProfile = useUserStore((s) => s.loadProfile);
   const setTheme = useUserStore((s) => s.setTheme);
   const setReplyStyle = useUserStore((s) => s.setReplyStyle);
+  const setSoundEnabled = useUserStore((s) => s.setSoundEnabled);
+  const setVibrationEnabled = useUserStore((s) => s.setVibrationEnabled);
   const resetProfile = useUserStore((s) => s.resetProfile);
   const [confirming, setConfirming] = useState(false);
   const [showCompliance, setShowCompliance] = useState(false);
@@ -89,6 +91,31 @@ export default function Settings() {
           ))}
         </div>
         <p className="zept-settings__field-hint">影响洞察回复的语气风格</p>
+      </Card>
+
+      <Card>
+        <h2 className="zept-settings__section">提示音</h2>
+        <div className="zept-settings__field">
+          <label className="zept-settings__field-label">阶段切换提示音</label>
+          <button
+            type="button"
+            className={`zept-chip ${(profile?.soundEnabled ?? true) ? 'zept-chip--active' : ''}`}
+            onClick={() => setSoundEnabled(!(profile?.soundEnabled ?? true))}
+          >
+            {profile?.soundEnabled ?? true ? '已开启' : '已关闭'}
+          </button>
+        </div>
+        <div className="zept-settings__field">
+          <label className="zept-settings__field-label">振动反馈</label>
+          <button
+            type="button"
+            className={`zept-chip ${(profile?.vibrationEnabled ?? true) ? 'zept-chip--active' : ''}`}
+            onClick={() => setVibrationEnabled(!(profile?.vibrationEnabled ?? true))}
+          >
+            {profile?.vibrationEnabled ?? true ? '已开启' : '已关闭'}
+          </button>
+        </div>
+        <p className="zept-settings__field-hint">专注/休息结束时播放钟磬提示音；振动仅 Android 生效</p>
       </Card>
 
       <Card>

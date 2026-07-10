@@ -8,6 +8,8 @@ const mockNavigate = vi.hoisted(() => vi.fn());
 const loadProfileMock = vi.hoisted(() => vi.fn(async () => undefined));
 const setThemeMock = vi.hoisted(() => vi.fn(async () => undefined));
 const setReplyStyleMock = vi.hoisted(() => vi.fn(async () => undefined));
+const setSoundEnabledMock = vi.hoisted(() => vi.fn(async () => undefined));
+const setVibrationEnabledMock = vi.hoisted(() => vi.fn(async () => undefined));
 const resetProfileMock = vi.hoisted(() => vi.fn());
 
 const DEFAULT_PROFILE = {
@@ -18,6 +20,8 @@ const DEFAULT_PROFILE = {
   pomodoroConfig: null,
   theme: 'auto' as const,
   replyStyle: 'balanced' as const,
+  soundEnabled: true,
+  vibrationEnabled: true,
 };
 
 vi.mock('react-router-dom', () => ({ useNavigate: () => mockNavigate }));
@@ -31,6 +35,8 @@ vi.mock('../../src/stores/userStore', () => ({
     loadProfile: typeof loadProfileMock;
     setTheme: typeof setThemeMock;
     setReplyStyle: typeof setReplyStyleMock;
+    setSoundEnabled: typeof setSoundEnabledMock;
+    setVibrationEnabled: typeof setVibrationEnabledMock;
     resetProfile: typeof resetProfileMock;
   }) => unknown) =>
     selector({
@@ -38,6 +44,8 @@ vi.mock('../../src/stores/userStore', () => ({
       loadProfile: loadProfileMock,
       setTheme: setThemeMock,
       setReplyStyle: setReplyStyleMock,
+      setSoundEnabled: setSoundEnabledMock,
+      setVibrationEnabled: setVibrationEnabledMock,
       resetProfile: resetProfileMock,
     }),
 }));
@@ -51,6 +59,8 @@ beforeEach(() => {
   loadProfileMock.mockClear();
   setThemeMock.mockClear();
   setReplyStyleMock.mockClear();
+  setSoundEnabledMock.mockClear();
+  setVibrationEnabledMock.mockClear();
   resetProfileMock.mockClear();
 });
 
@@ -115,5 +125,23 @@ describe('Settings - 数据管理', () => {
     expect(clearAllMock).toHaveBeenCalledTimes(1);
     expect(resetProfileMock).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith('/onboarding');
+  });
+});
+
+describe('Settings - 提示音', () => {
+  it('渲染提示音卡片，默认开启', () => {
+    render(<Settings />);
+    expect(screen.getByText('提示音')).toBeInTheDocument();
+    expect(screen.getByText('阶段切换提示音')).toBeInTheDocument();
+    expect(screen.getByText('振动反馈')).toBeInTheDocument();
+    expect(screen.getAllByText('已开启')).toHaveLength(2);
+  });
+
+  it('点击提示音开关调用 setSoundEnabled(false)', async () => {
+    const user = userEvent.setup();
+    render(<Settings />);
+    const buttons = screen.getAllByText('已开启');
+    await user.click(buttons[0]);  // 第一个是提示音开关
+    expect(setSoundEnabledMock).toHaveBeenCalledWith(false);
   });
 });

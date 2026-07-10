@@ -13,6 +13,13 @@ vi.mock('../../src/lib/session', async () => {
     stopInterruptionTracking: vi.fn(),
   };
 });
+vi.mock('../../src/lib/chime', () => ({
+  playChime: vi.fn(),
+  vibrate: vi.fn(),
+  notifyBackground: vi.fn(),
+  unlockAudioContext: vi.fn(),
+  requestNotificationPermission: vi.fn(async () => {}),
+}));
 
 import { useSessionStore } from '../../src/stores/sessionStore';
 import { DEFAULT_POMODORO_CONFIG, DEFAULT_THEME, DEFAULT_REPLY_STYLE, type UserProfile } from '../../src/types/user';
@@ -22,6 +29,8 @@ const user: UserProfile = {
   pomodoroConfig: DEFAULT_POMODORO_CONFIG,
   theme: DEFAULT_THEME,
   replyStyle: DEFAULT_REPLY_STYLE,
+  soundEnabled: true,
+  vibrationEnabled: true,
 };
 
 beforeEach(() => {
