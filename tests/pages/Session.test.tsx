@@ -84,9 +84,9 @@ describe('Session - 已配置用户', () => {
     expect(screen.getByRole('button', { name: '经典 25/5 ×4' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '深度 50/10 ×3' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '冲刺 90/15 ×2' })).toBeInTheDocument();
-    expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(25);
-    expect(screen.getByRole('spinbutton', { name: '短休时长' })).toHaveValue(5);
-    expect(screen.getByRole('spinbutton', { name: '轮次' })).toHaveValue(4);
+    expect(screen.getByRole('textbox', { name: '专注时长' })).toHaveValue("25");
+    expect(screen.getByRole('textbox', { name: '短休时长' })).toHaveValue("5");
+    expect(screen.getByRole('textbox', { name: '轮次' })).toHaveValue("4");
     expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
   });
 
@@ -113,7 +113,7 @@ describe('Session - 已配置用户', () => {
     render(<Session />);
     const incBtn = screen.getByRole('button', { name: '专注时长 增加' });
     await user.click(incBtn);
-    expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(26);
+    expect(screen.getByRole('textbox', { name: '专注时长' })).toHaveValue("30");
   });
 });
 
@@ -124,9 +124,9 @@ describe('Session - 未配置用户', () => {
 
   it('stepper 显示默认值(25/5/4轮)，按钮启用', () => {
     render(<Session />);
-    expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(25);
-    expect(screen.getByRole('spinbutton', { name: '短休时长' })).toHaveValue(5);
-    expect(screen.getByRole('spinbutton', { name: '轮次' })).toHaveValue(4);
+    expect(screen.getByRole('textbox', { name: '专注时长' })).toHaveValue("25");
+    expect(screen.getByRole('textbox', { name: '短休时长' })).toHaveValue("5");
+    expect(screen.getByRole('textbox', { name: '轮次' })).toHaveValue("4");
     expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
   });
 
@@ -135,9 +135,9 @@ describe('Session - 未配置用户', () => {
     render(<Session />);
     await user.click(screen.getByRole('button', { name: '深度 50/10 ×3' }));
     await waitFor(() => {
-      expect(screen.getByRole('spinbutton', { name: '专注时长' })).toHaveValue(50);
-      expect(screen.getByRole('spinbutton', { name: '短休时长' })).toHaveValue(10);
-      expect(screen.getByRole('spinbutton', { name: '轮次' })).toHaveValue(3);
+      expect(screen.getByRole('textbox', { name: '专注时长' })).toHaveValue("50");
+      expect(screen.getByRole('textbox', { name: '短休时长' })).toHaveValue("10");
+      expect(screen.getByRole('textbox', { name: '轮次' })).toHaveValue("3");
     });
     expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
   });
@@ -146,7 +146,7 @@ describe('Session - 未配置用户', () => {
     const user = userEvent.setup();
     render(<Session />);
     await user.click(screen.getByRole('button', { name: '轮次 增加' }));
-    expect(screen.getByRole('spinbutton', { name: '轮次' })).toHaveValue(5);
+    expect(screen.getByRole('textbox', { name: '轮次' })).toHaveValue("5");
     expect(screen.getByRole('button', { name: '开始专注' })).toBeEnabled();
   });
 });

@@ -178,6 +178,313 @@
   user-select: none;
 }
 
+/* ---------- Circular Trio — 圆环内嵌三 stepper ---------- */
+.zept-trio-area {
+  padding: var(--space-6) var(--space-4) 0;
+  margin-top: var(--space-4);
+}
+.zept-trio-area.hidden {
+  display: none;
+}
+.zept-trio-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 圆环（装饰性轨道） */
+.zept-trio-ring {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: var(--surface-1);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* SVG 装饰环 — 纯视觉，展示总时长 */
+.zept-trio-ring svg {
+  position: absolute;
+  inset: 0;
+  width: 300px;
+  height: 300px;
+  transform: rotate(-90deg);
+}
+.zept-trio-track {
+  fill: none;
+  stroke: var(--surface-3);
+  stroke-width: 3;
+}
+.zept-trio-progress {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s var(--easing-standard);
+  filter: drop-shadow(0 0 6px rgba(91, 117, 83, 0.4));
+}
+
+/* 呼吸光晕 */
+.zept-trio-ring::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(91, 117, 83, 0.08) 30%, transparent 65%);
+  animation: trioBreath 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes trioBreath {
+  0%, 100% { opacity: 0.5; transform: scale(0.97); }
+  50% { opacity: 1; transform: scale(1.03); }
+}
+
+/* 圆环内布局：上部(专注+短休) + 底部轮次条 */
+.zept-trio-stations {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 22px 28px 26px;
+}
+
+/* 上部：专注 + 短休 并列垂直 stepper */
+.zept-trio-top {
+  display: flex;
+  gap: 36px;
+  flex-shrink: 0;
+  align-items: flex-end;
+}
+.zept-trio-station {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.zept-trio-label {
+  font-size: 10px;
+  font-weight: var(--fw-medium);
+  height: 14px;
+  color: var(--on-surface-muted);
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+}
+.zept-trio-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.zept-trio-btn {
+  width: 32px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--on-surface);
+  transition: all var(--duration-short) var(--easing-spring);
+  flex-shrink: 0;
+}
+.zept-trio-btn:active {
+  transform: scale(0.85);
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.zept-trio-btn .material-symbols-rounded {
+  font-size: 16px;
+}
+
+.zept-trio-value {
+  min-width: 48px;
+  width: 48px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: var(--fw-bold);
+  color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
+  background: var(--bg);
+  box-shadow: var(--shadow-inset);
+  border-radius: 8px;
+  border: 1px solid var(--outline-variant);
+  transition: transform var(--duration-medium) var(--easing-spring);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.zept-trio-value.primary {
+  color: var(--primary);
+}
+.zept-trio-station.focus-station .zept-trio-value {
+  min-width: 58px;
+  width: 58px;
+  font-size: 30px;
+}
+
+/* 数值框内 input */
+.zept-trio-value input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  text-align: center;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  font-variant-numeric: inherit;
+  caret-color: var(--primary);
+  -moz-appearance: textfield;
+}
+.zept-trio-value input::-webkit-outer-spin-button,
+.zept-trio-value input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.zept-trio-value input:focus {
+  caret-color: var(--primary);
+}
+
+.zept-trio-unit {
+  font-size: 9px;
+  color: var(--on-surface-muted);
+  height: 12px;
+  display: flex;
+  align-items: center;
+}
+
+/* 底部：轮次水平条 */
+.zept-trio-rounds {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 5px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--outline-variant);
+  box-shadow: var(--shadow-inset);
+  width: fit-content;
+}
+.zept-trio-rounds-label {
+  font-size: 9px;
+  color: var(--on-surface-muted);
+  letter-spacing: 0.04em;
+}
+.zept-trio-rounds-btn {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--on-surface);
+  transition: all var(--duration-short) var(--easing-spring);
+}
+.zept-trio-rounds-btn:active {
+  transform: scale(0.85);
+  background: var(--secondary);
+  color: #fff;
+}
+.zept-trio-rounds-btn .material-symbols-rounded {
+  font-size: 13px;
+}
+.zept-trio-rounds-value {
+  min-width: 24px;
+  width: 24px;
+  text-align: center;
+  padding: 0 2px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: var(--fw-bold);
+  color: var(--secondary);
+  font-variant-numeric: tabular-nums;
+  transition: transform var(--duration-medium) var(--easing-spring);
+  cursor: pointer;
+}
+.zept-trio-rounds-value input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  text-align: center;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  font-variant-numeric: inherit;
+  caret-color: var(--secondary);
+  -moz-appearance: textfield;
+}
+.zept-trio-rounds-value input::-webkit-outer-spin-button,
+.zept-trio-rounds-value input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.zept-trio-rounds-unit {
+  font-size: 9px;
+  color: var(--on-surface-muted);
+}
+
+/* bump 动画 */
+.zept-trio-value.bump-up,
+.zept-trio-rounds-value.bump-up {
+  animation: bumpUp 0.3s var(--easing-spring);
+}
+.zept-trio-value.bump-down,
+.zept-trio-rounds-value.bump-down {
+  animation: bumpDown 0.3s var(--easing-spring);
+}
+@keyframes bumpUp {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+@keyframes bumpDown {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(4px); }
+  100% { transform: translateY(0); }
+}
+
+/* ---------- 自由模式提示 ---------- */
+.zept-free-hint {
+  padding: 0 var(--space-4);
+  margin-top: var(--space-4);
+  display: none;
+}
+.zept-free-hint.visible {
+  display: block;
+}
+.zept-free-hint-card {
+  background: var(--surface-1);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.zept-free-hint-card .material-symbols-rounded {
+  font-size: 20px;
+  color: var(--on-surface-muted);
+}
+.zept-free-hint-card span {
+  font-size: var(--fs-body-sm);
+  color: var(--on-surface-variant);
+  line-height: 1.5;
+}
+
 /* ---------- 计时器 ---------- */
 .zept-session__timer {
   position: relative;
