@@ -42,6 +42,7 @@ export function createSession(user: UserProfile, isPomodoro: boolean): SessionRe
     preAssessment: null,
     postAssessment: null,
     breakMoods: [] as BreakMood[],
+    topDistractions: user.topDistractions,
   };
 }
 

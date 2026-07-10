@@ -8,6 +8,7 @@ const mockNavigate = vi.hoisted(() => vi.fn());
 const loadProfileMock = vi.hoisted(() => vi.fn(async () => undefined));
 const setThemeMock = vi.hoisted(() => vi.fn(async () => undefined));
 const setReplyStyleMock = vi.hoisted(() => vi.fn(async () => undefined));
+const setTopDistractionsMock = vi.hoisted(() => vi.fn(async () => undefined));
 const setSoundEnabledMock = vi.hoisted(() => vi.fn(async () => undefined));
 const setVibrationEnabledMock = vi.hoisted(() => vi.fn(async () => undefined));
 const resetProfileMock = vi.hoisted(() => vi.fn());
@@ -35,6 +36,7 @@ vi.mock('../../src/stores/userStore', () => ({
     loadProfile: typeof loadProfileMock;
     setTheme: typeof setThemeMock;
     setReplyStyle: typeof setReplyStyleMock;
+    setTopDistractions: typeof setTopDistractionsMock;
     setSoundEnabled: typeof setSoundEnabledMock;
     setVibrationEnabled: typeof setVibrationEnabledMock;
     resetProfile: typeof resetProfileMock;
@@ -44,6 +46,7 @@ vi.mock('../../src/stores/userStore', () => ({
       loadProfile: loadProfileMock,
       setTheme: setThemeMock,
       setReplyStyle: setReplyStyleMock,
+      setTopDistractions: setTopDistractionsMock,
       setSoundEnabled: setSoundEnabledMock,
       setVibrationEnabled: setVibrationEnabledMock,
       resetProfile: resetProfileMock,
@@ -59,6 +62,7 @@ beforeEach(() => {
   loadProfileMock.mockClear();
   setThemeMock.mockClear();
   setReplyStyleMock.mockClear();
+  setTopDistractionsMock.mockClear();
   setSoundEnabledMock.mockClear();
   setVibrationEnabledMock.mockClear();
   resetProfileMock.mockClear();
@@ -146,5 +150,52 @@ describe('Settings - 提示音', () => {
     const switches = screen.getAllByRole('switch');
     await user.click(switches[0]);  // 第一个是提示音开关
     expect(setSoundEnabledMock).toHaveBeenCalledWith(false);
+  });
+});
+
+describe('Settings - 容易分心的事', () => {
+  it('渲染分心项卡片并显示已选项', () => {
+    render(<Settings />);
+    expect(screen.getByText('容易分心的事')).toBeInTheDocument();
+    expect(screen.getByLabelText('移除 手机')).toBeInTheDocument();
+  });
+
+  it('点击预设项添加/移除分心项', async () => {
+    const user = userEvent.setup();
+    render(<Settings />);
+    await user.click(screen.getByRole('button', { name: '短视频' }));
+    expect(setTopDistractionsMock).toHaveBeenCalledWith(['手机', '短视频']);
+  });
+
+  it('点击已选项移除分心项', async () => {
+    const user = userEvent.setup();
+    render(<Settings />);
+    await user.click(screen.getByLabelText('移除 手机'));
+    expect(setTopDistractionsMock).toHaveBeenCalledWith([]);
+  });
+
+  it('自定义输入并添加', async () => {
+    const user = userEvent.setup();
+    render(<Settings />);
+    const input = screen.getByLabelText('自定义分心项');
+    await user.type(input, ' 杂念 ');
+    await user.click(screen.getByRole('button', { name: '添加' }));
+    expect(setTopDistractionsMock).toHaveBeenCalledWith(['手机', '杂念']);
+  });
+
+  it('按回车添加自定义项', async () => {
+    const user = userEvent.setup();
+    render(<Settings />);
+    const input = screen.getByLabelText('自定义分心项');
+    await user.type(input, '噪音{enter}');
+    expect(setTopDistractionsMock).toHaveBeenCalledWith(['手机', '噪音']);
+  });
+
+  it('重复自定义项不添加', async () => {
+    const user = userEvent.setup();
+    render(<Settings />);
+    const input = screen.getByLabelText('自定义分心项');
+    await user.type(input, '手机{enter}');
+    expect(setTopDistractionsMock).not.toHaveBeenCalled();
   });
 });

@@ -20,17 +20,21 @@ const REPLY_STYLE_OPTIONS: Array<{ value: ReplyStyle; label: string }> = [
   { value: 'emotional', label: '陪伴派' },
 ];
 
+const PRESET_DISTRACTIONS = ['手机', '社交媒体', '短视频', '游戏', '家人打扰', '噪音', '疲劳', '消息通知'];
+
 export default function Settings() {
   const navigate = useNavigate();
   const profile = useUserStore((s) => s.profile);
   const loadProfile = useUserStore((s) => s.loadProfile);
   const setTheme = useUserStore((s) => s.setTheme);
   const setReplyStyle = useUserStore((s) => s.setReplyStyle);
+  const setTopDistractions = useUserStore((s) => s.setTopDistractions);
   const setSoundEnabled = useUserStore((s) => s.setSoundEnabled);
   const setVibrationEnabled = useUserStore((s) => s.setVibrationEnabled);
   const resetProfile = useUserStore((s) => s.resetProfile);
   const [confirming, setConfirming] = useState(false);
   const [showCompliance, setShowCompliance] = useState(false);
+  const [customInput, setCustomInput] = useState('');
 
   useEffect(() => {
     loadProfile();
@@ -52,6 +56,34 @@ export default function Settings() {
     resetProfile();
     setConfirming(false);
     navigate('/onboarding');
+  };
+
+  const currentDistractions = profile?.topDistractions ?? [];
+
+  const toggleDistraction = (item: string) => {
+    const normalized = item.trim();
+    if (!normalized) return;
+    const next = currentDistractions.includes(normalized)
+      ? currentDistractions.filter((i) => i !== normalized)
+      : [...currentDistractions, normalized];
+    setTopDistractions(next);
+  };
+
+  const addCustomDistraction = () => {
+    const normalized = customInput.trim();
+    if (!normalized || currentDistractions.includes(normalized)) {
+      setCustomInput('');
+      return;
+    }
+    setTopDistractions([...currentDistractions, normalized]);
+    setCustomInput('');
+  };
+
+  const handleCustomKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addCustomDistraction();
+    }
   };
 
   return (
@@ -95,6 +127,68 @@ export default function Settings() {
       </Card>
 
       <Card delay={160}>
+        <h2 className="zept-settings__section">容易分心的事</h2>
+        <div className="zept-settings__field">
+          <label className="zept-settings__field-label">已选</label>
+          <div className="zept-settings__chips">
+            {currentDistractions.length === 0 ? (
+              <span className="zept-settings__empty">未设置</span>
+            ) : (
+              currentDistractions.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  className="zept-chip zept-chip--active zept-chip--removable"
+                  onClick={() => toggleDistraction(item)}
+                  aria-label={`移除 ${item}`}
+                >
+                  {item}
+                  <span className="material-symbols-rounded zept-chip__remove">close</span>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+        <div className="zept-settings__field">
+          <label className="zept-settings__field-label">常见选项</label>
+          <div className="zept-settings__chips">
+            {PRESET_DISTRACTIONS.map((item) => {
+              const active = currentDistractions.includes(item);
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  className={`zept-chip ${active ? 'zept-chip--active' : ''}`}
+                  onClick={() => toggleDistraction(item)}
+                  aria-pressed={active}
+                >
+                  {item}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div className="zept-settings__field">
+          <label className="zept-settings__field-label">自定义</label>
+          <div className="zept-settings__input-row">
+            <input
+              type="text"
+              value={customInput}
+              onChange={(e) => setCustomInput(e.target.value)}
+              onKeyDown={handleCustomKeyDown}
+              placeholder="输入其他分心项，按回车添加"
+              className="zept-settings__text-input"
+              aria-label="自定义分心项"
+            />
+            <Button variant="outlined" onClick={addCustomDistraction} disabled={!customInput.trim()}>
+              添加
+            </Button>
+          </div>
+        </div>
+        <p className="zept-settings__field-hint">洞察会参考这些项目，给出更贴合的回应</p>
+      </Card>
+
+      <Card delay={240}>
         <h2 className="zept-settings__section">提示音</h2>
         <div className="zept-settings__field zept-settings__field--switch">
           <label className="zept-settings__field-label">阶段切换提示音</label>
@@ -115,7 +209,7 @@ export default function Settings() {
         <p className="zept-settings__field-hint">专注/休息结束时播放钟磬提示音；振动仅 Android 生效</p>
       </Card>
 
-      <Card delay={240}>
+      <Card delay={320}>
         <h2 className="zept-settings__section">数据</h2>
         <div className="zept-settings__actions">
           <Button variant="outlined" onClick={handleExport}>导出 JSON</Button>
@@ -133,7 +227,7 @@ export default function Settings() {
         </div>
       </Card>
 
-      <Card delay={320}>
+      <Card delay={400}>
         <h2 className="zept-settings__section">关于</h2>
         <p className="zept-settings__about">凝时 Zept — 备考专注陪伴</p>
         <p className="zept-settings__version">版本 0.1.0 · MVP</p>
