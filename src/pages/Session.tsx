@@ -375,7 +375,7 @@ export default function Session() {
               <div className="zept-trio-area">
                 <div className="zept-trio-card">
                   <div className="zept-trio-ring">
-                    <svg viewBox="0 0 300 300">
+                    <svg viewBox="0 0 300 300" className="zept-trio-ring__svg">
                       <circle className="zept-trio-track" cx="150" cy="150" r={TRIO_RING_R} />
                       <circle
                         className="zept-trio-progress"
