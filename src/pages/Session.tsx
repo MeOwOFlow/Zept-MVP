@@ -22,6 +22,8 @@ const WORK_MIN = 1, WORK_MAX = 180;
 const BREAK_MIN = 1, BREAK_MAX = 60;
 const CYCLES_MIN = 1, CYCLES_MAX = 12;
 
+const MOOD_LABELS = ['', '很差', '较差', '一般', '不错', '很好'];
+
 const POMODORO_PRESETS: Array<{ id: string; label: string; sub: string; config: PomodoroConfig }> = [
   { id: 'classic', label: '经典', sub: '25/5 ×4', config: { workDurationMin: 25, shortBreakMin: 5, targetCycles: 4 } },
   { id: 'deep', label: '深度', sub: '50/10 ×3', config: { workDurationMin: 50, shortBreakMin: 10, targetCycles: 3 } },
@@ -325,7 +327,10 @@ export default function Session() {
   return (
     <div className="zept-session">
       {profile && (
-        <div className="zept-session__badge">{daysUntilBadge(profile.examDate)}</div>
+        <div className="zept-session__badge">
+          <span className="material-symbols-rounded">event</span>
+          {daysUntilBadge(profile.examDate)}
+        </div>
       )}
 
       {phase === 'idle' && (
@@ -527,7 +532,9 @@ export default function Session() {
       {phase === 'preAssess' && (
         <Card>
           <h2 className="zept-session__title">开始前，现在感觉怎么样？</h2>
-          <Slider label="情绪" value={preMood} onChange={setPreMood} />
+          <div className="zept-mood-value">{preMood}</div>
+          <div className="zept-mood-value-label">{MOOD_LABELS[preMood]}</div>
+          <Slider label="情绪" value={preMood} onChange={setPreMood} hideHeader />
           <Button variant="filled" onClick={handlePreDone}>开始</Button>
         </Card>
       )}
@@ -551,30 +558,30 @@ export default function Session() {
             <div className="zept-session__interrupt">离开 {interruptions} 次</div>
           )}
           {showBreakMood && (
-            <div className="zept-break-mood">
-              <p className="zept-break-mood__question">感觉如何？</p>
-              <div className="zept-break-mood__options">
+            <div className="zept-mood-check">
+              <div className="zept-mood-check__title">感觉如何？</div>
+              <div className="zept-mood-check__chips">
                 <button
                   type="button"
-                  className="zept-break-mood__option"
+                  className="zept-chip"
                   onClick={() => setBreakMoodInStore(3)}
-                >还行</button>
+                >还好</button>
                 <button
                   type="button"
-                  className="zept-break-mood__option"
+                  className="zept-chip"
                   onClick={() => setBreakMoodInStore(2)}
                 >一般</button>
                 <button
                   type="button"
-                  className="zept-break-mood__option"
+                  className="zept-chip"
                   onClick={() => setBreakMoodInStore(1)}
                 >有点累</button>
-                <button
-                  type="button"
-                  className="zept-break-mood__option zept-break-mood__option--skip"
-                  onClick={() => setBreakMoodInStore(null)}
-                >不想回答</button>
               </div>
+              <button
+                type="button"
+                className="zept-chip zept-chip--skip"
+                onClick={() => setBreakMoodInStore(null)}
+              >不想回答</button>
             </div>
           )}
           <div className="zept-session__controls">
@@ -601,7 +608,28 @@ export default function Session() {
       {phase === 'postAssess' && (
         <Card>
           <h2 className="zept-session__title">结束了，感受如何？</h2>
-          <Slider.Dual mood={postMood} focus={postFocus} onMoodChange={setPostMood} onFocusChange={setPostFocus} />
+          <div className="zept-slider-group">
+            <div className="zept-slider-group__label">心情</div>
+            <div className="zept-slider-value-row">
+              <span className="zept-slider-value">{postMood}</span>
+              <span className="zept-slider-value-label">{MOOD_LABELS[postMood]}</span>
+            </div>
+            <Slider label="心情" value={postMood} onChange={setPostMood} hideHeader />
+          </div>
+          <div className="zept-slider-group">
+            <div className="zept-slider-group__label">专注度</div>
+            <div className="zept-slider-value-row">
+              <span className="zept-slider-value">{postFocus}</span>
+              <span className="zept-slider-value-label">{MOOD_LABELS[postFocus]}</span>
+            </div>
+            <Slider label="专注度" value={postFocus} onChange={setPostFocus} hideHeader />
+          </div>
+          {currentSession && (
+            <div className="zept-session-summary">
+              本次专注 {Math.round((Date.now() - currentSession.startedAt) / 60000)}分钟
+              {interruptions > 0 && ` · 离开 ${interruptions} 次`}
+            </div>
+          )}
           <Button variant="filled" onClick={handlePostSubmit}>提交</Button>
         </Card>
       )}

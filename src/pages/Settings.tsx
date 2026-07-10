@@ -57,7 +57,7 @@ export default function Settings() {
     <div className="zept-settings">
       <h1 className="zept-settings__title">我的</h1>
 
-      <Card>
+      <Card delay={0}>
         <h2 className="zept-settings__section">外观</h2>
         <div className="zept-settings__field">
           <label className="zept-settings__field-label">主题</label>
@@ -76,7 +76,7 @@ export default function Settings() {
         </div>
       </Card>
 
-      <Card>
+      <Card delay={80}>
         <h2 className="zept-settings__section">回复风格</h2>
         <div className="zept-settings__chips">
           {REPLY_STYLE_OPTIONS.map((opt) => (
@@ -93,7 +93,7 @@ export default function Settings() {
         <p className="zept-settings__field-hint">影响洞察回复的语气风格</p>
       </Card>
 
-      <Card>
+      <Card delay={160}>
         <h2 className="zept-settings__section">提示音</h2>
         <div className="zept-settings__field">
           <label className="zept-settings__field-label">阶段切换提示音</label>
@@ -118,7 +118,7 @@ export default function Settings() {
         <p className="zept-settings__field-hint">专注/休息结束时播放钟磬提示音；振动仅 Android 生效</p>
       </Card>
 
-      <Card>
+      <Card delay={240}>
         <h2 className="zept-settings__section">数据</h2>
         <div className="zept-settings__actions">
           <Button variant="outlined" onClick={handleExport}>导出 JSON</Button>
@@ -136,17 +136,19 @@ export default function Settings() {
         </div>
       </Card>
 
-      <Card>
+      <Card delay={320}>
         <h2 className="zept-settings__section">关于</h2>
         <p className="zept-settings__about">凝时 Zept — 备考专注陪伴</p>
         <p className="zept-settings__version">版本 0.1.0 · MVP</p>
         <button
           type="button"
-          className="zept-settings__compliance-toggle"
+          className={`zept-settings__compliance-toggle ${showCompliance ? 'zept-settings__compliance-toggle--open' : ''}`}
           onClick={() => setShowCompliance((v) => !v)}
           aria-expanded={showCompliance}
         >
-          合规声明 {showCompliance ? '收起' : '展开'}
+          <span className="material-symbols-rounded">gavel</span>
+          <span>合规声明</span>
+          <span className="material-symbols-rounded zept-settings__compliance-chevron">expand_more</span>
         </button>
         {showCompliance && (
           <div className="zept-settings__compliance">

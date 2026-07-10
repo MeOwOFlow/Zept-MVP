@@ -68,7 +68,7 @@ export default function Onboarding() {
       <h1 className="zept-onboarding__title">凝时 Zept</h1>
       <p className="zept-onboarding__subtitle">先了解你一下</p>
 
-      <Card>
+      <Card delay={0}>
         <label className="zept-onboarding__label" htmlFor="zept-goal">你的目标</label>
         <input
           id="zept-goal"
@@ -80,7 +80,7 @@ export default function Onboarding() {
         />
       </Card>
 
-      <Card>
+      <Card delay={80}>
         <DatePicker
           label="你的考试日期是"
           value={examDate}
@@ -88,7 +88,7 @@ export default function Onboarding() {
         />
       </Card>
 
-      <Card>
+      <Card delay={160}>
         <label className="zept-onboarding__label" htmlFor="zept-custom">最容易分心的是</label>
         <div className="zept-onboarding__chips">
           {DISTRACTION_PRESETS.map((d) => (
@@ -116,7 +116,7 @@ export default function Onboarding() {
         )}
       </Card>
 
-      <Card>
+      <Card delay={240}>
         <label className="zept-onboarding__label">回复风格</label>
         <div className="zept-reply-style__options">
           {REPLY_STYLE_OPTIONS.map((opt) => (
@@ -133,7 +133,7 @@ export default function Onboarding() {
         </div>
       </Card>
 
-      <Button variant="filled" onClick={handleSubmit} disabled={!canSubmit}>
+      <Button variant="filled" onClick={handleSubmit} disabled={!canSubmit} style={{ animationDelay: '320ms' }}>
         开始专注
       </Button>
     </div>

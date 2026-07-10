@@ -6,11 +6,12 @@ export interface SliderProps {
   label: string;
   value: Rating;
   onChange: (value: Rating) => void;
+  hideHeader?: boolean;
 }
 
 const TICKS: Rating[] = [1, 2, 3, 4, 5];
 
-export function Slider({ label, value, onChange }: SliderProps) {
+export function Slider({ label, value, onChange, hideHeader = false }: SliderProps) {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
       if (e.key === 'ArrowRight' && value < 5) {
@@ -24,10 +25,12 @@ export function Slider({ label, value, onChange }: SliderProps) {
 
   return (
     <div className="zept-slider">
-      <div className="zept-slider__header">
-        <span className="zept-slider__label">{label}</span>
-        <span className="zept-slider__value">{value}</span>
-      </div>
+      {!hideHeader && (
+        <div className="zept-slider__header">
+          <span className="zept-slider__label">{label}</span>
+          <span className="zept-slider__value">{value}</span>
+        </div>
+      )}
       <div
         className="zept-slider__track"
         role="slider"

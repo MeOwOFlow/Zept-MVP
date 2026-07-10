@@ -77,6 +77,9 @@
 }
 
 .zept-settings__compliance-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   background-color: var(--surface-1);
   color: var(--tertiary);
   font-size: var(--fs-body-md);
@@ -93,6 +96,16 @@
 
 .zept-settings__compliance-toggle:active {
   filter: brightness(0.92);
+}
+
+.zept-settings__compliance-chevron {
+  margin-left: auto;
+  font-size: 20px;
+  transition: transform var(--duration-short) var(--easing-standard);
+}
+
+.zept-settings__compliance-toggle--open .zept-settings__compliance-chevron {
+  transform: rotate(180deg);
 }
 
 .zept-settings__compliance {
