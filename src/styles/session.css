@@ -195,6 +195,7 @@
   position: absolute;
   inset: -16px;
   border-radius: 50%;
+  background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
   opacity: 0;
   transition: opacity var(--duration-long) var(--easing-standard);
   pointer-events: none;
@@ -202,7 +203,7 @@
 }
 
 .zept-session__timer--running::before {
-  opacity: 0.22;
+  opacity: 0.12;
   animation: zept-breathe 4s var(--easing-standard) infinite;
 }
 

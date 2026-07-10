@@ -40,7 +40,7 @@
   }
 }
 
-/* ---------- 底部浮层导航（蓝白配色优先） ---------- */
+/* ---------- 底部浮层导航 ---------- */
 .zept-nav {
   position: fixed;
   bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
@@ -90,8 +90,8 @@
 }
 
 .zept-nav__item--active {
-  color: var(--on-secondary);
-  background-color: var(--secondary);
+  color: var(--on-primary);
+  background-color: var(--primary);
 }
 
 .zept-nav__icon {

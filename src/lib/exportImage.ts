@@ -4,9 +4,9 @@
  * lib 层，不依赖 React，为 RN 迁移预留（RN 可用 react-native-view-shot 替代）
  *
  * 品牌排版：
- * - 深夜蓝黑背景 #0E1014
- * - 三元色强调：暖琥珀 #F0B862 / 冷青灰 #9DB6DD / 珊瑚 #EA9E8E
- * - 思源宋体（标题）+ 思源黑体（正文）
+ * - 深色背景 #111210
+ * - 三元色强调：鼠尾草绿 #5B7553 / 暖琥珀 #D4883A / 陶土珊瑚 #C4705A
+ * - 思源黑体（标题+正文）
  * - 底部水印"凝时 Zept"
  */
 
@@ -73,7 +73,7 @@ function calculateHeight(
   h += 30; // 分割线
 
   // 洞察文案（动态换行）
-  ctx.font = "24px 'Noto Serif SC', serif";
+  ctx.font = "bold 24px 'Noto Sans SC', sans-serif";
   const lines = wrapText(ctx, insight.text, W - PADDING * 2);
   h += lines.length * 40 + 20;
 
@@ -92,12 +92,12 @@ function calculateHeight(
 
 function drawBackground(ctx: CanvasRenderingContext2D, w: number, h: number): void {
   // 深夜蓝黑
-  ctx.fillStyle = "#0E1014";
+  ctx.fillStyle = "#111210";
   ctx.fillRect(0, 0, w, h);
 
   // 极淡的顶部光晕（品牌感）
   const gradient = ctx.createRadialGradient(w / 2, 0, 0, w / 2, 0, 400);
-  gradient.addColorStop(0, "rgba(240, 184, 98, 0.06)");
+  gradient.addColorStop(0, "rgba(91, 117, 83, 0.06)");
   gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, w, 400);
@@ -107,8 +107,8 @@ function drawHeader(ctx: CanvasRenderingContext2D, session: SessionRecord): void
   let y = PADDING + 30;
 
   // 品牌名
-  ctx.fillStyle = "#F0B862";
-  ctx.font = "bold 28px 'Noto Serif SC', serif";
+  ctx.fillStyle = "#5B7553";
+  ctx.font = "bold 28px 'Noto Sans SC', sans-serif";
   ctx.textAlign = "left";
   ctx.fillText("凝时 Zept", PADDING, y);
 
@@ -142,7 +142,7 @@ function drawInsightText(
 
   // 洞察文案
   ctx.fillStyle = "#F0F0F3";
-  ctx.font = "24px 'Noto Serif SC', serif";
+  ctx.font = "bold 24px 'Noto Sans SC', sans-serif";
   ctx.textAlign = "left";
 
   const lines = wrapText(ctx, insight.text, W - PADDING * 2);
@@ -154,7 +154,7 @@ function drawInsightText(
 
   // 会话元数据
   const durationMin = Math.round(_session.actualDurationSec / 60);
-  ctx.fillStyle = "#9DB6DD";
+  ctx.fillStyle = "#D4883A";
   ctx.font = "16px 'Noto Sans SC', sans-serif";
   ctx.fillText(
     `专注 ${durationMin} 分钟 · 离开 ${_session.interruptions} 次`,
@@ -178,7 +178,7 @@ function drawFooter(
     if (totalDurationSec) {
       parts.push(formatTotalDurationMin(totalDurationSec));
     }
-    ctx.fillStyle = "#EA9E8E";
+    ctx.fillStyle = "#C4705A";
     ctx.font = "16px 'Noto Sans SC', sans-serif";
     ctx.fillText(parts.join(" · "), PADDING, y);
     y += 30;
