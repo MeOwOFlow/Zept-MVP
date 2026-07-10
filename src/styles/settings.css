@@ -88,12 +88,25 @@
 
 .zept-chip--removable {
   gap: var(--space-1);
-  padding-right: var(--space-3);
+  padding-right: var(--space-2);
 }
 
 .zept-chip__remove {
-  font-size: 16px;
-  opacity: 0.8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 18px;
+  font-weight: 500;
+  border-radius: 50%;
+  opacity: 1;
+  transition: background-color var(--duration-short) var(--easing-standard);
+}
+
+.zept-chip--removable:active .zept-chip__remove,
+.zept-chip--removable:hover .zept-chip__remove {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .zept-settings__empty {
