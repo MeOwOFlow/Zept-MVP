@@ -39,13 +39,11 @@ interface DraftConfig {
 // Circular Trio — 圆环内嵌三 stepper 的常量
 const TRIO_RING_R = 140;
 const TRIO_CIRCUMFERENCE = 2 * Math.PI * TRIO_RING_R;
-const FOCUS_STEP = 5;
 
 type TrioKey = 'work' | 'break' | 'rounds';
 
-function clampFocus(v: number): number {
-  const rounded = Math.round(v / FOCUS_STEP) * FOCUS_STEP;
-  return Math.max(WORK_MIN, Math.min(WORK_MAX, rounded));
+function clampDuration(v: number): number {
+  return Math.max(WORK_MIN, Math.min(WORK_MAX, v));
 }
 
 export default function Session() {
@@ -99,7 +97,7 @@ export default function Session() {
   const adjustTrio = (key: TrioKey, dir: 1 | -1) => {
     if (key === 'work') {
       const cur = draft.workDurationMin ?? 25;
-      updateDraft({ workDurationMin: clampFocus(cur + dir * FOCUS_STEP) });
+      updateDraft({ workDurationMin: clampDuration(cur + dir) });
     } else if (key === 'break') {
       const cur = draft.shortBreakMin ?? 5;
       updateDraft({ shortBreakMin: Math.max(BREAK_MIN, Math.min(BREAK_MAX, cur + dir)) });
@@ -126,7 +124,7 @@ export default function Session() {
       return;
     }
     if (key === 'work') {
-      updateDraft({ workDurationMin: clampFocus(parsed) });
+      updateDraft({ workDurationMin: clampDuration(parsed) });
     } else if (key === 'break') {
       updateDraft({ shortBreakMin: Math.max(BREAK_MIN, Math.min(BREAK_MAX, parsed)) });
     } else {

@@ -334,9 +334,7 @@
   color: var(--primary);
 }
 .zept-trio-station.focus-station .zept-trio-value {
-  min-width: calc(var(--trio-ring-size) * 0.193);
-  width: calc(var(--trio-ring-size) * 0.193);
-  font-size: calc(var(--trio-ring-size) * 0.1);
+  color: var(--primary);
 }
 
 /* 数值框内 input */

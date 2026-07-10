@@ -113,7 +113,7 @@ describe('Session - 已配置用户', () => {
     render(<Session />);
     const incBtn = screen.getByRole('button', { name: '专注时长 增加' });
     await user.click(incBtn);
-    expect(screen.getByRole('textbox', { name: '专注时长' })).toHaveValue("30");
+    expect(screen.getByRole('textbox', { name: '专注时长' })).toHaveValue("26");
   });
 });
 

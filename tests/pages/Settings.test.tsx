@@ -134,14 +134,17 @@ describe('Settings - 提示音', () => {
     expect(screen.getByText('提示音')).toBeInTheDocument();
     expect(screen.getByText('阶段切换提示音')).toBeInTheDocument();
     expect(screen.getByText('振动反馈')).toBeInTheDocument();
-    expect(screen.getAllByText('已开启')).toHaveLength(2);
+    const switches = screen.getAllByRole('switch');
+    expect(switches).toHaveLength(2);
+    expect(switches[0]).toHaveAttribute('aria-checked', 'true');
+    expect(switches[1]).toHaveAttribute('aria-checked', 'true');
   });
 
   it('点击提示音开关调用 setSoundEnabled(false)', async () => {
     const user = userEvent.setup();
     render(<Settings />);
-    const buttons = screen.getAllByText('已开启');
-    await user.click(buttons[0]);  // 第一个是提示音开关
+    const switches = screen.getAllByRole('switch');
+    await user.click(switches[0]);  // 第一个是提示音开关
     expect(setSoundEnabledMock).toHaveBeenCalledWith(false);
   });
 });

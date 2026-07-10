@@ -290,3 +290,41 @@ img {
   background-color: var(--primary);
   color: var(--on-primary);
 }
+
+.zept-switch {
+  position: relative;
+  width: 52px;
+  height: 32px;
+  border-radius: 9999px;
+  background-color: var(--surface-3);
+  transition: background-color var(--duration-short) var(--easing-standard);
+  flex-shrink: 0;
+}
+
+.zept-switch--checked {
+  background-color: var(--primary);
+}
+
+.zept-switch__thumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--on-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform var(--duration-short) var(--easing-standard);
+}
+
+.zept-switch--checked .zept-switch__thumb {
+  transform: translateX(20px);
+}
+
+.zept-switch:active .zept-switch__thumb {
+  width: 28px;
+}
+
+.zept-switch--checked:active .zept-switch__thumb {
+  transform: translateX(16px);
+}

@@ -55,6 +55,16 @@
 .zept-settings__field:last-child {
   margin-bottom: 0;
 }
+.zept-settings__field--switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.zept-settings__field--switch .zept-settings__field-label {
+  margin-bottom: 0;
+}
 .zept-settings__field-label {
   display: block;
   font-size: var(--fs-label-lg);

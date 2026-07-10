@@ -5,6 +5,7 @@ import { useUserStore } from '../stores/userStore';
 import { type ThemeMode, type ReplyStyle } from '../types/user';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
+import { Switch } from '../components/Switch';
 import '../styles/settings.css';
 
 const THEME_OPTIONS: Array<{ value: ThemeMode; label: string }> = [
@@ -95,25 +96,21 @@ export default function Settings() {
 
       <Card delay={160}>
         <h2 className="zept-settings__section">提示音</h2>
-        <div className="zept-settings__field">
+        <div className="zept-settings__field zept-settings__field--switch">
           <label className="zept-settings__field-label">阶段切换提示音</label>
-          <button
-            type="button"
-            className={`zept-chip ${(profile?.soundEnabled ?? true) ? 'zept-chip--active' : ''}`}
-            onClick={() => setSoundEnabled(!(profile?.soundEnabled ?? true))}
-          >
-            {profile?.soundEnabled ?? true ? '已开启' : '已关闭'}
-          </button>
+          <Switch
+            checked={profile?.soundEnabled ?? true}
+            onCheckedChange={setSoundEnabled}
+            aria-label="阶段切换提示音"
+          />
         </div>
-        <div className="zept-settings__field">
+        <div className="zept-settings__field zept-settings__field--switch">
           <label className="zept-settings__field-label">振动反馈</label>
-          <button
-            type="button"
-            className={`zept-chip ${(profile?.vibrationEnabled ?? true) ? 'zept-chip--active' : ''}`}
-            onClick={() => setVibrationEnabled(!(profile?.vibrationEnabled ?? true))}
-          >
-            {profile?.vibrationEnabled ?? true ? '已开启' : '已关闭'}
-          </button>
+          <Switch
+            checked={profile?.vibrationEnabled ?? true}
+            onCheckedChange={setVibrationEnabled}
+            aria-label="振动反馈"
+          />
         </div>
         <p className="zept-settings__field-hint">专注/休息结束时播放钟磬提示音；振动仅 Android 生效</p>
       </Card>
