@@ -5,7 +5,7 @@
 - 构建：Vite 8
 - 框架： React 18 + TypeScript
 - 组件库：Apple HIG 风格手写 React 组件（实色分层，双主题）
-- 样式: 全局 CSS + 共享 tokens.css（CSS Modules 预留）
+- 样式：全局 CSS + 共享 tokens.css（CSS Modules 预留）
 - 状态管理：Zustand
 - 路由：React Router v7
 - 数据管理：Dexie.js（IndexedDB）
@@ -18,7 +18,7 @@
 
 ## 项目结构
 - src/
-  - components/       # MD3 React 组件（Button/Card/Slider/Chip...）
+  - components/       # Apple HIG 风格 React 组件（Button/Card/Slider/Chip/Switch...）
   - pages/            # 路由页面（Home/Session/Insights/Settings）
   - stores/           # Zustand stores（session/user）
   - lib/              # 业务逻辑（与 UI 解耦，RN 可直接复用）
@@ -27,7 +27,7 @@
     - insight.ts      # 洞察生成引擎（规则兜底 + LLM 增强）
     - rules.ts        # 黑名单过滤 + 置信度判定 + 降级链
   - styles/
-    - tokens.css      # MD3 设计令牌（颜色/字号/间距/easing）
+    - tokens.css      # 设计令牌（颜色/字号/间距/easing，Apple HIG 双主题）
     - global.css      # 全局重置 + 字体引入
   - types/          # TS 类型定义（session/insight/user）
   - App.tsx
@@ -50,3 +50,13 @@
 - 不得向远程仓库推送含有API密钥，Key等敏感信息的代码
 - 推送远程仓库前审计代码，避免泄露API密钥，Key等敏感信息
 - 代码改动并审计后即时Git提交到远程仓库
+
+## AI CODING八荣八耻
+以臆猜接口为耻，以查档求证为荣
+以模糊开工为耻，以对齐需求为荣
+以脑补业务为耻，以请示规则为荣
+以新增冗余为耻，以复用存量为荣
+以省略校验为耻，以完备测例为荣
+以乱改架构为耻，以恪守规范为荣
+以不懂装懂为耻，以坦诚存疑为荣
+以批量乱改为耻，以分步迭代为荣

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
+import { STORAGE_KEYS } from '../lib/storage-keys';
 import '../styles/welcome.css';
 
 // 三屏理念——品牌定位 → 核心价值 → 隐私承诺
@@ -33,7 +34,7 @@ export default function Welcome() {
   const next = () => {
     if (isLast) {
       // 标记已看过欢迎页，下次直接进 onboarding
-      localStorage.setItem('zept_welcome_seen', '1');
+      localStorage.setItem(STORAGE_KEYS.WELCOME_SEEN, '1');
       navigate('/onboarding');
       return;
     }
@@ -41,7 +42,7 @@ export default function Welcome() {
   };
 
   const skip = () => {
-    localStorage.setItem('zept_welcome_seen', '1');
+    localStorage.setItem(STORAGE_KEYS.WELCOME_SEEN, '1');
     navigate('/onboarding');
   };
 

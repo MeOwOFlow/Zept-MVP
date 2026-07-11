@@ -19,23 +19,6 @@ export interface LLMResult {
   error?: string;
 }
 
-export async function callLLM(params: LLMRequestParams): Promise<LLMResult> {
-  try {
-    const resp = await fetch('/api/llm', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
-    });
-    const data = await resp.json();
-    if (resp.ok && typeof data.text === 'string') {
-      return { success: true, text: data.text };
-    }
-    return { success: false, text: '', error: data.error ?? `http ${resp.status}` };
-  } catch (e) {
-    return { success: false, text: '', error: e instanceof Error ? e.message : 'network error' };
-  }
-}
-
 /**
  * 洞察日报/周报 LLM 调用
  * RN 迁移注意：fetch 在 RN 可用，端点需切换为绝对地址
@@ -54,14 +37,12 @@ export interface ReportLLMRequestParams {
   replyStyle?: 'rational' | 'emotional' | 'balanced';
 }
 
-export async function callReportLLM(
-  params: ReportLLMRequestParams,
-): Promise<LLMResult> {
+async function postJSON<T>(endpoint: string, body: T): Promise<LLMResult> {
   try {
-    const resp = await fetch('/api/report', {
+    const resp = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
+      body: JSON.stringify(body),
     });
     const data = await resp.json();
     if (resp.ok && typeof data.text === 'string') {
@@ -71,4 +52,12 @@ export async function callReportLLM(
   } catch (e) {
     return { success: false, text: '', error: e instanceof Error ? e.message : 'network error' };
   }
+}
+
+export function callLLM(params: LLMRequestParams): Promise<LLMResult> {
+  return postJSON('/api/llm', params);
+}
+
+export function callReportLLM(params: ReportLLMRequestParams): Promise<LLMResult> {
+  return postJSON('/api/report', params);
 }

@@ -5,6 +5,7 @@
  */
 import Dexie, { type Table } from 'dexie';
 import type { SessionRecord, Insight, UserProfile } from '../types';
+import { STORAGE_KEYS } from './storage-keys';
 
 const SINGLETON_KEY = 'local';
 
@@ -13,7 +14,6 @@ const SINGLETON_KEY = 'local';
  * 当前 v1：初始结构。新版本需在 constructor 里链式加 .version(2).stores().upgrade()。
  */
 export const DATA_VERSION = 1;
-const LS_VERSION_KEY = 'zept-data-version';
 
 class ZeptDB extends Dexie {
   sessions!: Table<SessionRecord, string>;
@@ -103,17 +103,17 @@ export async function getUser(): Promise<UserProfile | undefined> {
 export async function clearAll(): Promise<void> {
   await Promise.all([db.sessions.clear(), db.insights.clear(), db.profiles.clear()]);
   // 一键清空需包含运行态和欢迎标记
-  localStorage.removeItem('zept-session-state');
-  localStorage.removeItem('zept_welcome_seen');
-  // 清理日报/周报缓存（zept-report-{scope}-{periodKey}）
+  localStorage.removeItem(STORAGE_KEYS.SESSION_STATE);
+  localStorage.removeItem(STORAGE_KEYS.WELCOME_SEEN);
+  // 清理日报/周报缓存
   const keysToRemove: string[] = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (key?.startsWith('zept-report-')) keysToRemove.push(key);
+    if (key?.startsWith(STORAGE_KEYS.REPORT_PREFIX)) keysToRemove.push(key);
   }
   keysToRemove.forEach((k) => localStorage.removeItem(k));
   // 清理数据版本标记（下次启动会重新跑完整性校验）
-  localStorage.removeItem(LS_VERSION_KEY);
+  localStorage.removeItem(STORAGE_KEYS.DATA_VERSION);
 }
 
 export async function exportAll(): Promise<{
@@ -187,7 +187,7 @@ export async function ensureDataIntegrity(): Promise<number> {
  * - 版本不一致或首次 → 跑一次完整性校验，然后写入当前版本号
  */
 export async function checkDataVersion(): Promise<{ migrated: boolean; fixedCount: number }> {
-  const stored = localStorage.getItem(LS_VERSION_KEY);
+  const stored = localStorage.getItem(STORAGE_KEYS.DATA_VERSION);
   const current = String(DATA_VERSION);
   if (stored === current) {
     // 已校验过，无需重复
@@ -195,6 +195,6 @@ export async function checkDataVersion(): Promise<{ migrated: boolean; fixedCoun
   }
   // 版本变化或首次 → 跑完整性校验
   const fixedCount = await ensureDataIntegrity();
-  localStorage.setItem(LS_VERSION_KEY, current);
+  localStorage.setItem(STORAGE_KEYS.DATA_VERSION, current);
   return { migrated: true, fixedCount };
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { useUserStore } from './stores/userStore';
 import { checkDataVersion } from './lib/db';
+import { STORAGE_KEYS } from './lib/storage-keys';
 import Welcome from './pages/Welcome';
 import Onboarding from './pages/Onboarding';
 import Session from './pages/Session';
@@ -61,7 +62,7 @@ export default function App() {
 
   // 首次访问且未看过 welcome 且无 profile → 跳 welcome
   // 已有 profile 的老用户不再看 welcome（避免每次清空数据后被拦截）
-  const shouldShowWelcome = !profile && !localStorage.getItem('zept_welcome_seen');
+  const shouldShowWelcome = !profile && !localStorage.getItem(STORAGE_KEYS.WELCOME_SEEN);
 
   return (
     <div className="zept-app">

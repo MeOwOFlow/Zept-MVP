@@ -9,6 +9,7 @@ import { create } from 'zustand';
 import type { SessionRecord, SessionStatus, SelfAssessment, PomodoroState, Rating, BreakMood } from '../types/session';
 import type { UserProfile } from '../types/user';
 import { saveSession } from '../lib/db';
+import { STORAGE_KEYS } from '../lib/storage-keys';
 import { createPomodoroState, nextMode, getDurationSec, tick as pomodoroTick, canSkip } from '../lib/pomodoro';
 import { createSession, startInterruptionTracking, stopInterruptionTracking, endSession as endSessionRecord } from '../lib/session';
 import { playChime, vibrate, notifyBackground } from '../lib/chime';
@@ -39,7 +40,7 @@ function statusForMode(mode: PomodoroState['mode']): SessionStatus {
 
 // ---------- localStorage 持久化 ----------
 // 只持久化运行态数据，isRunning 恢复为 false（安全默认，刷新后变 paused）
-const STORAGE_KEY = 'zept-session-state';
+const STORAGE_KEY = STORAGE_KEYS.SESSION_STATE;
 
 interface PersistedState {
   currentSession: SessionRecord;
