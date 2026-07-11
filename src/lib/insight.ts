@@ -59,11 +59,16 @@ function summarizeBreakMoods(session: SessionRecord): string {
   return `休息间情绪采样：${vals}`;
 }
 
+function summarizeDistractions(distractions: string[] | undefined): string {
+  if (!distractions || distractions.length === 0) return '未记录容易分心项';
+  return `容易分心：${distractions.join('、')}`;
+}
+
 function summarizeCurrent(session: SessionRecord): string {
   const mood = session.postAssessment?.mood ?? 3;
   const focus = session.postAssessment?.focus ?? 3;
   const { count, totalMs, longestMs } = leaveInfo(session);
-  return `${session.isPomodoro ? '番茄' : '自由'} ${Math.floor(session.actualDurationSec / 60)}分钟，${fmtLeave(count, totalMs, longestMs)}，${summarizeBreakMoods(session)}，后评情绪${mood}，专注${focus}`;
+  return `${session.isPomodoro ? '番茄' : '自由'} ${Math.floor(session.actualDurationSec / 60)}分钟，${fmtLeave(count, totalMs, longestMs)}，${summarizeBreakMoods(session)}，${summarizeDistractions(session.topDistractions)}，后评情绪${mood}，专注${focus}`;
 }
 
 function makeInsightId(): string {

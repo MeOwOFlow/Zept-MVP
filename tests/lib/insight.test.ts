@@ -132,4 +132,12 @@ describe('generateInsight', () => {
     const saved = saveInsightMock.mock.calls[0][0] as Insight;
     expect(saved.sessionId).toBe('s_test');
   });
+
+  it('topDistractions 传入 curSummary 供 LLM 参考', async () => {
+    callLLMMock.mockResolvedValue({ success: true, text: '手机没把你带走' });
+    const session = makeSession({ topDistractions: ['手机', '社交媒体'] });
+    await generateInsight(session, [makeOldSession(5)], usefulInsights);
+    const params = callLLMMock.mock.calls[0][0];
+    expect(params.curSummary).toContain('容易分心：手机、社交媒体');
+  });
 });

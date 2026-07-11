@@ -16,6 +16,7 @@ interface UserStore {
   loadProfile: () => Promise<void>;
   setTheme: (mode: ThemeMode) => Promise<void>;
   setReplyStyle: (style: ReplyStyle) => Promise<void>;
+  setTopDistractions: (items: string[]) => Promise<void>;
   setSoundEnabled: (enabled: boolean) => Promise<void>;
   setVibrationEnabled: (enabled: boolean) => Promise<void>;
   resetProfile: () => void;
@@ -46,6 +47,14 @@ export const useUserStore = create<UserStore>((set, get) => ({
     const current = get().profile;
     if (!current) return;
     const next = { ...current, replyStyle: style };
+    await saveUser(next);
+    set({ profile: next });
+  },
+
+  setTopDistractions: async (items) => {
+    const current = get().profile;
+    if (!current) return;
+    const next = { ...current, topDistractions: items };
     await saveUser(next);
     set({ profile: next });
   },

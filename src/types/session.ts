@@ -76,6 +76,7 @@ export interface SessionRecord {
   preAssessment: PreAssessment | null;
   postAssessment: SelfAssessment | null;
   breakMoods: BreakMood[];
+  topDistractions?: string[];  // 用户自述容易分心项，冗余存储用于洞察
   insightId?: string;
 }
 
