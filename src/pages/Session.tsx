@@ -3,7 +3,6 @@ import { useUserStore } from '../stores/userStore';
 import { useSessionStore } from '../stores/sessionStore';
 import { generateInsight } from '../lib/insight';
 import { getRecentSessions, getUsefulInsights, getAllSessions, updateInsightFeedback } from '../lib/db';
-import { shouldTriggerCareGate } from '../lib/rules';
 import { daysUntilBadge } from '../lib/date';
 import { computeStreakDays, computeTotalDurationSec } from '../lib/streak';
 import { exportInsightImage } from '../lib/exportImage';
@@ -11,6 +10,8 @@ import { unlockAudioContext, requestNotificationPermission } from '../lib/chime'
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Slider } from '../components/Slider';
+import { TimerConfigPanel, isValidField, WORK_MIN, WORK_MAX, BREAK_MIN, BREAK_MAX, CYCLES_MIN, CYCLES_MAX, type DraftConfig } from '../components/TimerConfigPanel';
+import { InsightPanel } from '../components/InsightPanel';
 import type { SelfAssessment, Insight, SessionRecord, SessionInsightMode } from '../types/session';
 import type { PomodoroConfig } from '../types/user';
 import '../styles/session.css';
@@ -18,33 +19,7 @@ import '../styles/session.css';
 type Rating = 1 | 2 | 3 | 4 | 5;
 type Phase = 'idle' | 'preAssess' | 'running' | 'confirmEnd' | 'postAssess' | 'loading' | 'insight';
 
-const WORK_MIN = 1, WORK_MAX = 180;
-const BREAK_MIN = 1, BREAK_MAX = 60;
-const CYCLES_MIN = 1, CYCLES_MAX = 12;
-
 const MOOD_LABELS = ['', '很差', '较差', '一般', '不错', '很好'];
-
-const POMODORO_PRESETS: Array<{ id: string; label: string; sub: string; config: PomodoroConfig }> = [
-  { id: 'classic', label: '经典', sub: '25/5 ×4', config: { workDurationMin: 25, shortBreakMin: 5, targetCycles: 4 } },
-  { id: 'deep', label: '深度', sub: '50/10 ×3', config: { workDurationMin: 50, shortBreakMin: 10, targetCycles: 3 } },
-  { id: 'sprint', label: '冲刺', sub: '90/15 ×2', config: { workDurationMin: 90, shortBreakMin: 15, targetCycles: 2 } },
-];
-
-interface DraftConfig {
-  workDurationMin?: number;
-  shortBreakMin?: number;
-  targetCycles?: number;
-}
-
-// Circular Trio — 圆环内嵌三 stepper 的常量
-const TRIO_RING_R = 140;
-const TRIO_CIRCUMFERENCE = 2 * Math.PI * TRIO_RING_R;
-
-type TrioKey = 'work' | 'break' | 'rounds';
-
-function clampDuration(v: number): number {
-  return Math.max(WORK_MIN, Math.min(WORK_MAX, v));
-}
 
 export default function Session() {
   const profile = useUserStore((s) => s.profile);
@@ -72,65 +47,6 @@ export default function Session() {
   const [completedSession, setCompletedSession] = useState<SessionRecord | null>(null);
   const [exporting, setExporting] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // Circular Trio 输入字符串状态（text input 本地编辑，blur 时提交到 draft）
-  const [trioText, setTrioText] = useState({ work: '', break: '', rounds: '' });
-  // bump 动画状态
-  const [bump, setBump] = useState<{ key: TrioKey; dir: 1 | -1 } | null>(null);
-
-  // draft 变化时（预设/按钮/blur 提交）同步输入框显示
-  useEffect(() => {
-    setTrioText({
-      work: draft.workDurationMin !== undefined ? String(draft.workDurationMin) : '',
-      break: draft.shortBreakMin !== undefined ? String(draft.shortBreakMin) : '',
-      rounds: draft.targetCycles !== undefined ? String(draft.targetCycles) : '',
-    });
-  }, [draft.workDurationMin, draft.shortBreakMin, draft.targetCycles]);
-
-  // bump 动画 300ms 后自动清除
-  useEffect(() => {
-    if (!bump) return;
-    const t = setTimeout(() => setBump(null), 300);
-    return () => clearTimeout(t);
-  }, [bump]);
-
-  const adjustTrio = (key: TrioKey, dir: 1 | -1) => {
-    if (key === 'work') {
-      const cur = draft.workDurationMin ?? 25;
-      updateDraft({ workDurationMin: clampDuration(cur + dir) });
-    } else if (key === 'break') {
-      const cur = draft.shortBreakMin ?? 5;
-      updateDraft({ shortBreakMin: Math.max(BREAK_MIN, Math.min(BREAK_MAX, cur + dir)) });
-    } else {
-      const cur = draft.targetCycles ?? 4;
-      updateDraft({ targetCycles: Math.max(CYCLES_MIN, Math.min(CYCLES_MAX, cur + dir)) });
-    }
-    setBump({ key, dir });
-  };
-
-  const commitTrioInput = (key: TrioKey, raw: string) => {
-    const digits = raw.replace(/\D/g, '').slice(0, 2);
-    const parsed = parseInt(digits, 10);
-    if (isNaN(parsed) || parsed < 1) {
-      // 空或无效：回退到当前 draft（不修改），由 sync effect 刷新显示
-      setTrioText((prev) => ({
-        ...prev,
-        [key]: key === 'work'
-          ? String(draft.workDurationMin ?? '')
-          : key === 'break'
-            ? String(draft.shortBreakMin ?? '')
-            : String(draft.targetCycles ?? ''),
-      }));
-      return;
-    }
-    if (key === 'work') {
-      updateDraft({ workDurationMin: clampDuration(parsed) });
-    } else if (key === 'break') {
-      updateDraft({ shortBreakMin: Math.max(BREAK_MIN, Math.min(BREAK_MAX, parsed)) });
-    } else {
-      updateDraft({ targetCycles: Math.max(CYCLES_MIN, Math.min(CYCLES_MAX, parsed)) });
-    }
-  };
 
   useEffect(() => {
     if (profile?.pomodoroConfig) {
@@ -174,23 +90,12 @@ export default function Session() {
     }
   }, [phase, currentSession?.status]);
 
-  const isValid = (v: number | undefined, min: number, max: number): v is number =>
-    v !== undefined && v >= min && v <= max && Number.isInteger(v);
-
-  const allSet = isValid(draft.workDurationMin, WORK_MIN, WORK_MAX)
-    && isValid(draft.shortBreakMin, BREAK_MIN, BREAK_MAX)
-    && isValid(draft.targetCycles, CYCLES_MIN, CYCLES_MAX);
+  const allSet = isValidField(draft.workDurationMin, WORK_MIN, WORK_MAX)
+    && isValidField(draft.shortBreakMin, BREAK_MIN, BREAK_MAX)
+    && isValidField(draft.targetCycles, CYCLES_MIN, CYCLES_MAX);
 
   const updateDraft = (patch: Partial<DraftConfig>) => {
     setDraft((prev) => ({ ...prev, ...patch }));
-  };
-
-  const applyPreset = (config: PomodoroConfig) => {
-    setDraft({
-      workDurationMin: config.workDurationMin,
-      shortBreakMin: config.shortBreakMin,
-      targetCycles: config.targetCycles,
-    });
   };
 
   const handleStart = async () => {
@@ -280,7 +185,6 @@ export default function Session() {
     if (!insight || !completedSession) return;
     setExporting(true);
     try {
-      // endSession 已把 completedSession 写入 IndexedDB，直接取全量即可，避免重复计算
       const allSessions = await getAllSessions();
       const streakDays = computeStreakDays(allSessions);
       const totalDurationSec = computeTotalDurationSec(allSessions);
@@ -348,168 +252,7 @@ export default function Session() {
           </div>
 
           {isPomodoro && (
-            <div className="zept-session__config">
-              <div className="zept-session__presets-row">
-                {POMODORO_PRESETS.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    className={`zept-preset-tile ${
-                      draft.workDurationMin === p.config.workDurationMin
-                      && draft.shortBreakMin === p.config.shortBreakMin
-                      && draft.targetCycles === p.config.targetCycles
-                        ? 'zept-preset-tile--active' : ''
-                    }`}
-                    onClick={() => applyPreset(p.config)}
-                    aria-label={`${p.label} ${p.sub}`}
-                  >
-                    <span className="zept-preset-tile__label">{p.label}</span>
-                    <span className="zept-preset-tile__sub">{p.sub}</span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Circular Trio — 圆环内嵌三 stepper */}
-              <div className="zept-trio-area">
-                <div className="zept-trio-card">
-                  <div className="zept-trio-ring">
-                    <svg viewBox="0 0 300 300" className="zept-trio-ring__svg">
-                      <circle className="zept-trio-track" cx="150" cy="150" r={TRIO_RING_R} />
-                      <circle
-                        className="zept-trio-progress"
-                        cx="150" cy="150" r={TRIO_RING_R}
-                        strokeDasharray={TRIO_CIRCUMFERENCE}
-                        strokeDashoffset={TRIO_CIRCUMFERENCE * (1 - Math.min((draft.workDurationMin ?? 0) / 120, 1))}
-                      />
-                    </svg>
-
-                    <div className="zept-trio-stations">
-                      {/* 上部：专注 + 短休（并列垂直 stepper） */}
-                      <div className="zept-trio-top">
-                        <div className="zept-trio-station focus-station">
-                          <span className="zept-trio-label">专注</span>
-                          <div className="zept-trio-controls">
-                            <button
-                              type="button"
-                              className="zept-trio-btn"
-                              onClick={() => adjustTrio('work', 1)}
-                              aria-label="专注时长 增加"
-                            >
-                              <span className="material-symbols-rounded">expand_less</span>
-                            </button>
-                            <div
-                              className={`zept-trio-value primary${
-                                bump?.key === 'work' ? ` bump-${bump.dir > 0 ? 'up' : 'down'}` : ''
-                              }`}
-                            >
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                maxLength={2}
-                                aria-label="专注时长"
-                                value={trioText.work}
-                                onChange={(e) => setTrioText((prev) => ({ ...prev, work: e.target.value.replace(/\D/g, '').slice(0, 2) }))}
-                                onBlur={() => commitTrioInput('work', trioText.work)}
-                                onFocus={(e) => e.target.select()}
-                                onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
-                              />
-                            </div>
-                            <button
-                              type="button"
-                              className="zept-trio-btn"
-                              onClick={() => adjustTrio('work', -1)}
-                              aria-label="专注时长 减少"
-                            >
-                              <span className="material-symbols-rounded">expand_more</span>
-                            </button>
-                          </div>
-                          <span className="zept-trio-unit">分钟</span>
-                        </div>
-
-                        <div className="zept-trio-station">
-                          <span className="zept-trio-label">短休</span>
-                          <div className="zept-trio-controls">
-                            <button
-                              type="button"
-                              className="zept-trio-btn"
-                              onClick={() => adjustTrio('break', 1)}
-                              aria-label="短休时长 增加"
-                            >
-                              <span className="material-symbols-rounded">expand_less</span>
-                            </button>
-                            <div
-                              className={`zept-trio-value${
-                                bump?.key === 'break' ? ` bump-${bump.dir > 0 ? 'up' : 'down'}` : ''
-                              }`}
-                            >
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                maxLength={2}
-                                aria-label="短休时长"
-                                value={trioText.break}
-                                onChange={(e) => setTrioText((prev) => ({ ...prev, break: e.target.value.replace(/\D/g, '').slice(0, 2) }))}
-                                onBlur={() => commitTrioInput('break', trioText.break)}
-                                onFocus={(e) => e.target.select()}
-                                onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
-                              />
-                            </div>
-                            <button
-                              type="button"
-                              className="zept-trio-btn"
-                              onClick={() => adjustTrio('break', -1)}
-                              aria-label="短休时长 减少"
-                            >
-                              <span className="material-symbols-rounded">expand_more</span>
-                            </button>
-                          </div>
-                          <span className="zept-trio-unit">分钟</span>
-                        </div>
-                      </div>
-
-                      {/* 底部：轮次水平条 */}
-                      <div className="zept-trio-rounds">
-                        <button
-                          type="button"
-                          className="zept-trio-rounds-btn"
-                          onClick={() => adjustTrio('rounds', -1)}
-                          aria-label="轮次 减少"
-                        >
-                          <span className="material-symbols-rounded">remove</span>
-                        </button>
-                        <span className="zept-trio-rounds-label">轮次</span>
-                        <span
-                          className={`zept-trio-rounds-value${
-                            bump?.key === 'rounds' ? ` bump-${bump.dir > 0 ? 'up' : 'down'}` : ''
-                          }`}
-                        >
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={2}
-                            aria-label="轮次"
-                            value={trioText.rounds}
-                            onChange={(e) => setTrioText((prev) => ({ ...prev, rounds: e.target.value.replace(/\D/g, '').slice(0, 2) }))}
-                            onBlur={() => commitTrioInput('rounds', trioText.rounds)}
-                            onFocus={(e) => e.target.select()}
-                            onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
-                          />
-                        </span>
-                        <span className="zept-trio-rounds-unit">轮</span>
-                        <button
-                          type="button"
-                          className="zept-trio-rounds-btn"
-                          onClick={() => adjustTrio('rounds', 1)}
-                          aria-label="轮次 增加"
-                        >
-                          <span className="material-symbols-rounded">add</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <TimerConfigPanel draft={draft} onDraftChange={updateDraft} />
           )}
 
           {!isPomodoro && (
@@ -637,38 +380,13 @@ export default function Session() {
       )}
 
       {phase === 'insight' && insight && (
-        <Card>
-          {shouldTriggerCareGate(insight.mood) ? (
-            <>
-              <h2 className="zept-session__title">今天看起来有些吃力</h2>
-              <p className="zept-session__care">{insight.text}</p>
-            </>
-          ) : (
-            <>
-              <h2 className="zept-session__title">这次的洞察</h2>
-              <p className="zept-session__insight-text">{insight.text}</p>
-              {insight.feedback === null && (
-                <div className="zept-session__feedback">
-                  <Button variant="outlined" onClick={() => handleFeedback('useful')}>有用</Button>
-                  <Button variant="text" onClick={() => handleFeedback('useless')}>没用</Button>
-                </div>
-              )}
-              {insight.feedback && (
-                <p className="zept-session__feedback-done">已标记：{insight.feedback === 'useful' ? '有用' : '没用'}</p>
-              )}
-              <div className="zept-session__export">
-                <Button
-                  variant="text"
-                  onClick={handleExportInsight}
-                  disabled={exporting}
-                >
-                  {exporting ? '生成中…' : '导出长图'}
-                </Button>
-              </div>
-            </>
-          )}
-          <Button variant="filled" onClick={handleReset}>完成</Button>
-        </Card>
+        <InsightPanel
+          insight={insight}
+          onFeedback={handleFeedback}
+          onExport={handleExportInsight}
+          exporting={exporting}
+          onReset={handleReset}
+        />
       )}
     </div>
   );

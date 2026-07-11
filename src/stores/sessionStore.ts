@@ -31,6 +31,7 @@ interface SessionStore {
   tick: () => void;
   skipBreak: () => void;
   endSession: (postAssessment: SelfAssessment) => Promise<void>;
+  reset: () => void;
 }
 
 function statusForMode(mode: PomodoroState['mode']): SessionStatus {
@@ -265,6 +266,19 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     const final = endSessionRecord(currentSession, postAssessment);
     await saveSession(final);
     set({ currentSession: null, pomodoroState: null, remainingSec: 0, isRunning: false, lastPersistedAt: Date.now() });
+    savePersistedState(null);
+  },
+
+  reset: () => {
+    stopInterruptionTracking();
+    set({
+      currentSession: null,
+      pomodoroState: null,
+      remainingSec: 0,
+      isRunning: false,
+      interruptions: 0,
+      lastPersistedAt: 0,
+    });
     savePersistedState(null);
   },
 }));

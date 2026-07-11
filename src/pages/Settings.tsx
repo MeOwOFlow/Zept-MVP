@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { exportAll, clearAll } from '../lib/db';
 import { useUserStore } from '../stores/userStore';
+import { useSessionStore } from '../stores/sessionStore';
 import { type ThemeMode, type ReplyStyle } from '../types/user';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
@@ -32,6 +33,7 @@ export default function Settings() {
   const setSoundEnabled = useUserStore((s) => s.setSoundEnabled);
   const setVibrationEnabled = useUserStore((s) => s.setVibrationEnabled);
   const resetProfile = useUserStore((s) => s.resetProfile);
+  const resetSession = useSessionStore((s) => s.reset);
   const [confirming, setConfirming] = useState(false);
   const [showCompliance, setShowCompliance] = useState(false);
   const [customInput, setCustomInput] = useState('');
@@ -53,6 +55,7 @@ export default function Settings() {
 
   const handleClear = async () => {
     await clearAll();
+    resetSession();
     resetProfile();
     setConfirming(false);
     navigate('/onboarding');
