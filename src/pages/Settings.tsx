@@ -143,7 +143,7 @@ export default function Settings() {
                   aria-label={`移除 ${item}`}
                 >
                   {item}
-                  <span className="material-symbols-rounded zept-chip__remove">close</span>
+                  <span className="zept-chip__remove" aria-hidden="true">&times;</span>
                 </button>
               ))
             )}
