@@ -299,6 +299,9 @@ export default function Session() {
             <div className="zept-session__countdown">{countdown}</div>
           </div>
           <div className="zept-session__mode-label">{modeLabel}</div>
+          {isFree && (
+            <div className="zept-session__free-label">已专注 {countdown}</div>
+          )}
           {interruptions > 0 && (
             <div className="zept-session__interrupt">离开 {interruptions} 次</div>
           )}
