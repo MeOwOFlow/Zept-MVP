@@ -54,6 +54,12 @@ export default function Insights() {
   const [dailyReport, setDailyReport] = useState<FocusReport | null>(null);
   const [weeklyReport, setWeeklyReport] = useState<FocusReport | null>(null);
   const [generating, setGenerating] = useState<'daily' | 'weekly' | null>(null);
+  const [reportScope, setReportScope] = useState<'daily' | 'weekly'>(() => {
+    // 默认选中已有报告的 scope，优先 daily
+    const d = loadReport('daily', getDailyPeriodKey());
+    const w = loadReport('weekly', getWeeklyPeriodKey());
+    return d ? 'daily' : w ? 'weekly' : 'daily';
+  });
 
   const streakDays = computeStreakDays(items.map((it) => it.session));
   const totalDurationSec = computeTotalDurationSec(items.map((it) => it.session));
@@ -164,46 +170,49 @@ export default function Insights() {
         <div className="zept-report">
           <div className="zept-report__header">
             <span className="zept-report__title">专注报告</span>
-            <div className="zept-report__actions">
+            <div className="zept-report__scope">
+              <button
+                type="button"
+                className={`zept-chip ${reportScope === 'daily' ? 'zept-chip--active' : ''}`}
+                onClick={() => setReportScope('daily')}
+              >
+                今日
+              </button>
+              <button
+                type="button"
+                className={`zept-chip ${reportScope === 'weekly' ? 'zept-chip--active' : ''}`}
+                onClick={() => setReportScope('weekly')}
+              >
+                本周
+              </button>
               <Button
                 variant="outlined"
-                onClick={() => handleGenerate('daily')}
+                onClick={() => handleGenerate(reportScope)}
                 disabled={generating !== null}
               >
-                {generating === 'daily' ? '生成中…' : '今日'}
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => handleGenerate('weekly')}
-                disabled={generating !== null}
-              >
-                {generating === 'weekly' ? '生成中…' : '本周'}
+                {generating === reportScope ? '生成中…' : '生成'}
               </Button>
             </div>
           </div>
-          {dailyReport && (
-            <div className="zept-report__body">
-              <div className="zept-report__label">
-                {dailyReport.dateLabel} · 今日
-                {dailyReport.source === 'fallback' && <span className="zept-report__tag">离线</span>}
+          {(() => {
+            const report = reportScope === 'daily' ? dailyReport : weeklyReport;
+            if (!report) {
+              return (
+                <p className="zept-report__hint">
+                  点击「生成」，让凝时给你一段{reportScope === 'daily' ? '今日' : '本周'}的陪伴回顾。
+                </p>
+              );
+            }
+            return (
+              <div className="zept-report__body">
+                <div className="zept-report__label">
+                  {report.dateLabel} · {reportScope === 'daily' ? '今日' : '本周'}
+                  {report.source === 'fallback' && <span className="zept-report__tag">离线</span>}
+                </div>
+                <p className="zept-report__text">{report.text}</p>
               </div>
-              <p className="zept-report__text">{dailyReport.text}</p>
-            </div>
-          )}
-          {weeklyReport && (
-            <div className="zept-report__body">
-              <div className="zept-report__label">
-                {weeklyReport.dateLabel} · 本周
-                {weeklyReport.source === 'fallback' && <span className="zept-report__tag">离线</span>}
-              </div>
-              <p className="zept-report__text">{weeklyReport.text}</p>
-            </div>
-          )}
-          {!dailyReport && !weeklyReport && (
-            <p className="zept-report__hint">
-              点击「今日」或「本周」，让凝时给你一段陪伴的回顾。
-            </p>
-          )}
+            );
+          })()}
         </div>
       </Card>
 
