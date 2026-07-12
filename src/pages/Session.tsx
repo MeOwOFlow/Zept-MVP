@@ -205,11 +205,15 @@ export default function Session() {
   const mins = Math.floor(remainingSec / 60);
   const secs = remainingSec % 60;
   const countdown = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  const isFree = !pomodoroState;
   const totalSec = pomodoroState
     ? pomodoroState.mode === 'work' ? pomodoroState.workDurationMin * 60
       : pomodoroState.shortBreakMin * 60
     : 0;
-  const progress = totalSec > 0 ? 1 - remainingSec / totalSec : 0;
+  // 自由模式没有总时长，圆环每 60 秒转一圈作为视觉反馈，避免用户以为"不动"
+  const progress = isFree
+    ? (remainingSec % 60) / 60
+    : totalSec > 0 ? 1 - remainingSec / totalSec : 0;
   const R = 120;
   const circumference = 2 * Math.PI * R;
   const dashOffset = circumference * (1 - progress);

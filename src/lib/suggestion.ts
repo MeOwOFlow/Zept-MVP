@@ -11,6 +11,18 @@ import type { SessionRecord } from '../types/session';
 import type { UserProfilePattern } from '../types/user';
 import type { NextRoundHint, NextRoundKind } from '../types/suggestion';
 
+// 趋势方向词常量，避免 summarizeTrend 文案变动时规则失效
+const TREND_DOWN_KEYWORDS = ['下滑', '走低'];
+const TREND_UP_KEYWORDS = ['回升', '提升'];
+
+function isTrendDown(trendSummary: string): boolean {
+  return TREND_DOWN_KEYWORDS.some((kw) => trendSummary.includes(kw));
+}
+
+function isTrendUp(trendSummary: string): boolean {
+  return TREND_UP_KEYWORDS.some((kw) => trendSummary.includes(kw));
+}
+
 /**
  * 基于本次会话 + 趋势摘要，给出下一轮参数建议。
  * mood ≤ 2 不进此函数（care gate 前置拦截）。
@@ -39,15 +51,25 @@ export function suggestNextRound(
     };
   }
 
-  // 规则 2：零离开 + 高专注 + 趋势不下滑 → 保持
-  if (leaveCount === 0 && focus >= 4 && !trendSummary.includes('下滑')) {
+  // 规则 2：趋势明显上扬 + 高专注 + 零离开 → 延长
+  // 仅在强信号下延长，避免误推。放在 keep 前避免 focus=5 被普通 keep 吞掉
+  if (leaveCount === 0 && focus === 5 && isTrendUp(trendSummary)) {
+    return {
+      kind: 'longer',
+      reason: 'strong_and_rising',
+      targetWorkMin: 35,
+    };
+  }
+
+  // 规则 3：零离开 + 高专注 + 趋势不下滑 → 保持
+  if (leaveCount === 0 && focus >= 4 && !isTrendDown(trendSummary)) {
     return {
       kind: 'keep',
       reason: 'stable_high_focus',
     };
   }
 
-  // 规则 3：休息情绪采样呈恢复趋势（后 > 前）→ 休息久一点
+  // 规则 4：休息情绪采样呈恢复趋势（后 > 前）→ 休息久一点
   const breakMoods = session.breakMoods ?? [];
   if (breakMoods.length >= 2) {
     const first = breakMoods[0].mood;

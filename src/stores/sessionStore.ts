@@ -45,7 +45,7 @@ const STORAGE_KEY = STORAGE_KEYS.SESSION_STATE;
 
 interface PersistedState {
   currentSession: SessionRecord;
-  pomodoroState: PomodoroState;
+  pomodoroState: PomodoroState | null;
   remainingSec: number;
   interruptions: number;
 }
@@ -81,8 +81,9 @@ function savePersistedState(state: PersistedState | null): void {
 
 function getPersistableState(): PersistedState | null {
   const { currentSession, pomodoroState, remainingSec, interruptions } = useSessionStore.getState();
-  if (!currentSession || !pomodoroState) return null;
+  if (!currentSession) return null;
   if (currentSession.status === 'completed' || currentSession.status === 'abandoned') return null;
+  // 允许自由模式（pomodoroState=null）持久化，否则刷新会丢失自由专注会话
   return { currentSession, pomodoroState, remainingSec, interruptions };
 }
 
