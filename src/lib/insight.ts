@@ -7,6 +7,7 @@ import type {
   SessionRecord,
   Insight,
   SessionInsightMode,
+  Rating,
 } from '../types/session';
 import type { ReplyStyle } from '../types/user';
 import { saveInsight } from './db';
@@ -36,20 +37,76 @@ function leaveInfo(s: SessionRecord): { count: number; totalMs: number; longestM
   return { count: s.interruptions, totalMs, longestMs };
 }
 
+const SCORE_LABELS = ['', '很差', '较差', '一般', '不错', '很好'] as const;
+
+/**
+ * 从最近 N 次会话计算趋势摘要。
+ * sessions 为 newest-first（getRecentSessions 返回顺序），内部 reverse 为时间顺序。
+ * 将会话分前后两半，比较情绪/专注/离开的方向变化。
+ */
+function summarizeTrend(sessions: SessionRecord[]): string {
+  const chrono = [...sessions].reverse();
+  if (chrono.length < 2) return '';
+
+  const half = Math.floor(chrono.length / 2);
+  const older = chrono.slice(0, half);
+  const newer = chrono.slice(half);
+
+  const avg = (arr: SessionRecord[], field: 'mood' | 'focus'): number => {
+    const vals = arr
+      .map((s) => s.postAssessment?.[field])
+      .filter((v): v is Rating => v !== undefined && v !== null);
+    return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+  };
+
+  const oldMood = avg(older, 'mood');
+  const newMood = avg(newer, 'mood');
+  const oldFocus = avg(older, 'focus');
+  const newFocus = avg(newer, 'focus');
+  const oldInterrupts = older.reduce((sum, s) => sum + s.interruptions, 0);
+  const newInterrupts = newer.reduce((sum, s) => sum + s.interruptions, 0);
+
+  const parts: string[] = [];
+  const threshold = 0.3;
+
+  if (oldMood > 0 && newMood > 0) {
+    const dir = newMood > oldMood + threshold ? '回升' : newMood < oldMood - threshold ? '走低' : '平稳';
+    parts.push(`情绪${dir}`);
+  }
+  if (oldFocus > 0 && newFocus > 0) {
+    const dir = newFocus > oldFocus + threshold ? '提升' : newFocus < oldFocus - threshold ? '下滑' : '稳定';
+    parts.push(`专注${dir}`);
+  }
+  if (oldInterrupts !== newInterrupts) {
+    parts.push(newInterrupts < oldInterrupts ? '离开减少' : '离开增多');
+  }
+
+  if (parts.length === 0) return '';
+  return `趋势：最近${chrono.length}次，${parts.join('，')}`;
+}
+
 function summarizeSessions(sessions: SessionRecord[]): string {
   if (sessions.length === 0) return '无历史会话';
-  return sessions
+  const detail = sessions
     .slice(0, 3)
     .map((s) => {
       const { count, totalMs, longestMs } = leaveInfo(s);
-      return `${s.isPomodoro ? '番茄' : '自由'} ${Math.floor(s.actualDurationSec / 60)}分钟，${fmtLeave(count, totalMs, longestMs)}`;
+      const mood = s.postAssessment?.mood;
+      const focus = s.postAssessment?.focus;
+      const moodLabel = mood ? `情绪${SCORE_LABELS[mood]}` : '未评情绪';
+      const focusLabel = focus ? `专注${SCORE_LABELS[focus]}` : '未评专注';
+      return `${s.isPomodoro ? '番茄' : '自由'} ${Math.floor(s.actualDurationSec / 60)}分钟，${fmtLeave(count, totalMs, longestMs)}，${moodLabel}，${focusLabel}`;
     })
     .join('；');
+  const trend = summarizeTrend(sessions);
+  return trend ? `${detail}。${trend}` : detail;
 }
 
 function summarizeInsights(insights: Insight[]): string {
   if (insights.length === 0) return '无';
-  return insights.map((i) => i.text).join('；');
+  return insights
+    .map((i) => `${i.text}（当时情绪${SCORE_LABELS[i.mood] ?? '未知'}）`)
+    .join('；');
 }
 
 function summarizeBreakMoods(session: SessionRecord): string {
@@ -64,13 +121,13 @@ function summarizeDistractions(distractions: string[] | undefined): string {
   return `容易分心：${distractions.join('、')}`;
 }
 
-const SCORE_LABELS = ['', '很差', '较差', '一般', '不错', '很好'] as const;
-
 function summarizeCurrent(session: SessionRecord): string {
   const mood = session.postAssessment?.mood ?? 3;
   const focus = session.postAssessment?.focus ?? 3;
+  const preMood = session.preAssessment?.mood;
+  const preMoodLabel = preMood ? `起始情绪${SCORE_LABELS[preMood]}` : '无起始情绪';
   const { count, totalMs, longestMs } = leaveInfo(session);
-  return `${session.isPomodoro ? '番茄' : '自由'} ${Math.floor(session.actualDurationSec / 60)}分钟，${fmtLeave(count, totalMs, longestMs)}，${summarizeBreakMoods(session)}，${summarizeDistractions(session.topDistractions)}，后评情绪${SCORE_LABELS[mood]}，专注${SCORE_LABELS[focus]}`;
+  return `${session.isPomodoro ? '番茄' : '自由'} ${Math.floor(session.actualDurationSec / 60)}分钟，${fmtLeave(count, totalMs, longestMs)}，${summarizeBreakMoods(session)}，${summarizeDistractions(session.topDistractions)}，${preMoodLabel}，后评情绪${SCORE_LABELS[mood]}，专注${SCORE_LABELS[focus]}`;
 }
 
 function makeInsightId(): string {
