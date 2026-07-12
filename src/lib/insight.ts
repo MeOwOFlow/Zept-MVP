@@ -55,7 +55,7 @@ function summarizeInsights(insights: Insight[]): string {
 function summarizeBreakMoods(session: SessionRecord): string {
   const moods = session.breakMoods ?? [];
   if (moods.length === 0) return '休息期间无情绪采样';
-  const vals = moods.map((m) => m.mood).join('→');
+  const vals = moods.map((m) => m.mood ? SCORE_LABELS[m.mood] : '未答').join('→');
   return `休息间情绪采样：${vals}`;
 }
 
@@ -64,11 +64,13 @@ function summarizeDistractions(distractions: string[] | undefined): string {
   return `容易分心：${distractions.join('、')}`;
 }
 
+const SCORE_LABELS = ['', '很差', '较差', '一般', '不错', '很好'] as const;
+
 function summarizeCurrent(session: SessionRecord): string {
   const mood = session.postAssessment?.mood ?? 3;
   const focus = session.postAssessment?.focus ?? 3;
   const { count, totalMs, longestMs } = leaveInfo(session);
-  return `${session.isPomodoro ? '番茄' : '自由'} ${Math.floor(session.actualDurationSec / 60)}分钟，${fmtLeave(count, totalMs, longestMs)}，${summarizeBreakMoods(session)}，${summarizeDistractions(session.topDistractions)}，后评情绪${mood}，专注${focus}`;
+  return `${session.isPomodoro ? '番茄' : '自由'} ${Math.floor(session.actualDurationSec / 60)}分钟，${fmtLeave(count, totalMs, longestMs)}，${summarizeBreakMoods(session)}，${summarizeDistractions(session.topDistractions)}，后评情绪${SCORE_LABELS[mood]}，专注${SCORE_LABELS[focus]}`;
 }
 
 function makeInsightId(): string {
