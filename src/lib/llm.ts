@@ -11,6 +11,15 @@ export interface LLMRequestParams {
   mood: number;
   careMode?: boolean;
   replyStyle?: 'rational' | 'emotional' | 'balanced';
+  /** 规则层判断出的下一轮建议（mood > 2 时传入） */
+  nextRoundHint?: {
+    kind: 'shorter' | 'keep' | 'longer' | 'break_more' | null;
+    reason: string;
+    targetWorkMin?: number;
+    targetBreakMin?: number;
+  };
+  /** 用户长期画像摘要（v0.2 复赛预留，MVP 不传） */
+  userPattern?: string;
 }
 
 export interface LLMResult {

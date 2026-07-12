@@ -20,6 +20,7 @@ import {
   getFallbackInsight,
   CARE_GATE_RESOURCES,
 } from './rules';
+import { suggestNextRound } from './suggestion';
 
 function fmtLeave(count: number, totalMs: number, longestMs: number): string {
   if (count === 0) return '未离开';
@@ -215,7 +216,9 @@ export async function generateInsight(
     return insight;
   }
 
-  // 3. 调 LLM
+  // 3. 调 LLM（mood > 2，计算下一轮建议）
+  const trendSummary = summarizeTrend(recentSessions);
+  const nextRoundHint = suggestNextRound(currentSession, trendSummary);
   const result = await callLLM({
     goal: currentSession.goal,
     daysToExam: currentSession.daysToExam,
@@ -224,6 +227,7 @@ export async function generateInsight(
     curSummary: summarizeCurrent(currentSession),
     mood,
     replyStyle,
+    nextRoundHint,
   });
 
   // 4. LLM 成功 + 黑名单通过 → source=llm

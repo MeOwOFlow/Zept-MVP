@@ -140,4 +140,42 @@ describe('generateInsight', () => {
     const params = callLLMMock.mock.calls[0][0];
     expect(params.curSummary).toContain('容易分心：手机、社交媒体');
   });
+
+  it('mood > 2 时传入 nextRoundHint 给 LLM', async () => {
+    callLLMMock.mockResolvedValue({ success: true, text: '这轮节奏稳住了。' });
+    const session = makeSession({
+      interruptions: 3,
+      interruptionEvents: [
+        { recoveredAt: 1, durationMs: 5000 },
+        { recoveredAt: 2, durationMs: 5000 },
+        { recoveredAt: 3, durationMs: 5000 },
+      ],
+      postAssessment: { mood: 4, focus: 4 },
+    });
+    await generateInsight(session, [makeOldSession(5)], usefulInsights);
+    const params = callLLMMock.mock.calls[0][0];
+    expect(params.nextRoundHint).toBeDefined();
+    expect(params.nextRoundHint.kind).toBe('shorter');
+    expect(params.nextRoundHint.targetWorkMin).toBe(20);
+  });
+
+  it('mood ≤ 2 时不传 nextRoundHint（走 care gate）', async () => {
+    callLLMMock.mockResolvedValue({
+      success: true,
+      text: '今天辛苦了。可以找校心理咨询中心聊聊，或拨打12356心理援助热线。',
+    });
+    const session = makeSession({
+      interruptions: 3,
+      interruptionEvents: [
+        { recoveredAt: 1, durationMs: 5000 },
+        { recoveredAt: 2, durationMs: 5000 },
+        { recoveredAt: 3, durationMs: 5000 },
+      ],
+      postAssessment: { mood: 2, focus: 2 },
+    });
+    await generateInsight(session, [makeOldSession(5)], usefulInsights);
+    const params = callLLMMock.mock.calls[0][0];
+    expect(params.careMode).toBe(true);
+    expect(params.nextRoundHint).toBeUndefined();
+  });
 });
