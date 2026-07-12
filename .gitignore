@@ -16,3 +16,4 @@ scripts/shots/
 lighthouse-report*
 .vscode/*
 !.vscode/extensions.json
+zept-redesign/

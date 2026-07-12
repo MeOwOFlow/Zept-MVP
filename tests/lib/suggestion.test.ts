@@ -54,13 +54,13 @@ describe('suggestNextRound', () => {
     expect(hint.targetWorkMin).toBe(20);
   });
 
-  it('零离开 + focus ≥ 4 + 趋势不含下滑 → keep', () => {
+  it('零离开 + focus ≥ 4 + 趋势不上扬 → keep', () => {
     const session = makeSession({
       interruptions: 0,
       interruptionEvents: [],
-      postAssessment: { mood: 4, focus: 5 },
+      postAssessment: { mood: 4, focus: 4 },
     });
-    const hint = suggestNextRound(session, '趋势：最近4次，情绪回升，专注稳定');
+    const hint = suggestNextRound(session, '趋势：最近4次，情绪平稳，专注稳定');
     expect(hint.kind).toBe('keep');
     expect(hint.reason).toBe('stable_high_focus');
   });
@@ -115,6 +115,28 @@ describe('suggestNextRound', () => {
     const hint = suggestNextRound(session, '');
     expect(hint.kind).toBeNull();
     expect(hint.reason).toBe('no_clear_signal');
+  });
+
+  it('零离开 + focus=5 + 趋势上扬 → longer，建议 35 分钟', () => {
+    const session = makeSession({
+      interruptions: 0,
+      interruptionEvents: [],
+      postAssessment: { mood: 5, focus: 5 },
+    });
+    const hint = suggestNextRound(session, '趋势：最近4次，情绪回升，专注提升');
+    expect(hint.kind).toBe('longer');
+    expect(hint.targetWorkMin).toBe(35);
+    expect(hint.reason).toBe('strong_and_rising');
+  });
+
+  it('零离开 + focus=5 但趋势不上扬 → 不触发 longer', () => {
+    const session = makeSession({
+      interruptions: 0,
+      interruptionEvents: [],
+      postAssessment: { mood: 5, focus: 5 },
+    });
+    const hint = suggestNextRound(session, '趋势：最近4次，情绪平稳，专注稳定');
+    expect(hint.kind).not.toBe('longer');
   });
 
   it('接受 userPattern 参数但不影响判断（MVP 预留）', () => {

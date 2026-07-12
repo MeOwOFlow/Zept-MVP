@@ -162,9 +162,12 @@ export async function generateInsight(
 
       if (result.success) {
         const filtered = filterBlacklist(result.text);
+        // 校验完整资源名称的两个关键 token，避免 LLM 只输出"12356"前缀绕过校验
+        // 不依赖空格，兼容"12356心理援助热线"和"12356 心理援助热线"两种写法
         const hasResources =
           filtered.text.includes(CARE_GATE_RESOURCES.counseling) &&
-          filtered.text.includes(CARE_GATE_RESOURCES.hotline.replace(/ .*/, ''));
+          filtered.text.includes('12356') &&
+          filtered.text.includes('心理援助热线');
         if (filtered.clean && hasResources) {
           const insight: Insight = {
             id: makeInsightId(),

@@ -40,14 +40,15 @@ function statusForMode(mode: PomodoroState['mode']): SessionStatus {
 }
 
 // ---------- localStorage 持久化 ----------
-// 只持久化运行态数据，isRunning 恢复为 false（安全默认，刷新后变 paused）
+// 持久化运行态数据，含 isRunning，刷新后自动恢复运行（interval 由 Session.tsx effect 重启）
 const STORAGE_KEY = STORAGE_KEYS.SESSION_STATE;
 
 interface PersistedState {
   currentSession: SessionRecord;
-  pomodoroState: PomodoroState;
+  pomodoroState: PomodoroState | null;
   remainingSec: number;
   interruptions: number;
+  isRunning: boolean;
 }
 
 function loadPersistedState(): PersistedState | null {
@@ -80,10 +81,11 @@ function savePersistedState(state: PersistedState | null): void {
 }
 
 function getPersistableState(): PersistedState | null {
-  const { currentSession, pomodoroState, remainingSec, interruptions } = useSessionStore.getState();
-  if (!currentSession || !pomodoroState) return null;
+  const { currentSession, pomodoroState, remainingSec, interruptions, isRunning } = useSessionStore.getState();
+  if (!currentSession) return null;
   if (currentSession.status === 'completed' || currentSession.status === 'abandoned') return null;
-  return { currentSession, pomodoroState, remainingSec, interruptions };
+  // 允许自由模式（pomodoroState=null）持久化，否则刷新会丢失自由专注会话
+  return { currentSession, pomodoroState, remainingSec, interruptions, isRunning };
 }
 
 const PERSIST_INTERVAL_MS = 5000;
@@ -94,7 +96,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   currentSession: initialState?.currentSession ?? null,
   pomodoroState: initialState?.pomodoroState ?? null,
   remainingSec: initialState?.remainingSec ?? 0,
-  isRunning: false,
+  isRunning: initialState?.isRunning ?? false,
   interruptions: initialState?.interruptions ?? 0,
   lastPersistedAt: 0,
   soundEnabled: true,
