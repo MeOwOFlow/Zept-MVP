@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { UserProfile } from '../src/types/user';
+import { STORAGE_KEYS } from '../src/lib/storage-keys';
 
 const { profileMock, loadProfileMock } = vi.hoisted(() => ({
   profileMock: { current: null as UserProfile | null },
@@ -58,7 +59,7 @@ describe('App routing', () => {
   });
 
   it('未 onboarded 但已看过 welcome 时 / 重定向到 /onboarding', async () => {
-    localStorage.setItem('zept_welcome_seen', '1');
+    localStorage.setItem(STORAGE_KEYS.WELCOME_SEEN, '1');
     renderAt('/');
     await waitFor(() => {
       expect(screen.getByTestId('onboarding-page')).toBeInTheDocument();

@@ -31,3 +31,24 @@ export interface UserProfile {
   soundEnabled: boolean;      // 番茄钟阶段切换提示音，默认 true
   vibrationEnabled: boolean;  // 振动反馈（Android），默认 true
 }
+
+/**
+ * 用户专注习惯画像（v0.2 复赛预留，MVP 不实现积累）。
+ * 用于跨会话习惯级洞察，让 LLM 看见用户的长期节奏。
+ *
+ * 积累方式：每日首次洞察生成时异步重算（基于最近 30 天会话）。
+ * 存储：IndexedDB user_patterns 表。
+ * LLM 注入：summarizePattern(pattern) 翻译成自然语言摘要后传入 prompt。
+ */
+export interface UserProfilePattern {
+  typicalWorkDurationMin: number;     // 习惯性专注时长（P50）
+  typicalBreakMin: number;
+  peakHours: number[];                 // 高效时段（基于 startHour × focus 分布）
+  moodBaseline: number;               // 情绪/专注/离开基线
+  focusBaseline: number;
+  leaveRatePerSession: number;
+  preferredMode: 'pomodoro' | 'free';
+  usefulTopics: string[];             // 被标 useful 的洞察主题聚类
+  version: number;                    // 画像版本（用于失效判断）
+  updatedAt: number;
+}

@@ -99,6 +99,7 @@
   height: 20px;
   font-size: 18px;
   font-weight: 500;
+  line-height: 1;
   border-radius: 50%;
   opacity: 1;
   transition: background-color var(--duration-short) var(--easing-standard);

@@ -112,7 +112,20 @@ export default function Onboarding() {
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustom(); } }}
         />
         {distractions.length > 0 && (
-          <p className="zept-onboarding__selected">已选：{distractions.join('、')}</p>
+          <div className="zept-onboarding__chips">
+            {distractions.map((d) => (
+              <button
+                key={d}
+                type="button"
+                className="zept-chip zept-chip--active zept-chip--removable"
+                onClick={() => toggleDistraction(d)}
+                aria-label={`移除 ${d}`}
+              >
+                {d}
+                <span className="zept-chip__remove" aria-hidden="true">&times;</span>
+              </button>
+            ))}
+          </div>
         )}
       </Card>
 

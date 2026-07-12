@@ -15,6 +15,17 @@ const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
+/**
+ * 下一轮建议的结构化提示（由 src/lib/suggestion.ts 规则层判断后传入）。
+ * LLM 只负责润色措辞，不做综合诊断。
+ */
+export interface NextRoundHintParam {
+  kind: 'shorter' | 'keep' | 'longer' | 'break_more' | null;
+  reason: string;
+  targetWorkMin?: number;
+  targetBreakMin?: number;
+}
+
 export interface PromptParams {
   goal: string;
   daysToExam: number;
@@ -24,6 +35,10 @@ export interface PromptParams {
   mood: number;
   careMode?: boolean;
   replyStyle?: 'rational' | 'emotional' | 'balanced';
+  /** 规则层判断出的下一轮建议（mood > 2 时传入） */
+  nextRoundHint?: NextRoundHintParam;
+  /** 用户长期画像摘要（v0.2 复赛预留，MVP 不传） */
+  userPattern?: string;
 }
 
 function buildCarePrompt(): string {
@@ -60,7 +75,7 @@ function buildNormalPrompt(p: PromptParams): string {
   const style = p.replyStyle ?? 'balanced';
   const structure = REPLY_STYLE_STRUCTURES[style] ?? REPLY_STYLE_STRUCTURES.balanced;
   const tone = REPLY_STYLE_TONES[style] ?? REPLY_STYLE_TONES.balanced;
-  return [
+  const lines: string[] = [
     '你是「凝时」，凝视用户每一刻专注的陪伴者，不是诊疗者。',
     structure,
     `语气：${tone}`,
@@ -70,13 +85,30 @@ function buildNormalPrompt(p: PromptParams): string {
     `最近 3 次会话：${p.recentSummary}。`,
     `最近被标「有用」的洞察：${p.usefulSummary}。`,
     `本次会话：${p.curSummary}。`,
+  ];
+  if (p.userPattern) {
+    lines.push(`用户长期画像：${p.userPattern}。`);
+  }
+  lines.push(
     '',
     '请生成一句 ≤50 字的洞察，遵守：',
     '① 用符合上述结构的表达方式回应',
     '② 严禁诊断/医疗/处方词汇',
     '③ 情绪 ≤2 时引导资源出口（校心理咨询/12356）',
     '④ 若用户自述过容易分心的事项，且本次专注未被其带走，可自然肯定这一下（如"手机没把你带走"）；若被带走，不要指责，只轻声提醒下次可以试着先放下它',
-  ].join('\n');
+    '⑤ 若"最近 3 次会话"中出现的趋势摘要显示情绪或专注走低，可温和提及（如"最近好像累了一些"）；若回升，可自然肯定（如"这阵子慢慢稳住了"）。趋势只是背景，不必展开分析',
+    '⑥ 若收到下一轮建议（kind 非 null），可在结尾自然带一句参数建议（如"下一轮可以试试 20 分钟"）；kind=null 时不强给。建议语气克制，像朋友随口一提，不说教',
+  );
+  if (p.nextRoundHint && p.nextRoundHint.kind) {
+    const h = p.nextRoundHint;
+    let param = '';
+    if (h.kind === 'shorter' && h.targetWorkMin) param = `建议缩短到约 ${h.targetWorkMin} 分钟`;
+    else if (h.kind === 'keep') param = '建议保持当前节奏';
+    else if (h.kind === 'longer' && h.targetWorkMin) param = `建议延长到约 ${h.targetWorkMin} 分钟`;
+    else if (h.kind === 'break_more' && h.targetBreakMin) param = `建议下一轮休息约 ${h.targetBreakMin} 分钟`;
+    lines.push(`（本次规则层判断：${param}，理由 ${h.reason}。请自然融入，不要照搬原话）`);
+  }
+  return lines.join('\n');
 }
 
 export function buildPrompt(p: PromptParams): string {

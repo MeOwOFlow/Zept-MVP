@@ -4,6 +4,7 @@ import { getAllSessions, getAllInsights, updateInsightFeedback } from '../lib/db
 import { formatDuration } from '../lib/session';
 import { computeStreakDays, computeTotalDurationSec, formatTotalDurationMin, streakLabel } from '../lib/streak';
 import { exportInsightImage } from '../lib/exportImage';
+import { STORAGE_KEYS } from '../lib/storage-keys';
 import {
   generateDailyReport,
   generateWeeklyReport,
@@ -21,7 +22,7 @@ import '../styles/insights.css';
 interface Item { session: SessionRecord; insight: Insight | null; }
 
 // PWA 持久化：localStorage；RN 迁移时替换为 AsyncStorage
-const REPORT_STORAGE_PREFIX = 'zept-report-';
+const REPORT_STORAGE_PREFIX = STORAGE_KEYS.REPORT_PREFIX;
 
 function loadReport(scope: 'daily' | 'weekly', periodKey: string): FocusReport | null {
   try {

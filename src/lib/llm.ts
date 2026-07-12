@@ -11,29 +11,21 @@ export interface LLMRequestParams {
   mood: number;
   careMode?: boolean;
   replyStyle?: 'rational' | 'emotional' | 'balanced';
+  /** 规则层判断出的下一轮建议（mood > 2 时传入） */
+  nextRoundHint?: {
+    kind: 'shorter' | 'keep' | 'longer' | 'break_more' | null;
+    reason: string;
+    targetWorkMin?: number;
+    targetBreakMin?: number;
+  };
+  /** 用户长期画像摘要（v0.2 复赛预留，MVP 不传） */
+  userPattern?: string;
 }
 
 export interface LLMResult {
   success: boolean;
   text: string;
   error?: string;
-}
-
-export async function callLLM(params: LLMRequestParams): Promise<LLMResult> {
-  try {
-    const resp = await fetch('/api/llm', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
-    });
-    const data = await resp.json();
-    if (resp.ok && typeof data.text === 'string') {
-      return { success: true, text: data.text };
-    }
-    return { success: false, text: '', error: data.error ?? `http ${resp.status}` };
-  } catch (e) {
-    return { success: false, text: '', error: e instanceof Error ? e.message : 'network error' };
-  }
 }
 
 /**
@@ -54,14 +46,12 @@ export interface ReportLLMRequestParams {
   replyStyle?: 'rational' | 'emotional' | 'balanced';
 }
 
-export async function callReportLLM(
-  params: ReportLLMRequestParams,
-): Promise<LLMResult> {
+async function postJSON<T>(endpoint: string, body: T): Promise<LLMResult> {
   try {
-    const resp = await fetch('/api/report', {
+    const resp = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
+      body: JSON.stringify(body),
     });
     const data = await resp.json();
     if (resp.ok && typeof data.text === 'string') {
@@ -71,4 +61,12 @@ export async function callReportLLM(
   } catch (e) {
     return { success: false, text: '', error: e instanceof Error ? e.message : 'network error' };
   }
+}
+
+export function callLLM(params: LLMRequestParams): Promise<LLMResult> {
+  return postJSON('/api/llm', params);
+}
+
+export function callReportLLM(params: ReportLLMRequestParams): Promise<LLMResult> {
+  return postJSON('/api/report', params);
 }

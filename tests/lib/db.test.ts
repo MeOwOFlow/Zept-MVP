@@ -8,6 +8,7 @@ import {
   clearAll,
   DATA_VERSION,
 } from '../../src/lib/db';
+import { STORAGE_KEYS } from '../../src/lib/storage-keys';
 import type { SessionRecord } from '../../src/types/session';
 
 const NOW = Date.now();
@@ -150,11 +151,11 @@ describe('checkDataVersion', () => {
     const result = await checkDataVersion();
     expect(result.migrated).toBe(true);
     expect(result.fixedCount).toBe(0);
-    expect(localStorage.getItem('zept-data-version')).toBe(String(DATA_VERSION));
+    expect(localStorage.getItem(STORAGE_KEYS.DATA_VERSION)).toBe(String(DATA_VERSION));
   });
 
   it('版本一致时跳过校验', async () => {
-    localStorage.setItem('zept-data-version', String(DATA_VERSION));
+    localStorage.setItem(STORAGE_KEYS.DATA_VERSION, String(DATA_VERSION));
     // 故意放入缺字段数据，但因为版本一致不应被修
     await db.sessions.put({ id: 'broken', startedAt: NOW } as any);
     const result = await checkDataVersion();
@@ -166,12 +167,12 @@ describe('checkDataVersion', () => {
   });
 
   it('版本升级时触发校验', async () => {
-    localStorage.setItem('zept-data-version', '0');
+    localStorage.setItem(STORAGE_KEYS.DATA_VERSION, '0');
     await db.sessions.put({ id: 'broken', startedAt: NOW, endedAt: NOW } as any);
     const result = await checkDataVersion();
     expect(result.migrated).toBe(true);
     expect(result.fixedCount).toBe(1);
-    expect(localStorage.getItem('zept-data-version')).toBe(String(DATA_VERSION));
+    expect(localStorage.getItem(STORAGE_KEYS.DATA_VERSION)).toBe(String(DATA_VERSION));
     // 数据被修复
     const fixed = await db.sessions.get('broken');
     expect(fixed?.breakMoods).toEqual([]);
@@ -180,8 +181,8 @@ describe('checkDataVersion', () => {
 
 describe('clearAll cleans data version marker', () => {
   it('clearAll 后 zept-data-version 被移除', async () => {
-    localStorage.setItem('zept-data-version', String(DATA_VERSION));
+    localStorage.setItem(STORAGE_KEYS.DATA_VERSION, String(DATA_VERSION));
     await clearAll();
-    expect(localStorage.getItem('zept-data-version')).toBeNull();
+    expect(localStorage.getItem(STORAGE_KEYS.DATA_VERSION)).toBeNull();
   });
 });

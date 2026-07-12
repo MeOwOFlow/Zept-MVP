@@ -76,6 +76,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   },
 
   resetProfile: () => {
+    applyTheme('auto');
     set({ profile: null });
   },
 }));
